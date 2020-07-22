@@ -68,7 +68,7 @@ OzFluxProcess = function(Site){
     count = count + 1
   }
   if (count > 0){
-  message("Info! ",count," rows removed from start of record due to poor data")
+  message("Info! ",count," rows removed from start of record due to poor data.")
   }
   # Remove last row if any data is poor - repeat as necessary
   count = 0
@@ -77,14 +77,14 @@ OzFluxProcess = function(Site){
     count = count + 1
   }
   if (count > 0){
-  message("Info! ",count," rows removed from end of record due to poor data")
+  message("Info! ",count," rows removed from end of record due to poor data.")
   }
   # Perform checks on the amount of poor data remaining:
   
   # Arbitarily decide that less than 75% measured/good data for a day is 
   # worrying
   # If any QC columns are < 0.75 for a row, count the row as poor data
-  QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x < 0.75)))
+  QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x%%10 != 0)))
   # Calculate percentage of remaining data that is poor
   PercentQC = QC*100/nrow(Data)
   # If more than 5% of the dat is poor, print a warning
@@ -95,7 +95,7 @@ OzFluxProcess = function(Site){
   }
   # Check for excessive consecutive streaks of poor data
   # Find the sequences of poor/good data
-  Seq = rle(apply(Data[,QCcols],MARGIN=1,function(x) any(x < 0.75)))
+  Seq = rle(apply(Data[,QCcols],MARGIN=1,function(x) any(x%%10 != 0)))
   # Find the lengths of these sequences for the poor data
   Lengths = Seq$lengths[Seq$values==TRUE]
   # If a run of 5 or more days of poor data exists, print a warning
@@ -139,18 +139,18 @@ OzFluxProcess = function(Site){
   # Create the climate predictor matrix
   # See Model_Liu inputs for correct order
   # SWC is repeated to account for current and antecedent.
-  clim = matrix(c(Data$TA_F,
-                  Data$SW_IN_F,
-                  Data$VPD_F,
-                  Data$SWC_F_MDS_1,
-                  Data$SWC_F_MDS_1),
+  clim = matrix(c(Data$Ta,
+                  Data$Fsd,
+                  Data$VPD,
+                  Data$Sws,
+                  Data$Sws),
                 ncol = Nv)
   
   # Mean centre the climatic variables
   clim = scale(clim,scale=FALSE)
   
   # Create the NEE vector
-  NEE = Data$NEE_VUT_REF
+  NEE = Data$NEE_LL
   
   ## NDVI
   
