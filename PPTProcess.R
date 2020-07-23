@@ -29,7 +29,7 @@ PPTProcess = function(Data){
   
 
   # Extract the precipitation data from the input
-  PPT = Data[,12]
+  PPT = unname(unlist(Data[,7]))
   # Initiliase the precipitation dataframe
   ppt_multiscale = data.frame()
 

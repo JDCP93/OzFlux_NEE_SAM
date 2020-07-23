@@ -26,6 +26,8 @@ OzFluxProcess = function(Site){
   #  OUTPUTS:
   #  -
 
+  # Source the ncdf package
+  library(ncdf4)
   # Load in the OzFlux data we need:
   # Look in folder "Site_raw_data" for the data
   File = list.files("Site_raw_data",pattern = Site)
@@ -79,6 +81,8 @@ OzFluxProcess = function(Site){
   if (count > 0){
   message("Info! ",count," rows removed from end of record due to poor data.")
   }
+  
+  
   # Perform checks on the amount of poor data remaining:
   
   # Arbitarily decide that less than 75% measured/good data for a day is 
@@ -102,8 +106,30 @@ OzFluxProcess = function(Site){
   if (max(Lengths)>=5){
     message("Warning! There is a run of ",
                  max(Lengths),
-                 " consecutive days with poor data!")
+                 " consecutive half-hours with poor data!")
   }
+  
+  
+  # ############################################################################
+  # Retime data to daily
+  # ############################################################################
+  # Source required packages
+  library(lubridate)
+  library(magrittr)
+  library(tidyverse)
+  
+  # Create dataframe of daily values
+  Data_day <- Data %>%
+    mutate(TIMESTAMP=as.Date(TIMESTAMP, 
+                             format="%Y-%m-%d %H:%M:%S", 
+                             tz = ncatt_get(NCDF, 0)$time_zone)) %>%
+    group_by(TIMESTAMP) %>%               # group by the day column
+    summarise(NEE_LL=sum(NEE_LL),
+              Fsd=sum(Fsd),
+              Ta=mean(Ta),
+              VPD=mean(VPD),
+              Sws=mean(Sws),
+              Precip=sum(Precip))
   
   # ############################################################################
   # Create inputs required for modelling
@@ -132,25 +158,25 @@ OzFluxProcess = function(Site){
   # Calculate other parameters:
   
   # Number of days that antecedent conditions can be calculated for
-  Nmem = nrow(Data)-365
+  Nmem = nrow(Data_day)-365
   # Indices of days that can be modelled
-  Mem_records = 366:nrow(Data)
+  Mem_records = 366:nrow(Data_day)
   
   # Create the climate predictor matrix
   # See Model_Liu inputs for correct order
   # SWC is repeated to account for current and antecedent.
-  clim = matrix(c(Data$Ta,
-                  Data$Fsd,
-                  Data$VPD,
-                  Data$Sws,
-                  Data$Sws),
+  clim = matrix(c(Data_day$Ta,
+                  Data_day$Fsd,
+                  Data_day$VPD,
+                  Data_day$Sws,
+                  Data_day$Sws),
                 ncol = Nv)
   
   # Mean centre the climatic variables
   clim = scale(clim,scale=FALSE)
   
   # Create the NEE vector
-  NEE = Data$NEE_LL
+  NEE = Data_day$NEE_LL
   
   ## NDVI
   
@@ -163,7 +189,7 @@ OzFluxProcess = function(Site){
   # Calculate the NDVI indices
   NDVI_index = NDVIIndexProcess(NDVI)
   # Trim the NDVI indices to the dates from the FluxNet data
-  NDVI_index = NDVI_index[NDVI_index$Date %in% Data$TIMESTAMP,]
+  NDVI_index = NDVI_index[NDVI_index$Date %in% Data_day$TIMESTAMP,]
   # Trim the start of the NDVI data to match these indices
   NDVI = NDVI[-(1:NDVI_index$Index[1]),]
   # Relabel indices to begin at 1
@@ -180,7 +206,7 @@ OzFluxProcess = function(Site){
   # Source the ppt processing function
   source("PPTProcess.R")
   # Extract the ppt matrix
-  ppt_multiscale = PPTProcess(Data)
+  ppt_multiscale = PPTProcess(Data_day)
   # Mean centre ppt
   ppt_multiscale = scale(ppt_multiscale,scale=FALSE)
   # Note this gives precip values of less than 0 which is intriguing.
@@ -210,5 +236,5 @@ OzFluxProcess = function(Site){
   save(list=c(name),file=paste0(name,".Rdata"))
   
   
-  ## THESE NEED TO BE MEAN CENTRED
+##### STILL TO BE DONE - BETTER QC
 }

@@ -1,4 +1,4 @@
-NDVIProcess = function(Site){
+NDVIProcess = function(NCDF){
   
   # A function to create the NDVI vector required to run Model_Liu. The function
   # takes the raw NDVI data downloaded from the internet as a csv, and extracts
@@ -18,25 +18,17 @@ NDVIProcess = function(Site){
   # ############################################################################
   #
   # INPUTS:
-  #  - Site: A character vector with the FluxNet siteID
+  #  - NCDF: An OzFlux netcdf file for the site in question
   #  
   #  OUTPUTS:
   #  - NDVI: A dataframe consisting of the numeric NDVI values for the site as 
   #          well as year and monthspan
 
 
-  # First find site longitude and latitude from the site info csv
-  
-  # Load site info csv
-  AllInfo = read.csv("FLX_AA-Flx_BIF_DD_20200501.csv")
-  # Extract latitude and longitude
-  Sitelat = AllInfo$DATAVALUE[AllInfo$SITE_ID == Site & AllInfo$VARIABLE == "LOCATION_LAT"]
-  Sitelon = AllInfo$DATAVALUE[AllInfo$SITE_ID == Site & AllInfo$VARIABLE == "LOCATION_LONG"]
-  # Remove any levels from the values
-  Sitelat = as.numeric(as.character(Sitelat))
-  Sitelon = as.numeric(as.character(Sitelon))
-  # Delete site info csv
-  rm("AllInfo")
+  # First find site longitude and latitude from the site global attributes
+
+  Sitelat = as.numeric(ncatt_get(NCDF, 0)$latitude)
+  Sitelon = as.numeric(ncatt_get(NCDF, 0)$longitude)
   # Create NDVI vector
   
   # Source required package
