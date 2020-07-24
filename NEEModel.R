@@ -18,6 +18,7 @@
 # NEE = A vector, daily NEE values
 # NIRV = A vector, daily NIRV values
 
+
 # Varying time periods are used on the weights for the five short-term predictors: 
 #       starting the current day up to 6 days previously = 7 blocks of 1 day each,
 #       starting 7 days previously and up to 10 days previously = 2 blocks of 2 days each, 
@@ -26,7 +27,7 @@
 # block = c(1:7, rep(8:9, each = 2), rep(10, 3))
 # BlockSize = c(rep(1, 7), rep(2, 4),rep(3, 3))
 
-model{
+NEEModel <- function(){
   # Likelihood and mean model, looping over daily NEE records at this site (starting at 366 days into the record)
   for(r in 1:Nmem){ # r is the t in the supplemental material model description
     # Likelihood for daily NEE data:

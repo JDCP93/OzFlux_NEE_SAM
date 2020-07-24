@@ -179,27 +179,44 @@ OzFluxProcess = function(Site){
   NEE = Data_day$NEE_LL
   
   ## NDVI
+   
+  ## AMENDED - SAMI PROVIDED A DIFFERENT TYPE OF FORMAT - OG CODE REMAINS FOR 
+  ## FUTURE USE IF NEEDED
   
-  # Source the NDVI processing function
-  source("NDVIProcess.R")
-  # Extract raw NDVI
-  NDVI = NDVIProcess(Site)
-  # Source the NDVI indexing function
-  source("NDVIIndexProcess.R")
-  # Calculate the NDVI indices
-  NDVI_index = NDVIIndexProcess(NDVI)
-  # Trim the NDVI indices to the dates from the FluxNet data
-  NDVI_index = NDVI_index[NDVI_index$Date %in% Data_day$TIMESTAMP,]
-  # Trim the start of the NDVI data to match these indices
-  NDVI = NDVI[-(1:NDVI_index$Index[1]),]
-  # Relabel indices to begin at 1
-  NDVI_index$Index = NDVI_index$Index-NDVI_index$Index[1]+1
-  # Trim the end of the NDVI data to match these indices
-  NDVI = NDVI[-((NDVI_index$Index[nrow(NDVI_index)]+1):nrow(NDVI)),]
-  # Extract just the NDVI values 
-  NDVI = NDVI[,3]
-  # Extract just the NDVI index values
-  NDVI_index = NDVI_index[,2]
+  # # Source the NDVI processing function
+  # source("NDVIProcess.R")
+  # # Extract raw NDVI
+  # NDVI = NDVIProcess(Site)
+  # # Source the NDVI indexing function
+  # source("NDVIIndexProcess.R")
+  # # Calculate the NDVI indices
+  # NDVI_index = NDVIIndexProcess(NDVI)
+  # # Trim the NDVI indices to the dates from the FluxNet data
+  # NDVI_index = NDVI_index[NDVI_index$Date %in% Data_day$TIMESTAMP,]
+  # # Trim the start of the NDVI data to match these indices
+  # NDVI = NDVI[-(1:NDVI_index$Index[1]),]
+  # # Relabel indices to begin at 1
+  # NDVI_index$Index = NDVI_index$Index-NDVI_index$Index[1]+1
+  # # Trim the end of the NDVI data to match these indices
+  # NDVI = NDVI[-((NDVI_index$Index[nrow(NDVI_index)]+1):nrow(NDVI)),]
+  # # Extract just the NDVI values 
+  # NDVI = NDVI[,3]
+  # # Extract just the NDVI index values
+  # NDVI_index = NDVI_index[,2]
+  load("VegIndex.Rdata")
+  NIRV_df = VegIndex[VegIndex$site==Site,]
+  NIRV_df = NIRV_df[as.Date(NIRV_df$date) %in% as.Date(Data_day$TIMESTAMP),c("date","nirv_sg")]
+  NIRV_df$date = as.Date(NIRV_df$date)
+  # Check for missing data
+  for (i in Data_day$TIMESTAMP[!(Data_day$TIMESTAMP %in% NIRV_df$date)]){
+    NewDate = as.Date(i,origin="1970-01-01")
+    NewNIRV = mean(c(NIRV_df$nirv_sg[NIRV_df$date==(i-1)],NIRV_df$nirv_sg[NIRV_df$date==(i+1)]))
+    df = data.frame("date" = NewDate, "nirv_sg" = NewNIRV)
+    NIRV_df = rbind(NIRV_df,df) 
+  }
+  NIRV_df = NIRV_df[order(NIRV_df$date),]
+  
+  NIRV = NIRV_df$nirv_sg
   
   ## PPT
   
@@ -225,8 +242,7 @@ OzFluxProcess = function(Site){
                 "clim"=clim,
                 "ppt_multiscale"=ppt_multiscale,
                 "NEE"=NEE,
-                "NDVI"=NDVI,
-                "NDVI_index"=NDVI_index,
+                "NIRV"=NIRV,
                 "NblocksP" = NblocksP,
                 "block" = block,
                 "BlockSize" = BlockSize,

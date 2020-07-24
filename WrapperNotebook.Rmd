@@ -1,0 +1,73 @@
+---
+title: "OzFlux NEE SAM Modelling"
+author: "Jon Page"
+date: "24/07/2020"
+Last Updated: date()
+output: github_document
+---
+
+This notebook is to document my modelling of OzFlux sites using a replication of Liu et al's model from their 2019 paper.
+
+I have downloaded the model code from github (https://github.com/yliu11/NEE_Bayes_model, accessed 15/06/20).
+
+I need to coerce data into the required input formats and produce a wrapper script.
+
+Let's activate!
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+```
+
+## Working on Howard Springs and Sturt Plains
+
+I will first attempt to replicate the modelling at one site, Sturt Plains.
+
+```{r Site Selection, include=FALSE}
+Site = "HowardSprings"
+```
+
+I need to access the full fluxnet data for this, as the data I have from previous modelling of this site does not include SWC. Daily FluxNet data will be used.
+
+
+```{r Input Data}
+if (file.exists(paste0(Site,"_Input.Rdata"))){
+  message("Gosh! Processed daily OzFlux data already exists for ",Site)
+} else {
+  source("OzFluxProcess.R")
+  OzFluxProcess(Site)
+}
+```
+
+We have extracted the necessary data from the FluxNet and NDVI files. We can now run the model:
+
+```{r Run Model}
+
+library(R2jags)
+
+# Load the input data
+load(paste0(Site,"_Input.Rdata"))
+# Assign to standard name
+Data = eval(as.name(paste0(Site,"_Input")))
+
+   # Define the parameters for the model operation
+   # samples to be kept after burn in
+   samples = 50000
+   # iterations for burn in
+   burn = samples * 0.1 
+   # number of iterations where samplers adapt behaviour to maximise efficiency
+   nadapt = 100  
+   # The number of MCMC chains to run
+   nchains = 4 
+   # thinning rate
+   # save every thin-th iteration to reduce correlation between 
+   # consecutive values in the chain
+   thin = 10 
+   
+    # Parameters to save
+    parameters = c("NEE","muNEE")
+
+   jags = jags(model.file='Model.R', data=Data, n.chains=nchains, parameters.to.save = parameters) 
+```
+
+
