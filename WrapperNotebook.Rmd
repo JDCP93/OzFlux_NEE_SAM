@@ -39,7 +39,7 @@ if (file.exists(paste0(Site,"_Input.Rdata"))){
 }
 ```
 
-We have extracted the necessary data from the FluxNet and NDVI files. We can now run the model:
+We have extracted the necessary data from the FluxNet and NDVI files. We can now test-run the model:
 
 ```{r Run Model}
 
@@ -71,3 +71,4 @@ Data = eval(as.name(paste0(Site,"_Input")))
 ```
 
 
+This works and so we take it onto the storm servers for the greater power.
