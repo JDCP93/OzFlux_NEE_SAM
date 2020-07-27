@@ -3,27 +3,28 @@
 # in a haphazard manner
 rm(list=ls())
 # load model inputs
-load('NEE_project/inputs/US-Wkg_Input.Rdata')
+load('SturtPlains_Input.Rdata')
+load('HowardSprings_Input.Rdata')
 
-# 50000 iterations on 6 chains 
-load('results/NEE_output_site_US-Wkg_2020-07-11.rda')
+# Load Howard Springs data
+load('results/NEE_output_site_HS_2020-07-25.rda')
 # data inside is called "nee_daily"
-assign('v1',nee_daily)
+assign('HS',nee_daily)
+rm(nee_daily)
 
-
-# 75000 iterations on 3 chains 
-load('results/NEE_output_site_US-Wkg_2020-07-15.rda')
+# Load Sturt Plains data
+load('results/NEE_output_site_SP_2020-07-25.rda')
 # data inside is called "nee_daily"
-assign('v2',nee_daily)
-
+assign('SP',nee_daily)
+rm(nee_daily)
 
 
 # set version
-results = v2
 library(coda)
 
-# We want all values to be close to 1
-gelman.diag(results,multivariate=FALSE)
+# # We want all values to be close to 1
+# HS_Gelman = gelman.diag(HS,multivariate=FALSE)
+# SP_Gelman = gelman.diag(SP,multivariate=FALSE)
 
 
 library(lattice)
@@ -31,18 +32,17 @@ library(lattice)
 library(mcmcplots)
 library(superdiag)
 
-# Plots Z-score and we want all the dots to fall within the -2:2 range
-geweke.plot(results)
-
-
-
+# # Calculates Z-score and we want all the dots to fall within the -2:2 range
+# HS_Geweke = geweke.diag(HS)
+# SP_Geweke = geweke.diag(SP)
 
 
 # Summarise for other uses (means, quantiles, etc.)
-results.summary=summary(results)
-# Check which variables we tracked
-unique(substr(rownames(results.summary$statistics),1,8))
-
+HS.summary=summary(HS)
+SP.summary=summary(SP)
+# # Check which variables we tracked
+# unique(substr(rownames(HS.summary$statistics),1,8))
+# unique(substr(rownames(SP.summary$statistics),1,8))
 
 # takes 5EVER OMGOSHHHHHH
 # testing me
@@ -51,69 +51,152 @@ unique(substr(rownames(results.summary$statistics),1,8))
 
 # Check obs vs predicted
 library(ggplot2)
-NEE_pred = results.summary$statistics[substr(rownames(results.summary$statistics),1,3)=="NEE",1]
-NEE_obs = `US-Wkg_Input`$NEE[-(1:365)]
+library(gridExtra)
+HS_NEE_pred = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,3)=="NEE",1]
+HS_NEE_obs = `HowardSprings_Input`$NEE[-(1:365)]
 
-plot1 <- ggplot(data.frame(NEE_obs,NEE_pred)) +
-        geom_point(aes(NEE_obs,NEE_pred)) +
-        geom_abline(slope=1,intercept=0) +
-        xlim(-3.5,3.5) +
-        ylim(-3.5,3.5)
+SP_NEE_pred = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,3)=="NEE",1]
+SP_NEE_obs = `SturtPlains_Input`$NEE[-(1:365)]
+
+HS_ObsMod <- ggplot(data.frame(HS_NEE_obs,HS_NEE_pred)) +
+             geom_point(aes(HS_NEE_obs,HS_NEE_pred)) +
+             geom_abline(slope=1,intercept=0) 
+             #  +
+             # xlim(-3.5,3.5) +
+             # ylim(-3.5,3.5)
 
 
-plot1
+SP_ObsMod <- ggplot(data.frame(SP_NEE_obs,SP_NEE_pred)) +
+             geom_point(aes(SP_NEE_obs,SP_NEE_pred)) +
+             geom_abline(slope=1,intercept=0) 
+             #  +
+             # xlim(-3.5,3.5) +
+             # ylim(-3.5,3.5)
 
 
-# Check cumulative weights
-cumSWR = results.summary$statistics[substr(rownames(results.summary$statistics),1,13)=="cum_weightA[2",1]
-ggplot(data.frame(cumSWR)) + geom_point(aes(1:length(cumSWR),cumSWR)) + ylim(0,1)
-
-cumTair = results.summary$statistics[substr(rownames(results.summary$statistics),1,13)=="cum_weightA[1",1]
-ggplot(data.frame(cumTair)) + geom_point(aes(1:length(cumTair),cumTair)) + ylim(0,1)
-
-cumVPD = results.summary$statistics[substr(rownames(results.summary$statistics),1,13)=="cum_weightA[3",1]
-ggplot(data.frame(cumVPD)) + geom_point(aes(1:length(cumVPD),cumVPD)) + ylim(0,1)
-
-cumSWC = results.summary$statistics[substr(rownames(results.summary$statistics),1,13)=="cum_weightA[5",1]
-ggplot(data.frame(cumSWC)) + geom_point(aes(1:length(cumSWC),cumSWC)) + ylim(0,1)
-
-cumPPT = results.summary$statistics[substr(rownames(results.summary$statistics),1,12)=="cum_weightAP",1]
-ggplot(data.frame(cumPPT)) + geom_point(aes(c(0,20,29,59,119,179,269,365),cumPPT)) + ylim(0,1)
-
+grid.arrange(HS_ObsMod,SP_ObsMod)
 
 # Calculate R2
 
-summary(lm(NEE_pred ~ NEE_obs))$r.squared
+HS.SAM.R2 = summary(lm(HS_NEE_pred ~ HS_NEE_obs))$r.squared
+
+
+SP.SAM.R2 = summary(lm(SP_NEE_pred ~ SP_NEE_obs))$r.squared
+
+message("Howard Springs has R2 = ",round(HS.SAM.R2,3)," for SAM")
+message("Sturt Plains has R2 = ",round(SP.SAM.R2,3), " for SAM")
+
+
+# Check cumulative weights
+HS_cumSWR = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[2",1]
+HS_cumTair = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[1",1]
+HS_cumVPD = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[3",1]
+HS_cumSWC = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[5",1]
+HS_cumPPT = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,12)=="cum_weightAP",1]
+
+SP_cumSWR = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[2",1]
+SP_cumTair = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[1",1]
+SP_cumVPD = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[3",1]
+SP_cumSWC = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[5",1]
+SP_cumPPT = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,12)=="cum_weightAP",1]
+
+
+cumSWR = data.frame("HS" = HS_cumSWR,"SP" = SP_cumSWR)
+cumTair = data.frame("HS" = HS_cumTair,"SP" = SP_cumTair)
+cumVPD = data.frame("HS" = HS_cumVPD,"SP" = SP_cumVPD)
+cumSWC = data.frame("HS" = HS_cumSWC,"SP" = SP_cumSWC)
+cumPPT = data.frame("HS" = HS_cumPPT,"SP" = SP_cumPPT)
+
+SWRplot = ggplot(cumSWR) +
+          geom_path(aes(0:13,HS,color="HS"),size=1) +
+          geom_path(aes(0:13,SP,color="SP"),size=1) +
+          geom_hline(yintercept=0.5,linetype = "dashed") +
+          coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+          xlab("Days into Past") +
+          ylab("Cumulative Weight") +
+          theme_bw() +
+          guides(color = "none") +
+          ggtitle("SWR")
+
+Tairplot = ggplot(cumTair) +
+            geom_path(aes(0:13,HS,color="HS"),size=1) +
+            geom_path(aes(0:13,SP,color="SP"),size=1) +
+            geom_hline(yintercept=0.5,linetype = "dashed") +
+            coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+            xlab("Days into Past") +
+            ylab("Cumulative Weight") +
+            theme_bw() +
+            guides(color = "none") +
+            ggtitle("Tair")
+
+VPDplot = ggplot(cumVPD) +
+          geom_path(aes(0:13,HS,color="HS"),size=1) +
+          geom_path(aes(0:13,SP,color="SP"),size=1) +
+          geom_hline(yintercept=0.5,linetype = "dashed") +
+          coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+          xlab("Days into Past") +
+          ylab("Cumulative Weight") +
+          theme_bw() +
+          guides(color = "none") +
+          ggtitle("VPD")
+
+SWCplot = ggplot(cumSWC) +
+          geom_path(aes(0:13,HS,color="HS"),size=1) +
+          geom_path(aes(0:13,SP,color="SP"),size=1) +
+          geom_hline(yintercept=0.5,linetype = "dashed") +
+          coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+          xlab("Days into Past") +
+          ylab("Cumulative Weight") +
+          theme_bw() + 
+          guides(color = "none") +
+          ggtitle("SWC")
+
+PPTplot = ggplot(cumPPT) +
+          geom_path(aes(c(0,20,29,59,119,179,269,365),HS,color="HS"),size=1) +
+          geom_path(aes(c(0,20,29,59,119,179,269,365),SP,color="SP"),size=1) +
+          geom_hline(yintercept=0.5,linetype = "dashed") +
+          coord_cartesian(xlim = c(0, 365), ylim = c(0,1)) +
+          xlab("Days into Past") +
+          ylab("Cumulative Weight") +
+          theme_bw() +
+          theme(legend.position = "bottom") +
+          scale_color_discrete(name = "Site") +
+          ggtitle("PPT")
+
+
+grid.arrange(SWRplot,Tairplot,VPDplot,SWCplot,PPTplot,
+             widths = c(1,1,1,1),
+             heights = c(3,3,4),
+             layout_matrix = rbind(c(1,1,2,2),
+                                   c(3,3,4,4),
+                                   c(NA,5,5,NA)))
+
+
+
+
 
 
 # Calculate AR(1) process
-library(R2jags)
 
-# Create data input
-NEE.res = NEE_pred-NEE_obs
+load('NEE_AR1_output_site_HS_2020-07-27.rda')
+Nmem = HowardSprings_Input$Nmem
+HS.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:Nmem,"]", sep = '')]))$statistics[,1]
 
-Data = data.frame(NEE.res)
-# Define the parameters for the model operation
-# samples to be kept after burn in
-samples = 50000
-# iterations for burn in
-burn = samples * 0.1 
-# number of iterations where samplers adapt behaviour to maximise efficiency
-nadapt = 100  
-# The number of MCMC chains to run
-nchains = 3
-# thinning rate
-# save every thin-th iteration to reduce correlation between 
-# consecutive values in the chain
-thin = 10 
+HS.fit = lm((HS_NEE_pred[2:Nmem] - HS.res_pred) ~ HS_NEE_obs[2:Nmem])
+HS.AR1.R2 = summary(HS.fit)$r.squared
+rm(AR1.res)
 
-# Parameters to save
-parameters = c("b0","b1","sig.res","NEE.respred")
+load('NEE_AR1_output_site_SP_2020-07-27.rda')
+Nmem = SturtPlains_Input$Nmem
+SP.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:Nmem,"]", sep = '')]))$statistics[,1]
 
-jags = jags.model('AR1Model.R', data=Data, n.chains=nchains,n.adapt=nadapt) 
+SP.fit = lm((SP_NEE_pred[2:Nmem] - SP.res_pred) ~ SP_NEE_obs[2:Nmem])
+SP.AR1.R2 = summary(SP.fit)$r.squared
+rm(AR1.res)
 
-# Generate the MCMC chain (this is basically running the Bayesian analysis)
-fit = coda.samples(jags, n.iter=samples, n.burnin=burn, thin=thin,
-                   variable.names=parameters)
-# Assign the summary of the model output to a variable
-Summary = summary(fit)
+message("Howard Springs has R2 = ",round(HS.AR1.R2,3)," for AR(1)")
+message("Sturt Plains has R2 = ",round(SP.AR1.R2,3)," for AR(1)")
+
+
+message("Howard Springs has bio memory R2 improvement ",round(HS.AR1.R2-HS.SAM.R2,3))
+message("Sturt Plains has bio memory R2 improvement ",round(SP.AR1.R2-SP.SAM.R2,3))
