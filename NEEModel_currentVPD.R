@@ -27,7 +27,7 @@
 # block = c(1:7, rep(8:9, each = 2), rep(10, 3))
 # BlockSize = c(rep(1, 7), rep(2, 4),rep(3, 3))
 
-NEEModel_currentSWR <- function(){
+NEEModel_currentVPD <- function(){
   # Likelihood and mean model, looping over daily NEE records at this site (starting at 366 days into the record)
   for(r in 1:Nmem){ # r is the t in the supplemental material model description
     # Likelihood for daily NEE data:
@@ -102,7 +102,7 @@ NEEModel_currentSWR <- function(){
       deltaA[v, l] <- (v<4)*deltaXA[v, block[l]]/BlockSize[l] + (v==4)*(l==1) + 
         (v==5)*(l>1)*deltaXA[v, block[l]]/BlockSize[l]
       # weightA[v, l] <- deltaA[v, l]/sumDA[v]
-      weightA[v, l] <- (l==1)*(v==1)*0 + (l>1)*0 + (v>1)*(v<5)*(l==1)*1 + (v==5)*0#### SET SWR to 0 and rest to current only
+      weightA[v, l] <- (l==1)*(v<3)*1 + (l==1)*(v>3)*(v<5)*1 + (l>1)*0 + (v==3)*0 #### SET ALL VPD to 0 and remainder to current only
       # Compute the cumulative weights:
       cum_weightA[v, l] <- sum(weightA[v, 1:l])
     }
