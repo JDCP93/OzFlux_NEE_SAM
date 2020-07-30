@@ -178,19 +178,19 @@ grid.arrange(SWRplot,Tairplot,VPDplot,SWCplot,PPTplot,
 
 # Calculate AR(1) process
 
-load('NEE_AR1_output_site_HS_2020-07-27.rda')
-Nmem = HowardSprings_Input$Nmem
-HS.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:Nmem,"]", sep = '')]))$statistics[,1]
+load('results/NEE_AR1_output_site_HS_2020-07-27.rda')
+HS.Nmem = HowardSprings_Input$Nmem
+HS.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:HS.Nmem,"]", sep = '')]))$statistics[,1]
 
-HS.fit = lm((HS_NEE_pred[2:Nmem] - HS.res_pred) ~ HS_NEE_obs[2:Nmem])
+HS.fit = lm((HS_NEE_pred[2:HS.Nmem] - HS.res_pred) ~ HS_NEE_obs[2:HS.Nmem])
 HS.AR1.R2 = summary(HS.fit)$r.squared
 rm(AR1.res)
 
-load('NEE_AR1_output_site_SP_2020-07-27.rda')
-Nmem = SturtPlains_Input$Nmem
-SP.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:Nmem,"]", sep = '')]))$statistics[,1]
+load('results/NEE_AR1_output_site_SP_2020-07-27.rda')
+SP.Nmem = SturtPlains_Input$Nmem
+SP.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:SP.Nmem,"]", sep = '')]))$statistics[,1]
 
-SP.fit = lm((SP_NEE_pred[2:Nmem] - SP.res_pred) ~ SP_NEE_obs[2:Nmem])
+SP.fit = lm((SP_NEE_pred[2:SP.Nmem] - SP.res_pred) ~ SP_NEE_obs[2:SP.Nmem])
 SP.AR1.R2 = summary(SP.fit)$r.squared
 rm(AR1.res)
 
@@ -200,3 +200,22 @@ message("Sturt Plains has R2 = ",round(SP.AR1.R2,3)," for AR(1)")
 
 message("Howard Springs has bio memory R2 improvement ",round(HS.AR1.R2-HS.SAM.R2,3))
 message("Sturt Plains has bio memory R2 improvement ",round(SP.AR1.R2-SP.SAM.R2,3))
+
+
+
+
+# Calculate current climate impact only
+
+load('results/NEE_current_output_site_SP_2020-07-28.rda')
+# data inside is called "nee_daily"
+assign('SP.cur',nee_daily)
+rm(nee_daily)
+SP_NEE_cur = summary(window(SP.cur[,paste("NEE_pred[", 1:SP.Nmem,"]", sep = '')]))$statistics[,1]
+
+SP.fit = lm(SP_NEE_cur ~ SP_NEE_obs)
+SP.CUR.R2 = summary(SP.fit)$r.squared
+
+
+message("Sturt Plains has R2 = ",round(SP.CUR.R2,3)," for current climate only")
+
+message("Sturt Plains has enviro memory R2 improvement ",round(SP.SAM.R2-SP.CUR.R2,3))
