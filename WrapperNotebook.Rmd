@@ -72,3 +72,28 @@ Data = eval(as.name(paste0(Site,"_Input")))
 
 
 This works and so we take it onto the storm servers for the greater power.
+
+## NIRV or NDVI?
+
+The first model runs were performed using NIRV data. This has a much smaller range than NDVI but correlates well. The SAM and AR(1) models produce similar R2 values for HS and SP as those reported in Yao's paper. However, the current-only model has much higher R2 than Yao found. I have not yet identified why this is, but have become intrigued by the Veg Index used and its implications.
+
+I have rerun the gap-filling from Sami, but this time for NDVI. Note that both NIRV and NDVI have exactly the same gaps in the data.
+
+We are also gap-filling 40% of the data!!!! This seems excessive but may not be. The longest run of missing data is 73 days, with 1237 gaps. The median is 3 days and the mean is 4.9 days. The mean run of data is 7.1 days and the median is 2. 
+
+```{r NDVI vs NIRV and gapfilling}
+load("VegIndex_NDVI.Rdata")
+NDVI = VegIndex
+load("VegIndex.Rdata")
+NIRV = VegIndex
+
+ndvi.na = rle(is.na(NDVI$ndvi))
+max(ndvi.na$lengths[ndvi.na$values==TRUE])
+
+nirv.na = rle(is.na(NIRV$nirv))
+max(nirv.na$lengths[nirv.na$values==TRUE])
+
+sum(is.na(NDVI$ndvi))/length(NDVI$ndvi)
+```
+
+I will rerun the model with this data instead of the NIRV data and see if there is any difference in the model results.
