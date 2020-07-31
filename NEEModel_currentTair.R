@@ -40,7 +40,7 @@ NEEModel_currentTair <- function(){
     
     # phi: the mixture function for growing-season vs non-growing season effects, 
     # which changes over time depending on NIRV value; see below for more details
-    phi[r] <- (1 + phi0 * (NIRV[Mem_records[r]] - 1)) * NIRV[Mem_records[r]] 
+    phi[r] <- (1 + phi0 * (NDVI[Mem_records[r]] - 1)) * NDVI[Mem_records[r]] 
     
     # Compute the effectClim 
     for(i in 1:Ns){
