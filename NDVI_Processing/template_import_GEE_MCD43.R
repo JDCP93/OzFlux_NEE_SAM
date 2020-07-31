@@ -89,5 +89,8 @@ dat %>% as_tibble() %>%
 
 
 VegIndex = dat
+VegIndex$site[VegIndex$site=="Howard Springs"] = "HowardSprings"
+VegIndex$site[VegIndex$site=="Sturt Plains"] = "SturtPlains"
+
 
 save(VegIndex,file = "VegIndex_NDVI.Rdata")
