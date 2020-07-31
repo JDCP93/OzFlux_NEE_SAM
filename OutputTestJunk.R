@@ -3,8 +3,8 @@
 # in a haphazard manner
 rm(list=ls())
 # load model inputs
-load('SturtPlains_Input.Rdata')
-load('HowardSprings_Input.Rdata')
+load('SturtPlains_Input_NIRV.Rdata')
+load('HowardSprings_Input_NIRV.Rdata')
 
 # Load Howard Springs data
 load('results/NEE_output_site_HS_2020-07-25.rda')
@@ -32,10 +32,17 @@ library(lattice)
 library(mcmcplots)
 library(superdiag)
 
+source("DBDA2E-utilities.R")
 # # Calculates Z-score and we want all the dots to fall within the -2:2 range
 # HS_Geweke = geweke.diag(HS)
 # SP_Geweke = geweke.diag(SP)
+# 
+HS_Geweke = geweke.plot(HS)
+SP_Geweke = geweke.plot(SP)
 
+# Use Kruschke's diag function
+# diagMCMC(codaObject = HS, parName = "weightA[1,1]")
+# diagMCMC(codaObject = SP, parName = "weightA[1,1]")
 
 # Summarise for other uses (means, quantiles, etc.)
 HS.summary=summary(HS)
@@ -224,8 +231,37 @@ SP.CUR.R2 = summary(SP.fit)$r.squared
 HS.fit = lm(HS_NEE_cur ~ HS_NEE_obs)
 HS.CUR.R2 = summary(HS.fit)$r.squared
 
+message("Howard Springs has R2 = ",round(HS.CUR.R2,3)," for current climate only")
 message("Sturt Plains has R2 = ",round(SP.CUR.R2,3)," for current climate only")
+
+message("Howard Springs has enviro memory R2 improvement ",round(HS.SAM.R2-HS.CUR.R2,3))
 message("Sturt Plains has enviro memory R2 improvement ",round(SP.SAM.R2-SP.CUR.R2,3))
 
-message("Howard Springs has R2 = ",round(HS.CUR.R2,3)," for current climate only")
-message("Howard Springs has enviro memory R2 improvement ",round(HS.SAM.R2-HS.CUR.R2,3))
+
+
+
+# Calculate current without SWR climate impact
+
+# load('results/NEE_currentSWR_output_site_SP_2020-07-28.rda')
+# # data inside is called "nee_daily"
+# assign('SP.curSWR',nee_daily)
+# rm(nee_daily)
+
+load('results/NEE_currentSWR_output_site_HS_2020-07-31.rda')
+# data inside is called "nee_daily"
+assign('HS.curSWR',nee_daily)
+rm(nee_daily)
+
+# SP_NEE_curSWR = summary(window(SP.curSWR[,paste("NEE_pred[", 1:SP.Nmem,"]", sep = '')]))$statistics[,1]
+HS_NEE_curSWR = summary(window(HS.curSWR[,paste("NEE_pred[", 1:HS.Nmem,"]", sep = '')]))$statistics[,1]
+
+# SP.fit = lm(SP_NEE_curSWR ~ SP_NEE_obs)
+# SP.CURSWR.R2 = summary(SP.fit)$r.squared
+HS.fit = lm(HS_NEE_curSWR ~ HS_NEE_obs)
+HS.CURSWR.R2 = summary(HS.fit)$r.squared
+
+message("Howard Springs has R2 = ",round(HS.CURSWR.R2,3)," for current climate only")
+# message("Sturt Plains has R2 = ",round(SP.CURSWR.R2,3)," for current climate only")
+
+message("Howard Springs has SWR memory R2 improvement ",round(HS.CUR.R2-HS.CURSWR.R2,3))
+# message("Sturt Plains has SWR memory R2 improvement ",round(SP.CUR.R2-SP.CURSWR.R2,3))
