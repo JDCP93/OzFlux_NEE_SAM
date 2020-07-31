@@ -67,7 +67,7 @@ message("Update the model at ",Sys.time())
 parUpdate(cl, "par_nee_model", n.iter=10000)
 
 
-samp_iter <- 50000
+samp_iter <- 100000
 message("Start the coda sampling at ",Sys.time())
 nee_daily <- parCodaSamples(cl, "par_nee_model", variable.names = nee_monitor_vars, n.iter = samp_iter, thin = 50)
 message("Save model output at ",Sys.time())
