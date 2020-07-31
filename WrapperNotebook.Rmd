@@ -41,7 +41,7 @@ if (file.exists(paste0(Site,"_Input_NDVI.Rdata"))){
 
 We have extracted the necessary data from the FluxNet and NDVI files. We can now test-run the model:
 
-```{r Run Model}
+```{r Run Model, eval = FALSE}
 
 library(R2jags)
 
@@ -97,3 +97,15 @@ sum(is.na(NDVI$ndvi))/length(NDVI$ndvi)
 ```
 
 I will rerun the model with this data instead of the NIRV data and see if there is any difference in the model results.
+
+## Identified Issues
+
+I was using the daily sums of NEE and SWR - these have been changed to mean.
+
+Soil moisture values are also interesting and quite different. Sturt Plains in particular has some problematic values in the later years.
+
+The time windows are also different between my work and Yao's.
+
+| | Yao | Me |
+| HS | 24/07/01 - 31/12/14 | 12/03/02 - 08/10/18 |
+| SP | 14/08/08 - 31/12/14 | 28/08/08 - 13/09/18 |
