@@ -46,7 +46,7 @@ source('NEEModel_currentSWR.R')
 #############  END oF RUN CONFIGURAT #################
 
 # prepare site-level input data from raw data ------
-load('./SturtPlains_Input.Rdata') # change these to functions
+load('./SturtPlains_Input_NDVI.Rdata') # change these to functions
 attach(`SturtPlains_Input`)
 
 ### # prepare inits ------
@@ -62,7 +62,7 @@ message("Begin model run at ",Sys.time())
 # run model ---------------- # ADD SITE ID HERE!
 message("Create the model at ",Sys.time())
 parJagsModel(cl, name = 'par_nee_model', file = NEEModel_currentSWR, data = `SturtPlains_Input`,
-             n.chains = 3, n.adapt = 5000, quiet=FALSE)
+             n.chains = 6, n.adapt = 5000, quiet=FALSE)
 message("Update the model at ",Sys.time())
 parUpdate(cl, "par_nee_model", n.iter=10000)
 
