@@ -103,12 +103,13 @@ OzFluxProcess = function(Site){
   # Find the lengths of these sequences for the poor data
   Lengths = Seq$lengths[Seq$values==TRUE]
   # If a run of 5 or more days of poor data exists, print a warning
+  if (length(Lengths)>0){
   if (max(Lengths)>=5){
     message("Warning! There is a run of ",
                  max(Lengths),
                  " consecutive half-hours with poor data!")
   }
-  
+  }
   
   # ############################################################################
   # Retime data to daily
@@ -124,8 +125,8 @@ OzFluxProcess = function(Site){
                              format="%Y-%m-%d %H:%M:%S", 
                              tz = ncatt_get(NCDF, 0)$time_zone)) %>%
     group_by(TIMESTAMP) %>%               # group by the day column
-    summarise(NEE_LL=sum(NEE_LL),
-              Fsd=sum(Fsd),
+    summarise(NEE_LL=mean(NEE_LL),
+              Fsd=mean(Fsd),
               Ta=mean(Ta),
               VPD=mean(VPD),
               Sws=mean(Sws),
