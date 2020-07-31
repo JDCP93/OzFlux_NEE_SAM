@@ -46,7 +46,7 @@ source('NEEModel.R')
 #############  END oF RUN CONFIGURAT #################
 
 # prepare site-level input data from raw data ------
-load('./SturtPlains_Input.Rdata') # change these to functions
+load('./SturtPlains_Input_NDVI.Rdata') # change these to functions
 attach(`SturtPlains_Input`)
 
 ### # prepare inits ------
@@ -54,7 +54,7 @@ attach(`SturtPlains_Input`)
 ### if(load_inits == T) nee_inits <- Inits_Upd_ag(nee_daily)
 
 # parallelize using dclone ------
-cl <- makeCluster(6, type = "SOCK")
+cl <- makeCluster(3, type = "SOCK")
 parLoadModule(cl, "glm")
 parLoadModule(cl, 'lecuyer')
 parLoadModule(cl, 'dic')
