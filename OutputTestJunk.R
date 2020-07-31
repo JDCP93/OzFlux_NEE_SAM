@@ -210,12 +210,22 @@ load('results/NEE_current_output_site_SP_2020-07-28.rda')
 # data inside is called "nee_daily"
 assign('SP.cur',nee_daily)
 rm(nee_daily)
+
+load('results/NEE_current_output_site_HS_2020-07-30.rda')
+# data inside is called "nee_daily"
+assign('HS.cur',nee_daily)
+rm(nee_daily)
+
 SP_NEE_cur = summary(window(SP.cur[,paste("NEE_pred[", 1:SP.Nmem,"]", sep = '')]))$statistics[,1]
+HS_NEE_cur = summary(window(HS.cur[,paste("NEE_pred[", 1:HS.Nmem,"]", sep = '')]))$statistics[,1]
 
 SP.fit = lm(SP_NEE_cur ~ SP_NEE_obs)
 SP.CUR.R2 = summary(SP.fit)$r.squared
-
+HS.fit = lm(HS_NEE_cur ~ HS_NEE_obs)
+HS.CUR.R2 = summary(HS.fit)$r.squared
 
 message("Sturt Plains has R2 = ",round(SP.CUR.R2,3)," for current climate only")
-
 message("Sturt Plains has enviro memory R2 improvement ",round(SP.SAM.R2-SP.CUR.R2,3))
+
+message("Howard Springs has R2 = ",round(HS.CUR.R2,3)," for current climate only")
+message("Howard Springs has enviro memory R2 improvement ",round(HS.SAM.R2-HS.CUR.R2,3))
