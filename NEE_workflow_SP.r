@@ -54,7 +54,7 @@ attach(`SturtPlains_Input`)
 ### if(load_inits == T) nee_inits <- Inits_Upd_ag(nee_daily)
 
 # parallelize using dclone ------
-cl <- makeCluster(3, type = "SOCK")
+cl <- makeCluster(6, type = "SOCK")
 parLoadModule(cl, "glm")
 parLoadModule(cl, 'lecuyer')
 parLoadModule(cl, 'dic')
@@ -62,12 +62,12 @@ message("Begin model run at ",Sys.time())
 # run model ---------------- # ADD SITE ID HERE!
 message("Create the model at ",Sys.time())
 parJagsModel(cl, name = 'par_nee_model', file = NEEModel, data = `SturtPlains_Input`,
-             n.chains = 3, n.adapt = 5000, quiet=FALSE)
+             n.chains = 6, n.adapt = 5000, quiet=FALSE)
 message("Update the model at ",Sys.time())
 parUpdate(cl, "par_nee_model", n.iter=10000)
 
 
-samp_iter <- 100000
+samp_iter <- 75000
 message("Start the coda sampling at ",Sys.time())
 nee_daily <- parCodaSamples(cl, "par_nee_model", variable.names = nee_monitor_vars, n.iter = samp_iter, thin = 50)
 message("Save model output at ",Sys.time())

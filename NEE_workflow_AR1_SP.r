@@ -43,12 +43,12 @@ source('AR1Model.R')
 
 #############  END oF RUN CONFIGURAT #################
 # prepare site-level input data from raw data ------
-load('./SturtPlains_Input.Rdata') # change these to functions
+load('./SturtPlains_Input_NDVI.Rdata') # change these to functions
 attach(`SturtPlains_Input`)
 
 
 # Load Howard Springs data
-load('results/NEE_output_site_SP_2020-07-25.rda')
+load('results/NEE_output_site_SP_2020-08-01.rda')
 # data inside is called "nee_daily"
 assign('SP',nee_daily)
 rm(nee_daily)
@@ -65,16 +65,16 @@ Nmem = SturtPlains_Input$Nmem
 message("Begin model run at ",Sys.time())
 
 # parallelize using dclone ------
-cl <- makeCluster(3, type = "SOCK")
+cl <- makeCluster(6, type = "SOCK")
 parLoadModule(cl, "glm")
 
 AR1.res <- jags.parfit(cl, 
                        list('NEE.res' = NEE.res, 'Nmem' = Nmem), 
                        nee_monitor_vars, 
-                       AR1Model, n.chains = 3, 
+                       AR1Model, n.chains = 6, 
                        n.adapt = 5000, 
                        n.update = 10000, 
-                       n.iter = 50000, 
+                       n.iter = 75000, 
                        thin = 10)
 
 message("Save model output at ",Sys.time())
