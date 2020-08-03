@@ -3,17 +3,17 @@
 # in a haphazard manner
 rm(list=ls())
 # load model inputs
-load('SturtPlains_Input_NIRV.Rdata')
-load('HowardSprings_Input_NIRV.Rdata')
+load('SturtPlains_Input_NDVI.Rdata')
+load('HowardSprings_Input_NDVI.Rdata')
 
 # Load Howard Springs data
-load('results/NIRV&PoorESS/NEE_output_site_HS_2020-07-25.rda')
+load('results/NEE_output_site_HS_2020-08-02.rda')
 # data inside is called "nee_daily"
 assign('HS',nee_daily)
 rm(nee_daily)
 
 # Load Sturt Plains data
-load('results/NIRV&PoorESS/NEE_output_site_SP_2020-07-25.rda')
+load('results/NEE_output_site_SP_2020-08-01.rda')
 # data inside is called "nee_daily"
 assign('SP',nee_daily)
 rm(nee_daily)
@@ -23,8 +23,12 @@ rm(nee_daily)
 library(coda)
 
 # # We want all values to be close to 1
-# HS_Gelman = gelman.diag(HS,multivariate=FALSE)
-# SP_Gelman = gelman.diag(SP,multivariate=FALSE)
+HS_Gelman = gelman.diag(HS,multivariate=FALSE)
+SP_Gelman = gelman.diag(SP,multivariate=FALSE)
+
+# Check effective sample size
+mean(tail(effectiveSize(HS),300))
+mean(tail(effectiveSize(SP),300))
 
 
 library(lattice)
@@ -41,8 +45,8 @@ source("DBDA2E-utilities.R")
 #SP_Geweke = geweke.plot(SP)
 
 # Use Kruschke's diag function
-# diagMCMC(codaObject = HS, parName = "weightA[1,1]")
-# diagMCMC(codaObject = SP, parName = "weightA[1,1]")
+diagMCMC(codaObject = HS, parName = "weightA[1,1]")
+diagMCMC(codaObject = SP, parName = "weightA[1,1]")
 
 # Summarise for other uses (means, quantiles, etc.)
 HS.summary=summary(HS)
