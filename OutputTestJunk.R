@@ -45,8 +45,20 @@ source("DBDA2E-utilities.R")
 #SP_Geweke = geweke.plot(SP)
 
 # Use Kruschke's diag function
-diagMCMC(codaObject = HS, parName = "weightA[1,1]")
-diagMCMC(codaObject = SP, parName = "weightA[1,1]")
+
+Model = SP
+for (i in varnames(Model)[-grep(varnames(Model),pattern="NEE")]){
+  
+  diagMCMC(Model,i)
+  print(i)
+  question1 <- readline("Next plot? (Y/N)")
+  
+  if(regexpr(question1, 'n', ignore.case = TRUE) == 1){
+    break
+  } else {
+    next  
+  }
+}
 
 # Summarise for other uses (means, quantiles, etc.)
 HS.summary=summary(HS)
@@ -217,7 +229,7 @@ message("Sturt Plains has bio memory R2 improvement ",round(SP.AR1.R2-SP.SAM.R2,
 
 # Calculate current climate impact only
 
-load('results/NIRV&PoorESS/NEE_current_output_site_SP_2020-07-28.rda')
+load('results/NEE_current_output_site_SP_2020-08-04.rda')
 # data inside is called "nee_daily"
 assign('SP.cur',nee_daily)
 rm(nee_daily)
