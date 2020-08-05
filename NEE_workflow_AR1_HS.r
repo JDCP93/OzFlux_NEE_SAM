@@ -75,7 +75,7 @@ AR1.res <- jags.parfit(cl,
                        n.adapt = 5000, 
                        n.update = 10000, 
                        n.iter = 75000, 
-                       thin = 10)
+                       thin = 20)
 
 message("Save model output at ",Sys.time())
 save(AR1.res, file=paste('NEE_AR1_output_site_HS_', Sys.Date(),'.rda', sep = ''))

@@ -13,7 +13,7 @@ assign('HS',nee_daily)
 rm(nee_daily)
 
 # Load Sturt Plains data
-load('results/NEE_output_site_SP_2020-08-01.rda')
+load('results/NEE_output_site_SP_2020-08-04.rda')
 # data inside is called "nee_daily"
 assign('SP',nee_daily)
 rm(nee_daily)
@@ -201,7 +201,7 @@ grid.arrange(SWRplot,Tairplot,VPDplot,SWCplot,PPTplot,
 
 # Calculate AR(1) process
 
-load('results/NIRV&PoorESS/NEE_AR1_output_site_HS_2020-07-27.rda')
+load('results/NEE_AR1_output_site_HS_2020-07-27.rda')
 HS.Nmem = HowardSprings_Input$Nmem
 HS.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:HS.Nmem,"]", sep = '')]))$statistics[,1]
 
@@ -209,7 +209,7 @@ HS.fit = lm((HS_NEE_pred[2:HS.Nmem] - HS.res_pred) ~ HS_NEE_obs[2:HS.Nmem])
 HS.AR1.R2 = summary(HS.fit)$r.squared
 rm(AR1.res)
 
-load('results/NIRV&PoorESS/NEE_AR1_output_site_SP_2020-07-27.rda')
+load('results/NEE_AR1_output_site_SP_2020-08-05.rda')
 SP.Nmem = SturtPlains_Input$Nmem
 SP.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:SP.Nmem,"]", sep = '')]))$statistics[,1]
 
@@ -234,7 +234,7 @@ load('results/NEE_current_output_site_SP_2020-08-04.rda')
 assign('SP.cur',nee_daily)
 rm(nee_daily)
 
-load('results/NIRV&PoorESS/NEE_current_output_site_HS_2020-07-30.rda')
+load('results/NEE_current_output_site_HS_2020-08-05.rda')
 # data inside is called "nee_daily"
 assign('HS.cur',nee_daily)
 rm(nee_daily)
@@ -258,26 +258,26 @@ message("Sturt Plains has enviro memory R2 improvement ",round(SP.SAM.R2-SP.CUR.
 
 # Calculate current without SWR climate impact
 
-# load('results/NEE_currentSWR_output_site_SP_2020-07-28.rda')
+load('results/NEE_currentSWR_output_site_SP_2020-08-05.rda')
 # # data inside is called "nee_daily"
-# assign('SP.curSWR',nee_daily)
-# rm(nee_daily)
+assign('SP.curSWR',nee_daily)
+rm(nee_daily)
 
-load('results/NIRV&PoorESS/NEE_currentSWR_output_site_HS_2020-07-31.rda')
+load('results/NEE_currentSWR_output_site_HS_2020-07-31.rda')
 # data inside is called "nee_daily"
 assign('HS.curSWR',nee_daily)
 rm(nee_daily)
 
-# SP_NEE_curSWR = summary(window(SP.curSWR[,paste("NEE_pred[", 1:SP.Nmem,"]", sep = '')]))$statistics[,1]
+SP_NEE_curSWR = summary(window(SP.curSWR[,paste("NEE_pred[", 1:SP.Nmem,"]", sep = '')]))$statistics[,1]
 HS_NEE_curSWR = summary(window(HS.curSWR[,paste("NEE_pred[", 1:HS.Nmem,"]", sep = '')]))$statistics[,1]
 
-# SP.fit = lm(SP_NEE_curSWR ~ SP_NEE_obs)
-# SP.CURSWR.R2 = summary(SP.fit)$r.squared
+SP.fit = lm(SP_NEE_curSWR ~ SP_NEE_obs)
+SP.CURSWR.R2 = summary(SP.fit)$r.squared
 HS.fit = lm(HS_NEE_curSWR ~ HS_NEE_obs)
 HS.CURSWR.R2 = summary(HS.fit)$r.squared
 
 message("Howard Springs has R2 = ",round(HS.CURSWR.R2,3)," for current climate without SWR")
-# message("Sturt Plains has R2 = ",round(SP.CURSWR.R2,3)," for current climate only")
+message("Sturt Plains has R2 = ",round(SP.CURSWR.R2,3)," for current climate without SWR")
 
 message("Howard Springs has SWR memory R2 improvement ",round(HS.CUR.R2-HS.CURSWR.R2,3))
-# message("Sturt Plains has SWR memory R2 improvement ",round(SP.CUR.R2-SP.CURSWR.R2,3))
+message("Sturt Plains has SWR memory R2 improvement ",round(SP.CUR.R2-SP.CURSWR.R2,3))
