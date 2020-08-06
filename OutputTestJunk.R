@@ -315,8 +315,72 @@ SP.CURSWR.R2 = summary(SP.fit)$r.squared
 HS.fit = lm(HS_NEE_curSWR ~ HS_NEE_obs)
 HS.CURSWR.R2 = summary(HS.fit)$r.squared
 
-message("Howard Springs has R2 = ",round(HS.CURSWR.R2,3)," for current climate without SWR")
-message("Sturt Plains has R2 = ",round(SP.CURSWR.R2,3)," for current climate without SWR")
 
-message("Howard Springs has SWR memory R2 improvement ",round(HS.CUR.R2-HS.CURSWR.R2,3))
-message("Sturt Plains has SWR memory R2 improvement ",round(SP.CUR.R2-SP.CURSWR.R2,3))
+# Calculate current without SWC climate impact
+
+load('results/NEE_currentSWC_output_site_SP_2020-08-06.rda')
+# # data inside is called "nee_daily"
+assign('SP.curSWC',nee_daily)
+rm(nee_daily)
+
+load('results/NEE_currentSWC_output_site_HS_2020-07-31.rda')
+# data inside is called "nee_daily"
+assign('HS.curSWC',nee_daily)
+rm(nee_daily)
+
+SP_NEE_curSWC = summary(window(SP.curSWC[,paste("NEE_pred[", 1:SP.Nmem,"]", sep = '')]))$statistics[,1]
+HS_NEE_curSWC = summary(window(HS.curSWC[,paste("NEE_pred[", 1:HS.Nmem,"]", sep = '')]))$statistics[,1]
+
+SP.fit = lm(SP_NEE_curSWC ~ SP_NEE_obs)
+SP.CURSWC.R2 = summary(SP.fit)$r.squared
+HS.fit = lm(HS_NEE_curSWC ~ HS_NEE_obs)
+HS.CURSWC.R2 = summary(HS.fit)$r.squared
+
+
+# Calculate current without Tair climate impact
+
+load('results/NEE_currentTair_output_site_SP_2020-08-06.rda')
+# # data inside is called "nee_daily"
+assign('SP.curTair',nee_daily)
+rm(nee_daily)
+
+load('results/NEE_currentTair_output_site_HS_2020-07-31.rda')
+# data inside is called "nee_daily"
+assign('HS.curTair',nee_daily)
+rm(nee_daily)
+
+SP_NEE_curTair = summary(window(SP.curTair[,paste("NEE_pred[", 1:SP.Nmem,"]", sep = '')]))$statistics[,1]
+HS_NEE_curTair = summary(window(HS.curTair[,paste("NEE_pred[", 1:HS.Nmem,"]", sep = '')]))$statistics[,1]
+
+SP.fit = lm(SP_NEE_curTair ~ SP_NEE_obs)
+SP.CURTair.R2 = summary(SP.fit)$r.squared
+HS.fit = lm(HS_NEE_curTair ~ HS_NEE_obs)
+HS.CURTair.R2 = summary(HS.fit)$r.squared
+
+
+# Calculate current without VPD climate impact
+
+load('results/NEE_currentVPD_output_site_SP_2020-08-06.rda')
+# # data inside is called "nee_daily"
+assign('SP.curVPD',nee_daily)
+rm(nee_daily)
+
+load('results/NEE_currentVPD_output_site_HS_2020-07-31.rda')
+# data inside is called "nee_daily"
+assign('HS.curVPD',nee_daily)
+rm(nee_daily)
+
+SP_NEE_curVPD = summary(window(SP.curVPD[,paste("NEE_pred[", 1:SP.Nmem,"]", sep = '')]))$statistics[,1]
+HS_NEE_curVPD = summary(window(HS.curVPD[,paste("NEE_pred[", 1:HS.Nmem,"]", sep = '')]))$statistics[,1]
+
+SP.fit = lm(SP_NEE_curVPD ~ SP_NEE_obs)
+SP.CURVPD.R2 = summary(SP.fit)$r.squared
+HS.fit = lm(HS_NEE_curVPD ~ HS_NEE_obs)
+HS.CURVPD.R2 = summary(HS.fit)$r.squared
+
+
+HS.SWR.R2contrib = (HS.CUR.R2-HS.CURSWR.R2)*(HS.CUR.R2/(HS.CURSWR.R2+HS.CURSWC.R2+HS.CURVPD.R2+HS.CURTair.R2))
+SP.SWR.R2contrib = (SP.CUR.R2-SP.CURSWR.R2)*(SP.CUR.R2/(SP.CURSWR.R2+SP.CURSWC.R2+SP.CURVPD.R2+SP.CURTair.R2))
+
+message("Howard Springs has R2 = ",round(HS.SWR.R2contrib,3)," for current SWR only")
+message("Sturt Plains has R2 = ",round(SP.SWR.R2contrib,3)," for current SWR only")
