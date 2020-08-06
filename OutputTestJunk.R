@@ -7,7 +7,7 @@ load('SturtPlains_Input_NDVI.Rdata')
 load('HowardSprings_Input_NDVI.Rdata')
 
 # Load Howard Springs data
-load('results/NEE_output_site_HS_2020-08-02.rda')
+load('results/NEE_output_site_HS_2020-08-05.rda')
 # data inside is called "nee_daily"
 assign('HS',nee_daily)
 rm(nee_daily)
@@ -111,79 +111,118 @@ message("Sturt Plains has R2 = ",round(SP.SAM.R2,3), " for SAM")
 
 
 # Check cumulative weights
-HS_cumSWR = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[2",1]
-HS_cumTair = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[1",1]
-HS_cumVPD = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[3",1]
-HS_cumSWC = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[5",1]
-HS_cumPPT = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,12)=="cum_weightAP",1]
+HS_cumSWR_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[2",1]
+HS_cumTair_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[1",1]
+HS_cumVPD_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[3",1]
+HS_cumSWC_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[5",1]
+HS_cumPPT_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,12)=="cum_weightAP",1]
 
-SP_cumSWR = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[2",1]
-SP_cumTair = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[1",1]
-SP_cumVPD = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[3",1]
-SP_cumSWC = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[5",1]
-SP_cumPPT = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,12)=="cum_weightAP",1]
+SP_cumSWR_mean = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[2",1]
+SP_cumTair_mean = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[1",1]
+SP_cumVPD_mean = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[3",1]
+SP_cumSWC_mean = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,13)=="cum_weightA[5",1]
+SP_cumPPT_mean = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,12)=="cum_weightAP",1]
 
 
-cumSWR = data.frame("HS" = HS_cumSWR,"SP" = SP_cumSWR)
-cumTair = data.frame("HS" = HS_cumTair,"SP" = SP_cumTair)
-cumVPD = data.frame("HS" = HS_cumVPD,"SP" = SP_cumVPD)
-cumSWC = data.frame("HS" = HS_cumSWC,"SP" = SP_cumSWC)
-cumPPT = data.frame("HS" = HS_cumPPT,"SP" = SP_cumPPT)
+HS_cumSWR_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[2",1]
+HS_cumTair_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[1",1]
+HS_cumVPD_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[3",1]
+HS_cumSWC_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[5",1]
+HS_cumPPT_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,12)=="cum_weightAP",1]
+
+SP_cumSWR_min = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,13)=="cum_weightA[2",1]
+SP_cumTair_min = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,13)=="cum_weightA[1",1]
+SP_cumVPD_min = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,13)=="cum_weightA[3",1]
+SP_cumSWC_min = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,13)=="cum_weightA[5",1]
+SP_cumPPT_min = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,12)=="cum_weightAP",1]
+
+HS_cumSWR_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[2",5]
+HS_cumTair_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[1",5]
+HS_cumVPD_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[3",5]
+HS_cumSWC_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[5",5]
+HS_cumPPT_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,12)=="cum_weightAP",5]
+
+SP_cumSWR_max = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,13)=="cum_weightA[2",5]
+SP_cumTair_max = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,13)=="cum_weightA[1",5]
+SP_cumVPD_max = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,13)=="cum_weightA[3",5]
+SP_cumSWC_max = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,13)=="cum_weightA[5",5]
+SP_cumPPT_max = SP.summary$quantiles[substr(rownames(SP.summary$quantiles),1,12)=="cum_weightAP",5]
+
+
+cumSWR = data.frame("HS_mean" = HS_cumSWR_mean,"SP_mean" = SP_cumSWR_mean, "HS_min" = HS_cumSWR_min,"SP_min" = SP_cumSWR_min, "HS_max" = HS_cumSWR_max,"SP_max" = SP_cumSWR_max)
+cumTair = data.frame("HS_mean" = HS_cumTair_mean,"SP_mean" = SP_cumTair_mean, "HS_min" = HS_cumTair_min,"SP_min" = SP_cumTair_min, "HS_max" = HS_cumTair_max,"SP_max" = SP_cumTair_max)
+cumVPD = data.frame("HS_mean" = HS_cumVPD_mean,"SP_mean" = SP_cumVPD_mean, "HS_min" = HS_cumVPD_min,"SP_min" = SP_cumVPD_min, "HS_max" = HS_cumVPD_max,"SP_max" = SP_cumVPD_max)
+cumSWC = data.frame("HS_mean" = HS_cumSWC_mean,"SP_mean" = SP_cumSWC_mean, "HS_min" = HS_cumSWC_min,"SP_min" = SP_cumSWC_min, "HS_max" = HS_cumSWC_max,"SP_max" = SP_cumSWC_max)
+cumPPT = data.frame("HS_mean" = HS_cumPPT_mean,"SP_mean" = SP_cumPPT_mean, "HS_min" = HS_cumPPT_min,"SP_min" = SP_cumPPT_min, "HS_max" = HS_cumPPT_max,"SP_max" = SP_cumPPT_max)
 
 SWRplot = ggplot(cumSWR) +
-          geom_path(aes(0:13,HS,color="HS"),size=1) +
-          geom_path(aes(0:13,SP,color="SP"),size=1) +
+          geom_path(aes(0:13,y=HS_mean,color="HS"),size=1) +
+          geom_path(aes(0:13,y=SP_mean,color="SP"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min,ymax=HS_max,color="HS"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=SP_min,ymax=SP_max,color="SP"),size=1) +
           geom_hline(yintercept=0.5,linetype = "dashed") +
           coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
           xlab("Days into Past") +
           ylab("Cumulative Weight") +
           theme_bw() +
           guides(color = "none") +
+          scale_color_manual(values=c("violet","firebrick")) +
           ggtitle("SWR")
 
 Tairplot = ggplot(cumTair) +
-            geom_path(aes(0:13,HS,color="HS"),size=1) +
-            geom_path(aes(0:13,SP,color="SP"),size=1) +
+            geom_path(aes(0:13,HS_mean,color="HS"),size=1) +
+            geom_path(aes(0:13,SP_mean,color="SP"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min,ymax=HS_max,color="HS"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=SP_min,ymax=SP_max,color="SP"),size=1) +
             geom_hline(yintercept=0.5,linetype = "dashed") +
             coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
             xlab("Days into Past") +
             ylab("Cumulative Weight") +
             theme_bw() +
             guides(color = "none") +
+            scale_color_manual(values=c("violet","firebrick")) +
             ggtitle("Tair")
 
 VPDplot = ggplot(cumVPD) +
-          geom_path(aes(0:13,HS,color="HS"),size=1) +
-          geom_path(aes(0:13,SP,color="SP"),size=1) +
+          geom_path(aes(0:13,HS_mean,color="HS"),size=1) +
+          geom_path(aes(0:13,SP_mean,color="SP"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min,ymax=HS_max,color="HS"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=SP_min,ymax=SP_max,color="SP"),size=1) +
           geom_hline(yintercept=0.5,linetype = "dashed") +
           coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
           xlab("Days into Past") +
           ylab("Cumulative Weight") +
           theme_bw() +
           guides(color = "none") +
+          scale_color_manual(values=c("violet","firebrick")) +
           ggtitle("VPD")
 
 SWCplot = ggplot(cumSWC) +
-          geom_path(aes(0:13,HS,color="HS"),size=1) +
-          geom_path(aes(0:13,SP,color="SP"),size=1) +
+          geom_path(aes(0:13,HS_mean,color="HS"),size=1) +
+          geom_path(aes(0:13,SP_mean,color="SP"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min,ymax=HS_max,color="HS"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=SP_min,ymax=SP_max,color="SP"),size=1) +
           geom_hline(yintercept=0.5,linetype = "dashed") +
           coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
           xlab("Days into Past") +
           ylab("Cumulative Weight") +
           theme_bw() + 
           guides(color = "none") +
+          scale_color_manual(values=c("violet","firebrick")) +
           ggtitle("SWC")
 
 PPTplot = ggplot(cumPPT) +
-          geom_path(aes(c(0,20,29,59,119,179,269,365),HS,color="HS"),size=1) +
-          geom_path(aes(c(0,20,29,59,119,179,269,365),SP,color="SP"),size=1) +
+          geom_path(aes(c(0,20,29,59,119,179,269,365),HS_mean,color="HS"),size=1) +
+          geom_path(aes(c(0,20,29,59,119,179,269,365),SP_mean,color="SP"),size=1) +
+  geom_linerange(aes(x=c(-2,18.5,27.5,57,117,177,267,363),ymin=HS_min,ymax=HS_max,color="HS"),size=1) +
+  geom_linerange(aes(x=c(2,21.5,30.5,61,121,181,271,367),ymin=SP_min,ymax=SP_max,color="SP"),size=1) +
           geom_hline(yintercept=0.5,linetype = "dashed") +
           coord_cartesian(xlim = c(0, 365), ylim = c(0,1)) +
           xlab("Days into Past") +
           ylab("Cumulative Weight") +
           theme_bw() +
           theme(legend.position = "bottom") +
-          scale_color_discrete(name = "Site") +
+          scale_color_manual(values=c("violet","firebrick"),name = "Site") +
           ggtitle("PPT")
 
 
@@ -201,7 +240,7 @@ grid.arrange(SWRplot,Tairplot,VPDplot,SWCplot,PPTplot,
 
 # Calculate AR(1) process
 
-load('results/NEE_AR1_output_site_HS_2020-07-27.rda')
+load('results/NEE_AR1_output_site_HS_2020-08-06.rda')
 HS.Nmem = HowardSprings_Input$Nmem
 HS.res_pred = summary(window(AR1.res[,paste("NEE.res_rep[", 2:HS.Nmem,"]", sep = '')]))$statistics[,1]
 
