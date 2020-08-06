@@ -384,3 +384,24 @@ SP.SWR.R2contrib = (SP.CUR.R2-SP.CURSWR.R2)*(SP.CUR.R2/(SP.CURSWR.R2+SP.CURSWC.R
 
 message("Howard Springs has R2 = ",round(HS.SWR.R2contrib,3)," for current SWR only")
 message("Sturt Plains has R2 = ",round(SP.SWR.R2contrib,3)," for current SWR only")
+
+
+
+
+# Recreate figure 3
+
+Site = c(rep("SP",3),rep("HS",3))
+Model = rep(c("Current Environmental","Environmental Memory","Biological Memory"),2)
+Model = factor(Model,levels=c("Biological Memory","Environmental Memory","Current Environmental"))
+Value = c(SP.CUR.R2,SP.SAM.R2-SP.CUR.R2,SP.AR1.R2-SP.SAM.R2,HS.CUR.R2,HS.SAM.R2-HS.CUR.R2,HS.AR1.R2-HS.SAM.R2)
+
+Fig3 = data.frame(Site,Model,Value)
+
+ggplot(Fig3,aes(fill=Model,y=Value,x=Site)) +
+  geom_bar(position="stack",stat="identity") +
+  geom_bar(stat = "identity", color = "black",size = 1) +
+  coord_flip(ylim=c(0,1)) +
+  scale_fill_manual(values=c("darkgreen","royalblue4","skyblue")) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+  
