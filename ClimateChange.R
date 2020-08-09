@@ -1,10 +1,14 @@
-rm(list=ls())
+# rm(list=ls())
 
 # Load the daily climate data
 load("SPDailyData.Rdata")
 load("HSDailyData.Rdata")
 
 # Create monthly and yearly data frames as well
+library(lubridate)
+library(magrittr)
+library(dplyr)
+library(zoo)
 SPDailyData$year = year(SPDailyData$TIMESTAMP)
 SPDailyData$month = month(SPDailyData$TIMESTAMP)
 
@@ -56,6 +60,13 @@ HSMonthlyData <- HSDailyData %>%
 
 HSMonthlyData$TIMESTAMP = as.yearmon(paste(HSMonthlyData$year, HSMonthlyData$month), "%Y %m")
 
+# Remove 2018 as it is only 1 day
+HSYearlyData = HSYearlyData[HSYearlyData$year<2018,]
+SPYearlyData = SPYearlyData[SPYearlyData$year<2018,]
+HSMonthlyData = HSMonthlyData[HSMonthlyData$year<2018,]
+SPMonthlyData = SPMonthlyData[SPMonthlyData$year<2018,]
+
+# Tidy the daily data
 SPDailyData = subset(SPDailyData, select = -c(year,month))
 HSDailyData = subset(HSDailyData, select = -c(year,month))
 
@@ -228,12 +239,12 @@ SP.Tair = ggplot() +
   guides(color = "none")
 
 SP.PPT = ggplot() +
-  geom_density(data = SPMonthlyData[SPMonthlyData$year<2015,],aes(x = Precip, y = ..density..,color = "Pre-2015"),size = 1) +
-  geom_density(data = SPMonthlyData[SPMonthlyData$year>=2015,], aes(x = Precip, y = ..density.., color = "Post-2015"), size = 0.5) +
-  geom_density(data = SPMonthlyData, aes(x = Precip, y = ..density.., color = "All"), size = 1) +
-  geom_vline(data = SPMonthlyData[SPMonthlyData$year<2015,],aes(xintercept = mean(Precip),color="Pre-2015"),linetype = "dashed") +
-  geom_vline(data = SPMonthlyData[SPMonthlyData$year>=2015,],aes(xintercept = mean(Precip),color="Post-2015"),linetype = "dashed") +
-  geom_vline(data = SPMonthlyData,aes(xintercept = mean(Precip),color="All"),linetype = "dashed") +
+  geom_density(data = SPYearlyData[SPYearlyData$year<2015,],aes(x = Precip, y = ..density..,color = "Pre-2015"),size = 1) +
+  geom_density(data = SPYearlyData[SPYearlyData$year>=2015,], aes(x = Precip, y = ..density.., color = "Post-2015"), size = 0.5) +
+  geom_density(data = SPYearlyData, aes(x = Precip, y = ..density.., color = "All"), size = 1) +
+  geom_vline(data = SPYearlyData[SPYearlyData$year<2015,],aes(xintercept = mean(Precip),color="Pre-2015"),linetype = "dashed") +
+  geom_vline(data = SPYearlyData[SPYearlyData$year>=2015,],aes(xintercept = mean(Precip),color="Post-2015"),linetype = "dashed") +
+  geom_vline(data = SPYearlyData,aes(xintercept = mean(Precip),color="All"),linetype = "dashed") +
   scale_color_discrete(name = "") +
   theme_bw() +
   theme(axis.text.y = element_blank())+
@@ -309,12 +320,12 @@ HS.Tair = ggplot() +
   guides(color = "none")
 
 HS.PPT = ggplot() +
-  geom_density(data = HSMonthlyData[HSMonthlyData$year<2015,],aes(x = Precip, y = ..density..,color = "Pre-2015"),size = 1) +
-  geom_density(data = HSMonthlyData[HSMonthlyData$year>=2015,], aes(x = Precip, y = ..density.., color = "Post-2015"), size = 0.5) +
-  geom_density(data = HSMonthlyData, aes(x = Precip, y = ..density.., color = "All"), size = 1) +
-  geom_vline(data = HSMonthlyData[HSMonthlyData$year<2015,],aes(xintercept = mean(Precip),color="Pre-2015"),linetype = "dashed") +
-  geom_vline(data = HSMonthlyData[HSMonthlyData$year>=2015,],aes(xintercept = mean(Precip),color="Post-2015"),linetype = "dashed") +
-  geom_vline(data = HSMonthlyData,aes(xintercept = mean(Precip),color="All"),linetype = "dashed") +
+  geom_density(data = HSYearlyData[HSYearlyData$year<2015,],aes(x = Precip, y = ..density..,color = "Pre-2015"),size = 1) +
+  geom_density(data = HSYearlyData[HSYearlyData$year>=2015,], aes(x = Precip, y = ..density.., color = "Post-2015"), size = 0.5) +
+  geom_density(data = HSYearlyData, aes(x = Precip, y = ..density.., color = "All"), size = 1) +
+  geom_vline(data = HSYearlyData[HSYearlyData$year<2015,],aes(xintercept = mean(Precip),color="Pre-2015"),linetype = "dashed") +
+  geom_vline(data = HSYearlyData[HSYearlyData$year>=2015,],aes(xintercept = mean(Precip),color="Post-2015"),linetype = "dashed") +
+  geom_vline(data = HSYearlyData,aes(xintercept = mean(Precip),color="All"),linetype = "dashed") +
   scale_color_discrete(name = "") +
   theme_bw() +
   theme(axis.text.y = element_blank())+
