@@ -23,12 +23,12 @@ rm(nee_daily)
 library(coda)
 
 # # We want all values to be close to 1
-HS_Gelman = gelman.diag(HS,multivariate=FALSE)
-SP_Gelman = gelman.diag(SP,multivariate=FALSE)
+#HS_Gelman = gelman.diag(HS,multivariate=FALSE)
+#SP_Gelman = gelman.diag(SP,multivariate=FALSE)
 
 # Check effective sample size
-mean(tail(effectiveSize(HS),300))
-mean(tail(effectiveSize(SP),300))
+#mean(tail(effectiveSize(HS),300))
+#mean(tail(effectiveSize(SP),300))
 
 
 library(lattice)
@@ -46,19 +46,19 @@ source("DBDA2E-utilities.R")
 
 # Use Kruschke's diag function
 
-Model = SP
-for (i in varnames(Model)[-grep(varnames(Model),pattern="NEE")]){
-  
-  diagMCMC(Model,i)
-  print(i)
-  question1 <- readline("Next plot? (Y/N)")
-  
-  if(regexpr(question1, 'n', ignore.case = TRUE) == 1){
-    break
-  } else {
-    next  
-  }
-}
+# Model = SP
+# for (i in varnames(Model)[-grep(varnames(Model),pattern="NEE")]){
+#   
+#   diagMCMC(Model,i)
+#   print(i)
+#   question1 <- readline("Next plot? (Y/N)")
+#   
+#   if(regexpr(question1, 'n', ignore.case = TRUE) == 1){
+#     break
+#   } else {
+#     next  
+#   }
+# }
 
 # Summarise for other uses (means, quantiles, etc.)
 HS.summary=summary(HS)
@@ -302,7 +302,7 @@ load('results/NEE_currentSWR_output_site_SP_2020-08-05.rda')
 assign('SP.curSWR',nee_daily)
 rm(nee_daily)
 
-load('results/NEE_currentSWR_output_site_HS_2020-07-31.rda')
+load('results/NEE_currentSWR_output_site_HS_2020-08-07.rda')
 # data inside is called "nee_daily"
 assign('HS.curSWR',nee_daily)
 rm(nee_daily)
@@ -323,7 +323,7 @@ load('results/NEE_currentSWC_output_site_SP_2020-08-06.rda')
 assign('SP.curSWC',nee_daily)
 rm(nee_daily)
 
-load('results/NEE_currentSWC_output_site_HS_2020-07-31.rda')
+load('results/NEE_currentSWC_output_site_HS_2020-08-07.rda')
 # data inside is called "nee_daily"
 assign('HS.curSWC',nee_daily)
 rm(nee_daily)
@@ -339,12 +339,12 @@ HS.CURSWC.R2 = summary(HS.fit)$r.squared
 
 # Calculate current without Tair climate impact
 
-load('results/NEE_currentTair_output_site_SP_2020-08-06.rda')
+load('results/NEE_currentTair_output_site_SP_2020-08-08.rda')
 # # data inside is called "nee_daily"
 assign('SP.curTair',nee_daily)
 rm(nee_daily)
 
-load('results/NEE_currentTair_output_site_HS_2020-07-31.rda')
+load('results/NEE_currentTair_output_site_HS_2020-08-08.rda')
 # data inside is called "nee_daily"
 assign('HS.curTair',nee_daily)
 rm(nee_daily)
@@ -360,12 +360,12 @@ HS.CURTair.R2 = summary(HS.fit)$r.squared
 
 # Calculate current without VPD climate impact
 
-load('results/NEE_currentVPD_output_site_SP_2020-08-06.rda')
+load('results/NEE_currentVPD_output_site_SP_2020-08-08.rda')
 # # data inside is called "nee_daily"
 assign('SP.curVPD',nee_daily)
 rm(nee_daily)
 
-load('results/NEE_currentVPD_output_site_HS_2020-07-31.rda')
+load('results/NEE_currentVPD_output_site_HS_2020-08-08.rda')
 # data inside is called "nee_daily"
 assign('HS.curVPD',nee_daily)
 rm(nee_daily)
@@ -379,8 +379,29 @@ HS.fit = lm(HS_NEE_curVPD ~ HS_NEE_obs)
 HS.CURVPD.R2 = summary(HS.fit)$r.squared
 
 
-HS.SWR.R2contrib = (HS.CUR.R2-HS.CURSWR.R2)*(HS.CUR.R2/(HS.CURSWR.R2+HS.CURSWC.R2+HS.CURVPD.R2+HS.CURTair.R2))
-SP.SWR.R2contrib = (SP.CUR.R2-SP.CURSWR.R2)*(SP.CUR.R2/(SP.CURSWR.R2+SP.CURSWC.R2+SP.CURVPD.R2+SP.CURTair.R2))
+HS.SWR.dif = HS.CUR.R2-HS.CURSWR.R2
+SP.SWR.dif = SP.CUR.R2-SP.CURSWR.R2
+
+HS.SWC.dif = HS.CUR.R2-HS.CURSWC.R2
+SP.SWC.dif = SP.CUR.R2-SP.CURSWC.R2
+
+HS.VPD.dif = HS.CUR.R2-HS.CURVPD.R2
+SP.VPD.dif = SP.CUR.R2-SP.CURVPD.R2
+
+HS.Tair.dif = HS.CUR.R2-HS.CURTair.R2
+SP.Tair.dif = SP.CUR.R2-SP.CURTair.R2
+
+HS.SWR.R2contrib = (HS.SWR.dif)*(HS.CUR.R2/(HS.SWR.dif+HS.SWC.dif+HS.VPD.dif+HS.Tair.dif))
+SP.SWR.R2contrib = (SP.SWR.dif)*(SP.CUR.R2/(SP.SWR.dif+SP.SWC.dif+SP.VPD.dif+SP.Tair.dif))
+
+HS.SWC.R2contrib = (HS.SWC.dif)*(HS.CUR.R2/(HS.SWR.dif+HS.SWC.dif+HS.VPD.dif+HS.Tair.dif))
+SP.SWC.R2contrib = (SP.SWC.dif)*(SP.CUR.R2/(SP.SWR.dif+SP.SWC.dif+SP.VPD.dif+SP.Tair.dif))
+
+HS.VPD.R2contrib = (HS.VPD.dif)*(HS.CUR.R2/(HS.SWR.dif+HS.SWC.dif+HS.VPD.dif+HS.Tair.dif))
+SP.VPD.R2contrib = (SP.VPD.dif)*(SP.CUR.R2/(SP.SWR.dif+SP.SWC.dif+SP.VPD.dif+SP.Tair.dif))
+
+HS.Tair.R2contrib = (HS.Tair.dif)*(HS.CUR.R2/(HS.SWR.dif+HS.SWC.dif+HS.VPD.dif+HS.Tair.dif))
+SP.Tair.R2contrib = (SP.Tair.dif)*(SP.CUR.R2/(SP.SWR.dif+SP.SWC.dif+SP.VPD.dif+SP.Tair.dif))
 
 message("Howard Springs has R2 = ",round(HS.SWR.R2contrib,3)," for current SWR only")
 message("Sturt Plains has R2 = ",round(SP.SWR.R2contrib,3)," for current SWR only")
@@ -390,10 +411,10 @@ message("Sturt Plains has R2 = ",round(SP.SWR.R2contrib,3)," for current SWR onl
 
 # Recreate figure 3
 
-Site = c(rep("SP",3),rep("HS",3))
-Model = rep(c("Current Environmental","Environmental Memory","Biological Memory"),2)
-Model = factor(Model,levels=c("Biological Memory","Environmental Memory","Current Environmental"))
-Value = c(SP.CUR.R2,SP.SAM.R2-SP.CUR.R2,SP.AR1.R2-SP.SAM.R2,HS.CUR.R2,HS.SAM.R2-HS.CUR.R2,HS.AR1.R2-HS.SAM.R2)
+Site = c(rep("SP",4),rep("HS",4))
+Model = rep(c("CurrentSWR","Current Environmental","Environmental Memory","Biological Memory"),2)
+Model = factor(Model,levels=c("Biological Memory","Environmental Memory","Current Environmental","CurrentSWR"))
+Value = c(SP.SWR.R2contrib, SP.CUR.R2-SP.SWR.R2contrib,SP.SAM.R2-SP.CUR.R2,SP.AR1.R2-SP.SAM.R2,HS.SWR.R2contrib,HS.CUR.R2-HS.SWR.R2contrib,HS.SAM.R2-HS.CUR.R2,HS.AR1.R2-HS.SAM.R2)
 
 Fig3 = data.frame(Site,Model,Value)
 
@@ -401,7 +422,8 @@ ggplot(Fig3,aes(fill=Model,y=Value,x=Site)) +
   geom_bar(position="stack",stat="identity") +
   geom_bar(stat = "identity", color = "black",size = 1) +
   coord_flip(ylim=c(0,1)) +
-  scale_fill_manual(values=c("darkgreen","royalblue4","skyblue")) +
+  scale_fill_manual(values=c("darkgreen","royalblue4","skyblue","yellow"),
+                    guide = guide_legend(reverse = TRUE)) +
   theme_bw() +
   theme(legend.position = "bottom")
   
