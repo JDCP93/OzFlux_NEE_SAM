@@ -32,7 +32,7 @@ if (file.exists(paste0(Site,"_Input_NDVI.Rdata"))){
 }
 ```
 
-    ## Gosh! Processed daily OzFlux data already exists for SturtPlains
+    ## Gosh! Processed daily OzFlux data already exists for TiTreeEast
 
 We have extracted the necessary data from the FluxNet and NDVI files. We
 can now test-run the model:
@@ -95,7 +95,7 @@ ndvi.na = rle(is.na(NDVI$ndvi))
 max(ndvi.na$lengths[ndvi.na$values==TRUE])
 ```
 
-    ## [1] 73
+    ## [1] 93
 
 ``` r
 nirv.na = rle(is.na(NIRV$nirv))
@@ -108,7 +108,7 @@ max(nirv.na$lengths[nirv.na$values==TRUE])
 sum(is.na(NDVI$ndvi))/length(NDVI$ndvi)
 ```
 
-    ## [1] 0.4082389
+    ## [1] 0.4589837
 
 I will rerun the model with this data instead of the NIRV data and see
 if there is any difference in the model results.
@@ -123,6 +123,7 @@ Plains in particular has some problematic values in the later years.
 
 The time windows are also different between my work and Yao’s.
 
-| Yao | Me |  
-HS | 24/07/01 - 31/12/14 | 12/03/02 - 08/10/18 |  
-SP | 14/08/08 - 31/12/14 | 28/08/08 - 13/09/18 |
+|    |         Yao         |         Me          |
+| :-: | :-----------------: | :-----------------: |
+| HS | 24/07/01 - 31/12/14 | 01/01/03 - 01/01/18 |
+| SP | 14/08/08 - 31/12/14 | 01/01/09 - 01/01/18 |

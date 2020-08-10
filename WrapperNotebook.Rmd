@@ -107,5 +107,6 @@ Soil moisture values are also interesting and quite different. Sturt Plains in p
 The time windows are also different between my work and Yao's.
 
 | | Yao | Me |
-| HS | 24/07/01 - 31/12/14 | 12/03/02 - 08/10/18 |
-| SP | 14/08/08 - 31/12/14 | 28/08/08 - 13/09/18 |
+|:-:|:-:|:-:|
+| HS | 24/07/01 - 31/12/14 | 01/01/03 - 01/01/18 |
+| SP | 14/08/08 - 31/12/14 | 01/01/09 - 01/01/18 |
