@@ -24,7 +24,7 @@ rm(list=ls())
 I will first attempt to replicate the modelling at one site, Sturt Plains.
 
 ```{r Site Selection, include=FALSE}
-Site = "SturtPlains"
+Site = "TiTreeEast"
 ```
 
 I need to access the full fluxnet data for this, as the data I have from previous modelling of this site does not include SWC. Daily FluxNet data will be used.
