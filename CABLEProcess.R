@@ -1,19 +1,19 @@
 CABLEProcess = function(Site){
   
-  # A function to extract the necessary data from the daily OzFlux netcdf for a 
-  # given site. This is designed to work with the model from Liu et al, 2019. 
-  # To work correctly, the OzFlux netcdf for the site must be saved in a
-  # subfolder named as Site_raw_data. 
+  # A function to extract the necessary data from the CABLE model outputs 
+  # supplied by MDK for 2 sites - HS and SP. This is designed to work with the 
+  # model from Liu et al, 2019. 
+  # To work correctly, the CABLE netcdfs for the site must be saved in a
+  # subfolders named as cable/out and cable/met. 
   # 
-  # The below variables are extracted, quality-checked and return in a nice, 
-  # usable fashion:
+  # The below variables are extracted and return in a nice, usable fashion:
   # 
-  #   NEE_LL          Net Ecosystem Exchange
-  #   SW_IN_F         Incoming Shortwave Radiation
-  #   TA_F            Air Temperature
-  #   VPD_F           Vapour Pressure Deficit
-  #   SWC_F_MDS_1     Top-layer Soil Moisture Content
-  #   P_F             Precipitation
+  #   Net Ecosystem Exchange - CABLE model output
+  #   Incoming Shortwave Radiation - CABLE input
+  #   Air Temperature - CABLE input
+  #   Vapour Pressure Deficit - CABLE input
+  #   Top-layer Soil Moisture Content - CABLE model output
+  #   Precipitation - CABLE model output
   # 
   # 
   # ############################################################################
@@ -26,13 +26,17 @@ CABLEProcess = function(Site){
   #  OUTPUTS:
   #  -
   
+  # ############################################################################
+  # Load CABLE model outputs
+  # ############################################################################
+  
   # Source the ncdf package
   library(ncdf4)
-  # Load in the OzFlux data we need:
-  # Look in folder "Site_raw_data" for the data
+  # Load in the CABLE output data we need:
+  # Look in folder "cable/out" for the data
   File = list.files("cable/out",pattern = Site)
   # Read the data into R 
-  NCDF = nc_open(paste0("cable/out",File))
+  NCDF = nc_open(paste0("cable/out/",File))
   # Change timestamps into dates
   TIMESTAMP = ncvar_get(NCDF,"time")
   # Convert time into datetimes
@@ -41,71 +45,46 @@ CABLEProcess = function(Site){
   # times are in seconds since origin
   TIMESTAMP = as.POSIXct(TIMESTAMP, origin=time_from, tz = "GMT")
   
-  # List the variables we want to extract as well as their quality control
-  Variables = c("NEE",
-                "SWdown",
-                "Tair",
-                "Qair",
-                "SoilMoist",
-                "Rainf")
-  # Extract the variables we require
+  # Extract the variables we require - NEE and the top 3 layers of soil moisture
+  # We will average the soil moisture to get "top-layer". 
   Data = data.frame(TIMESTAMP)
+  Data["NEE"] = ncvar_get(NCDF,"NEE")
+  Data["SoilMoist_1"] = ncvar_get(NCDF,Var)[,1]
+  Data["SoilMoist_2"] = ncvar_get(NCDF,Var)[,2]
+  Data["SoilMoist_3"] = ncvar_get(NCDF,Var)[,3]
+  
+  # Average the soil moisture as stated
+  Data["SoilMoist"] = rowMeans(Data[,3:5])
+  
+  Data = Data[,-(3:5)]
+
+  # Here we assume that CABLE outputs do not need quality checking and that only
+  # full years are modelled (maybe presumptuous)
+  
+  # ############################################################################
+  # Load CABLE model inputs
+  # ############################################################################
+  # Here we load the inputs used to obtain the above CABLE outputs
+  # We find the met file in the subfolder
+  File = list.files("cable/met",pattern = Site)
+  # Read the data into R 
+  NCDF = nc_open(paste0("cable/met/",File))
+  # Double check that the two files were the same length
+  if(nrow(TIMESTAMP) != nrow(ncvar_get(NCDF,"time"))){
+    message("Error! CABLE input and output files are different lengths!")
+  }
+
+  
+  # List the variables we want to extract
+  # We also boldly assume that the CABLE inputs were quality checked before they
+  # were used and therefore don't check again
+  Variables = c("SWdown",
+                "Tair",
+                "VPD",
+                "Precip")
+  # Extract the variables we require
   for (Var in Variables){
     Data[Var] = ncvar_get(NCDF,Var)
-  }
-  
-  # Check the quality of the data:
-  # Since all data is daily, _QC variables are percentage of measured/good 
-  # quality gapfill data, ranging from 0-1 
-  
-  # Identify QC columns
-  QCcols = grep("QC",colnames(Data))
-  # Remove first row if any data is poor - repeat as necessary
-  count = 0
-  while(any(Data[1,QCcols]%%10!=0)){
-    Data = Data[-1,]
-    count = count + 1
-  }
-  if (count > 0){
-    message("Info! ",count," rows removed from start of record due to poor data.")
-  }
-  # Remove last row if any data is poor - repeat as necessary
-  count = 0
-  while(any(Data[nrow(Data),QCcols]%%10!=0)){
-    Data = Data[-nrow(Data),]
-    count = count + 1
-  }
-  if (count > 0){
-    message("Info! ",count," rows removed from end of record due to poor data.")
-  }
-  
-  
-  # Perform checks on the amount of poor data remaining:
-  
-  # Arbitarily decide that less than 75% measured/good data for a day is 
-  # worrying
-  # If any QC columns are < 0.75 for a row, count the row as poor data
-  QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x%%10 != 0)))
-  # Calculate percentage of remaining data that is poor
-  PercentQC = QC*100/nrow(Data)
-  # If more than 5% of the dat is poor, print a warning
-  if (PercentQC > 5){
-    message("Warning! ",
-            round(PercentQC,digits=3),
-            "% of data is poor!")
-  }
-  # Check for excessive consecutive streaks of poor data
-  # Find the sequences of poor/good data
-  Seq = rle(apply(Data[,QCcols],MARGIN=1,function(x) any(x%%10 != 0)))
-  # Find the lengths of these sequences for the poor data
-  Lengths = Seq$lengths[Seq$values==TRUE]
-  # If a run of 5 or more days of poor data exists, print a warning
-  if (length(Lengths)>0){
-    if (max(Lengths)>=5){
-      message("Warning! There is a run of ",
-              max(Lengths),
-              " consecutive half-hours with poor data!")
-    }
   }
   
   # ############################################################################
@@ -122,11 +101,11 @@ CABLEProcess = function(Site){
                              format="%Y-%m-%d %H:%M:%S", 
                              tz = ncatt_get(NCDF, 0)$time_zone)) %>%
     group_by(TIMESTAMP) %>%               # group by the day column
-    summarise(NEE_LL=mean(NEE_LL),
-              Fsd=mean(Fsd),
-              Ta=mean(Ta),
+    summarise(NEE=mean(NEE),
+              SWdown=mean(SWdown),
+              Tair=mean(Tair),
               VPD=mean(VPD),
-              Sws=mean(Sws),
+              SoilMoist=mean(SoilMoist),
               Precip=sum(Precip))
   
   # ############################################################################
@@ -163,44 +142,23 @@ CABLEProcess = function(Site){
   # Create the climate predictor matrix
   # See Model_Liu inputs for correct order
   # SWC is repeated to account for current and antecedent.
-  clim = matrix(c(Data_day$Ta,
-                  Data_day$Fsd,
+  clim = matrix(c(Data_day$Tair,
+                  Data_day$SWdown,
                   Data_day$VPD,
-                  Data_day$Sws,
-                  Data_day$Sws),
+                  Data_day$SoilMoist,
+                  Data_day$SoilMoist),
                 ncol = Nv)
   
   # Mean centre the climatic variables
   clim = scale(clim,scale=FALSE)
   
   # Create the NEE vector
-  NEE = Data_day$NEE_LL
+  NEE = Data_day$NEE
   
   ## NDVI
   
-  ## AMENDED - SAMI PROVIDED A DIFFERENT TYPE OF FORMAT - OG CODE REMAINS FOR 
-  ## FUTURE USE IF NEEDED
-  
-  # # Source the NDVI processing function
-  # source("NDVIProcess.R")
-  # # Extract raw NDVI
-  # NDVI = NDVIProcess(Site)
-  # # Source the NDVI indexing function
-  # source("NDVIIndexProcess.R")
-  # # Calculate the NDVI indices
-  # NDVI_index = NDVIIndexProcess(NDVI)
-  # # Trim the NDVI indices to the dates from the FluxNet data
-  # NDVI_index = NDVI_index[NDVI_index$Date %in% Data_day$TIMESTAMP,]
-  # # Trim the start of the NDVI data to match these indices
-  # NDVI = NDVI[-(1:NDVI_index$Index[1]),]
-  # # Relabel indices to begin at 1
-  # NDVI_index$Index = NDVI_index$Index-NDVI_index$Index[1]+1
-  # # Trim the end of the NDVI data to match these indices
-  # NDVI = NDVI[-((NDVI_index$Index[nrow(NDVI_index)]+1):nrow(NDVI)),]
-  # # Extract just the NDVI values 
-  # NDVI = NDVI[,3]
-  # # Extract just the NDVI index values
-  # NDVI_index = NDVI_index[,2]
+  # Note that we do not have NDVI for the CABLE outputs - we do however have LAI
+  # I will need to explore how to deal with this
   load("VegIndex_NDVI.Rdata")
   NDVI_df = VegIndex[VegIndex$site==Site,]
   NDVI_df = NDVI_df[as.Date(NDVI_df$date) %in% as.Date(Data_day$TIMESTAMP),c("date","ndvi_sg")]
