@@ -44,26 +44,28 @@ NEE_obs = Input$NEE[-(1:365)]
 # Calculate R2
 SAM.R2 = summary(lm(NEE_SAM_pred ~ NEE_obs))$r.squared
 
+# Find the summary of SAM run
+SAM.summary = summary(SAM)
 
 message(Site," has R2 = ",round(SAM.R2,3)," for SAM")
 # Check cumulative weights
-cumSWR_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[2",1]
-cumTair_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[1",1]
-cumVPD_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[3",1]
-cumSWC_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,13)=="cum_weightA[5",1]
-cumPPT_mean = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,12)=="cum_weightAP",1]
+cumSWR_mean = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,13)=="cum_weightA[2",1]
+cumTair_mean = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,13)=="cum_weightA[1",1]
+cumVPD_mean = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,13)=="cum_weightA[3",1]
+cumSWC_mean = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,13)=="cum_weightA[5",1]
+cumPPT_mean = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,12)=="cum_weightAP",1]
 
-cumSWR_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[2",1]
-cumTair_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[1",1]
-cumVPD_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[3",1]
-cumSWC_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[5",1]
-cumPPT_min = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,12)=="cum_weightAP",1]
+cumSWR_min = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,13)=="cum_weightA[2",1]
+cumTair_min = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,13)=="cum_weightA[1",1]
+cumVPD_min = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,13)=="cum_weightA[3",1]
+cumSWC_min = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,13)=="cum_weightA[5",1]
+cumPPT_min = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,12)=="cum_weightAP",1]
 
-cumSWR_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[2",5]
-cumTair_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[1",5]
-cumVPD_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[3",5]
-cumSWC_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,13)=="cum_weightA[5",5]
-cumPPT_max = HS.summary$quantiles[substr(rownames(HS.summary$quantiles),1,12)=="cum_weightAP",5]
+cumSWR_max = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,13)=="cum_weightA[2",5]
+cumTair_max = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,13)=="cum_weightA[1",5]
+cumVPD_max = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,13)=="cum_weightA[3",5]
+cumSWC_max = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,13)=="cum_weightA[5",5]
+cumPPT_max = SAM.summary$quantiles[substr(rownames(SAM.summary$quantiles),1,12)=="cum_weightAP",5]
 
 cumSWR = data.frame("mean" = cumSWR_mean,"min" = cumSWR_min, "max" = cumSWR_max)
 cumTair = data.frame("mean" = cumTair_mean,"min" = cumTair_min, "max" = cumTair_max)
@@ -71,6 +73,7 @@ cumVPD = data.frame("mean" = cumVPD_mean,"min" = cumVPD_min, "max" = cumVPD_max)
 cumSWC = data.frame("mean" = cumSWC_mean,"min" = cumSWC_min, "max" = cumSWC_max)
 cumPPT = data.frame("mean" = cumPPT_mean,"min" = cumPPT_min, "max" = cumPPT_max)
 
+library(ggplot2)
 SWRplot = ggplot(cumSWR) +
   geom_path(aes(0:13,y=mean),size=1) +
   geom_linerange(aes(x=0:13,ymin=min,ymax=max),size=1) +
