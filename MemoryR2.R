@@ -1,4 +1,28 @@
 MemoryR2 <- function(Site,SiteCode){
+  
+# This is a function which analyses the MCMC outputs from the 3 different models 
+# used to calculate current environmental effects, environmental memory and 
+# biological memory. 
+# The output files are loaded and the R2 is calculated for each model. The 
+# cumulative weights for the SAM model are also extracted and plotted.
+# 
+# INPUTS:
+#   Site - The site's full name with no spaces (as used for the input file)
+#   SiteCode - The 2 letter code I used for the site's model outputs
+# 
+# OUTPUTS: The below are presented as a list
+#   CUR.R2 - The R2 value of the model using only current climate conditions
+#   SAM.R2 - The R2 value of the SAM model 
+#   AR1.R2 - The R2 value when the SAM residuals are remodelled using an AR1 
+#            process
+#   5 Plots - Five plots called "SWRplot", "Tairplot", "VPDplot", "SWCplot" and  
+#             "PPTplot" which are plots of the cumulative weights calculated in
+#             the SAM model for each climatic driver
+# 
+
+# ******************************************************************************
+# Load model outputs  
+# ******************************************************************************
 
 # load model input for Site
 name = paste0(Site,"_Input")
@@ -29,6 +53,9 @@ load(paste0("results/",File))
 assign('AR1',AR1.res)
 rm(AR1.res)
 
+# ******************************************************************************
+# Extract and print the R2 values
+# ******************************************************************************
 
 # load necessary packages
 library(coda)
@@ -43,11 +70,34 @@ NEE_obs = Input$NEE[-(1:365)]
 
 # Calculate R2
 SAM.R2 = summary(lm(NEE_SAM_pred ~ NEE_obs))$r.squared
+message(Site," has R2 = ",round(SAM.R2,3)," for SAM")
+
+# Calculate AR(1) process
+Nmem = Input$Nmem
+NEE_AR1_pred = summary(window(AR1[,paste("NEE.res_rep[", 2:Nmem,"]", sep = '')]))$statistics[,1]
+
+fit = lm((NEE_SAM_pred[2:Nmem] - NEE_AR1_pred) ~ NEE_obs[2:Nmem])
+AR1.R2 = summary(fit)$r.squared
+
+message(Site," has R2 = ",round(AR1.R2,3)," for AR(1)")
+message(Site," has bio memory R2 improvement ",round(AR1.R2-SAM.R2,3))
+
+
+# Calculate current climate impact only
+fit = lm(NEE_CUR_pred ~ NEE_obs)
+CUR.R2 = summary(fit)$r.squared
+
+message(Site," has R2 = ",round(CUR.R2,3)," for current climate only")
+message(Site," has enviro memory R2 improvement ",round(SAM.R2-CUR.R2,3))
+
+
+# ******************************************************************************
+# Plot the cumulative weights
+# ******************************************************************************
 
 # Find the summary of SAM run
 SAM.summary = summary(SAM)
 
-message(Site," has R2 = ",round(SAM.R2,3)," for SAM")
 # Check cumulative weights
 cumSWR_mean = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,13)=="cum_weightA[2",1]
 cumTair_mean = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,13)=="cum_weightA[1",1]
@@ -129,30 +179,9 @@ PPTplot = ggplot(cumPPT) +
   guides(color = "none") +
   ggtitle("PPT")
 
-# Calculate AR(1) process
-Nmem = Input$Nmem
-NEE_AR1_pred = summary(window(AR1[,paste("NEE.res_rep[", 2:Nmem,"]", sep = '')]))$statistics[,1]
-
-fit = lm((NEE_SAM_pred[2:Nmem] - NEE_AR1_pred) ~ NEE_obs[2:Nmem])
-AR1.R2 = summary(fit)$r.squared
-
-
-message(Site," has R2 = ",round(AR1.R2,3)," for AR(1)")
-
-
-message(Site," has bio memory R2 improvement ",round(AR1.R2-SAM.R2,3))
-
-
-# Calculate current climate impact only
-fit = lm(NEE_CUR_pred ~ NEE_obs)
-CUR.R2 = summary(fit)$r.squared
-
-
-message(Site," has R2 = ",round(CUR.R2,3)," for current climate only")
-
-message(Site," has enviro memory R2 improvement ",round(SAM.R2-CUR.R2,3))
-
+# ******************************************************************************
 # Output the important stuff
+# ******************************************************************************
 
 Output = list("CUR.R2" = CUR.R2,
               "SAM.R2" = SAM.R2,
