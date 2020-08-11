@@ -427,3 +427,8 @@ ggplot(Fig3,aes(fill=Model,y=Value,x=Site)) +
   theme_bw() +
   theme(legend.position = "bottom")
   
+
+
+Sites = list("HS"=HS,"SP"=SP,"TT"=TT)
+
+MemoryPlot(Sites)
