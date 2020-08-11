@@ -32,7 +32,7 @@ if (file.exists(paste0(Site,"_Input_NDVI.Rdata"))){
 }
 ```
 
-    ## Gosh! Processed daily OzFlux data already exists for TiTreeEast
+    ## Gosh! Processed daily OzFlux data already exists for DryRiver
 
 We have extracted the necessary data from the FluxNet and NDVI files. We
 can now test-run the model:
@@ -127,3 +127,19 @@ The time windows are also different between my work and Yao’s.
 | :-: | :-----------------: | :-----------------: |
 | HS | 24/07/01 - 31/12/14 | 01/01/03 - 01/01/18 |
 | SP | 14/08/08 - 31/12/14 | 01/01/09 - 01/01/18 |
+
+I was also using a possibly incorrect way of calculating the climatic
+inputs. I was using VPD in kPa rather than hPa and SWC as a decimal
+rather than percentage. Additionally I was mean centreing PPT at a
+different stage which resulted in an additive shift of values. However,
+I re-ran the model for Sturt Plains with an input using the above
+differences and got the same R2 values - as such, as expected, these
+scale issues aren’t a factor in the difference between Yao and I.
+Further, in investigating this, I checked the FluxNet files for Aus
+sites, and the input values are (to the eye) the same. The issue now
+either lies in my implementation of the model or with the differing time
+periods.
+
+I am checking the time periods using Sturt Plains again by cutting off
+my input file at 31/12/14 - unfortunately I cannot add data to the start
+of my series\!
