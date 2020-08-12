@@ -179,6 +179,100 @@ PPTplot = ggplot(cumPPT) +
   guides(color = "none") +
   ggtitle("PPT")
 
+
+# ******************************************************************************
+# Calculate Site Metrics
+# ******************************************************************************
+# Source the ncdf package
+library(ncdf4)
+# Load in the OzFlux data we need:
+# Look in folder "Site_raw_data" for the data
+File = list.files("Site_raw_data",pattern = Site)
+# Read the data into R 
+NCDF = nc_open(paste0("Site_raw_data/",File))
+
+# Change timestamps into dates
+TIMESTAMP = ncvar_get(NCDF,"time")
+# Convert time into datetimes
+# Find the origin of the times
+time_from = substr(ncatt_get(NCDF, "time")$units, 12, 30)
+# times are in days since origin
+Days_to_Secs = 24*3600
+TIMESTAMP = as.POSIXct(TIMESTAMP*Days_to_Secs, origin=time_from, tz = ncatt_get(NCDF, 0)$time_zone)
+
+# List the variables we want to extract as well as their quality control
+Variables = c("NEE_LL",
+              "Fsd",
+              "Ta",
+              "VPD",
+              "Sws",
+              "Precip")
+# Extract the variables we require
+Data = data.frame(TIMESTAMP)
+for (Var in Variables){
+  Data[Var] = ncvar_get(NCDF,Var)
+  QC = paste0(Var,"_QCFlag")
+  Data[QC] = ncvar_get(NCDF,QC)
+}
+
+# Check the quality of the data:
+# Since all data is daily, _QC variables are percentage of measured/good 
+# quality gapfill data, ranging from 0-1 
+
+# Identify QC columns
+QCcols = grep("QC",colnames(Data))
+# Remove first row if any data is poor - repeat as necessary
+count = 0
+while(any(Data[1,QCcols]%%10!=0)){
+  Data = Data[-1,]
+  count = count + 1
+}
+# Remove last row if any data is poor - repeat as necessary
+count = 0
+while(any(Data[nrow(Data),QCcols]%%10!=0)){
+  Data = Data[-nrow(Data),]
+  count = count + 1
+}
+
+# Source required packages
+library(lubridate)
+library(magrittr)
+library(tidyverse)
+library(dplyr)
+library(zoo)
+
+# Create dataframe of daily and yearly values
+Data_day <- Data %>%
+  mutate(TIMESTAMP=as.Date(TIMESTAMP, 
+                           format="%Y-%m-%d %H:%M:%S", 
+                           tz = ncatt_get(NCDF, 0)$time_zone)) %>%
+  group_by(TIMESTAMP) %>%               # group by the day column
+  summarise(NEE_LL=mean(NEE_LL),
+            Fsd=mean(Fsd),
+            Ta=mean(Ta),
+            VPD=mean(VPD),
+            Sws=mean(Sws),
+            Precip=sum(Precip))
+
+
+Data_day$year = year(Data_day$TIMESTAMP)
+Data_day$month = month(Data_day$TIMESTAMP)
+
+Data_year <- Data_day %>%
+  group_by(year) %>%               # group by the year column
+  summarise(NEE_LL=mean(NEE_LL),
+            Fsd=mean(Fsd),
+            Ta=mean(Ta),
+            VPD=mean(VPD),
+            Sws=mean(Sws),
+            Precip=sum(Precip))
+
+Data_year = Data_year[Data_year$Precip>0,]
+
+MAP = mean(Data_year$Precip)
+MAT = mean(Data_year$Ta)
+LAT = as.numeric(ncatt_get(NCDF, 0)$latitude)
+
 # ******************************************************************************
 # Output the important stuff
 # ******************************************************************************
@@ -190,7 +284,10 @@ Output = list("CUR.R2" = CUR.R2,
               "Tairplot" = Tairplot,
               "VPDplot" = VPDplot,
               "SWCplot" = SWCplot,
-              "PPTplot" = PPTplot)
+              "PPTplot" = PPTplot,
+              "MAP" = MAP,
+              "MAT" = MAT,
+              "LAT" = LAT)
 
 }
 
