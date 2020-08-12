@@ -49,9 +49,10 @@ CABLEProcess = function(Site){
   # We will average the soil moisture to get "top-layer". 
   Data = data.frame(TIMESTAMP)
   Data["NEE"] = ncvar_get(NCDF,"NEE")
-  Data["SoilMoist_1"] = ncvar_get(NCDF,Var)[,1]
-  Data["SoilMoist_2"] = ncvar_get(NCDF,Var)[,2]
-  Data["SoilMoist_3"] = ncvar_get(NCDF,Var)[,3]
+  Data["SoilMoist_1"] = ncvar_get(NCDF,"SoilMoist")[,1]
+  Data["SoilMoist_2"] = ncvar_get(NCDF,"SoilMoist")[,2]
+  Data["SoilMoist_3"] = ncvar_get(NCDF,"SoilMoist")[,3]
+  Data["LAI"] = ncvar_get(NCDF,"LAI")
   
   # Average the soil moisture as stated
   Data["SoilMoist"] = rowMeans(Data[,3:5])
@@ -106,7 +107,8 @@ CABLEProcess = function(Site){
               Tair=mean(Tair),
               VPD=mean(VPD),
               SoilMoist=mean(SoilMoist),
-              Precip=sum(Precip))
+              Precip=sum(Precip),
+              LAI = mean(LAI))
   
   # ############################################################################
   # Create inputs required for modelling
@@ -158,21 +160,9 @@ CABLEProcess = function(Site){
   ## NDVI
   
   # Note that we do not have NDVI for the CABLE outputs - we do however have LAI
-  # I will need to explore how to deal with this
-  load("VegIndex_NDVI.Rdata")
-  NDVI_df = VegIndex[VegIndex$site==Site,]
-  NDVI_df = NDVI_df[as.Date(NDVI_df$date) %in% as.Date(Data_day$TIMESTAMP),c("date","ndvi_sg")]
-  NDVI_df$date = as.Date(NDVI_df$date)
-  # Check for missing data
-  for (i in Data_day$TIMESTAMP[!(Data_day$TIMESTAMP %in% NDVI_df$date)]){
-    NewDate = as.Date(i,origin="1970-01-01")
-    NewNDVI = mean(c(NDVI_df$ndvi_sg[NDVI_df$date==(i-1)],NDVI_df$ndvi_sg[NDVI_df$date==(i+1)]))
-    df = data.frame("date" = NewDate, "ndvi_sg" = NewNDVI)
-    NDVI_df = rbind(NDVI_df,df) 
-  }
-  NDVI_df = NDVI_df[order(NDVI_df$date),]
-  
-  NDVI = NDVI_df$ndvi_sg
+  # MDK suggested NDVI = (1-exp(-0.5*LAI))
+  NDVI = 1-exp(-0.5*Data_day$LAI)
+
   
   ## PPT
   
@@ -205,7 +195,7 @@ CABLEProcess = function(Site){
                 "Nblocks" = Nblocks)
   name = paste0(Site,"_Input")
   assign(name,output)
-  save(list=c(name),file=paste0(name,"_NDVI.Rdata"))
+  save(list=c(name),file=paste0(name,"_CABLE.Rdata"))
   
   
   ##### STILL TO BE DONE - BETTER QC
