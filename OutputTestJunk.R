@@ -432,3 +432,28 @@ ggplot(Fig3,aes(fill=Model,y=Value,x=Site)) +
 Sites = list("HS"=HS,"SP"=SP,"TT"=TT)
 
 MemoryPlot(Sites)
+
+
+
+## Recreating Figure 3 using functions
+## 
+source("MemoryR2.R")
+
+HS = MemoryR2("HowardSprings","HS")
+
+TT = MemoryR2("TiTreeEast","TT")
+
+SP = MemoryR2("SturtPlains","SP")
+
+DU = MemoryR2("DalyUncleared","DU")
+
+LF = MemoryR2("Litchfield","LF")
+
+DR = MemoryR2("DryRiver","DR")
+
+Sites = list("HS"=HS,"TT"=TT,"SP"=SP,"DU"=DU,"LF"=LF,"DR"=DR)
+source("MemoryPlot.R")
+Plot = MemoryPlot(Sites,"LAT")
+
+Plot
+
