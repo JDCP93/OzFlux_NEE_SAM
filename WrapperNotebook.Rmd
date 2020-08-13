@@ -116,3 +116,5 @@ However, I re-ran the model for Sturt Plains with an input using the above diffe
 Further, in investigating this, I checked the FluxNet files for Aus sites, and the input values are (to the eye) the same. The issue now either lies in my implementation of the model or with the differing time periods. 
 
 I am checking the time periods using Sturt Plains again by cutting off my input file at 31/12/14 - unfortunately I cannot add data to the start of my series!
+
+Using the shortened time series, the R2 values were EVEN MORE DIFFERENT. SAM R2 was 0.754 and Current R2 was 0.684. This is worrying. I will double (triple? quadruple?) check my models against Yao's...
