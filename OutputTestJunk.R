@@ -457,3 +457,28 @@ Plot = MemoryPlot(Sites,"LAT")
 
 Plot
 
+
+
+
+## Check overlapping dates
+
+load("SPDailyData.Rdata")
+load("HSDailyData.Rdata")
+load("DUDailyData.Rdata")
+load("DRDailyData.Rdata")
+load("LFDailyData.Rdata")
+load("TTDailyData.Rdata")
+
+
+
+Site = c("HS","SP","DR","DU","TT","LF")
+Min = c(min(HSDailyData$TIMESTAMP),min(SPDailyData$TIMESTAMP),min(DRDailyData$TIMESTAMP),min(DUDailyData$TIMESTAMP),min(TTDailyData$TIMESTAMP),min(LFDailyData$TIMESTAMP))
+Max = c(max(HSDailyData$TIMESTAMP),max(SPDailyData$TIMESTAMP),max(DRDailyData$TIMESTAMP),max(DUDailyData$TIMESTAMP),max(TTDailyData$TIMESTAMP),max(LFDailyData$TIMESTAMP))
+
+df = data.frame(Site,Min,Max)
+
+ggplot(df) +
+  geom_errorbar(aes(x=Site,ymin=Min,ymax=Max),size = 2) +
+  theme_bw() +
+  scale_y_date(labels = date_format("%Y"),  breaks = breaks_width("1 year")) +
+  ylab("OzFlux Data Availability")
