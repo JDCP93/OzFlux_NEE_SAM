@@ -1,8 +1,12 @@
-# rm(list=ls())
+rm(list=ls())
 
 # Load the daily climate data
 load("SPDailyData.Rdata")
 load("HSDailyData.Rdata")
+load("DUDailyData.Rdata")
+load("DRDailyData.Rdata")
+load("LFDailyData.Rdata")
+load("TTDailyData.Rdata")
 
 # Create monthly and yearly data frames as well
 library(lubridate)
