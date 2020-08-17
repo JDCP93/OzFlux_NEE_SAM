@@ -463,7 +463,13 @@ Plot = MemoryPlot(Sites,"LAT")
 
 Plot
 
+HS = MemoryR2("HowardSprings","HS")
 
+SP = MemoryR2("SturtPlains","SP")
+
+SP_CABLE = MemoryR2_CABLE("SturtPlains","SP")
+
+HS_CABLE = MemoryR2_CABLE("HowardSprings","HS")
 
 Sites = list("HS"=HS,"SP"=SP,"SP_CABLE"=SP_CABLE,"HS_CABLE"=HS_CABLE)
 source("MemoryPlot.R")
