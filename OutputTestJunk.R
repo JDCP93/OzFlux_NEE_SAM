@@ -438,6 +438,8 @@ MemoryPlot(Sites)
 ## Recreating Figure 3 using functions
 ## 
 source("MemoryR2.R")
+source("MemoryR2_CABLE.R")
+
 
 HS = MemoryR2("HowardSprings","HS")
 
@@ -451,6 +453,10 @@ LF = MemoryR2("Litchfield","LF")
 
 DR = MemoryR2("DryRiver","DR")
 
+SP_CABLE = MemoryR2_CABLE("SturtPlains","SP")
+
+HS_CABLE = MemoryR2_CABLE("HowardSprings","HS")
+
 Sites = list("HS"=HS,"TT"=TT,"SP"=SP,"DU"=DU,"LF"=LF,"DR"=DR)
 source("MemoryPlot.R")
 Plot = MemoryPlot(Sites,"LAT")
@@ -458,6 +464,12 @@ Plot = MemoryPlot(Sites,"LAT")
 Plot
 
 
+
+Sites = list("HS"=HS,"SP"=SP,"SP_CABLE"=SP_CABLE,"HS_CABLE"=HS_CABLE)
+source("MemoryPlot.R")
+Plot = MemoryPlot(Sites,"LAT")
+
+Plot
 
 
 ## Check overlapping dates
@@ -469,7 +481,8 @@ load("DRDailyData.Rdata")
 load("LFDailyData.Rdata")
 load("TTDailyData.Rdata")
 
-
+library(ggplot2)
+library(scales)
 
 Site = c("HS","SP","DR","DU","TT","LF")
 Min = c(min(HSDailyData$TIMESTAMP),min(SPDailyData$TIMESTAMP),min(DRDailyData$TIMESTAMP),min(DUDailyData$TIMESTAMP),min(TTDailyData$TIMESTAMP),min(LFDailyData$TIMESTAMP))
@@ -481,4 +494,5 @@ ggplot(df) +
   geom_errorbar(aes(x=Site,ymin=Min,ymax=Max),size = 2) +
   theme_bw() +
   scale_y_date(labels = date_format("%Y"),  breaks = breaks_width("1 year")) +
-  ylab("OzFlux Data Availability")
+  ylab("OzFlux Data Availability") +
+  coord_flip()
