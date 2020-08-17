@@ -30,7 +30,7 @@ load(paste0(SiteCode,'_Input_CABLE.Rdata'))
 assign("Input",eval(as.name(name)))
   
 # Find the output files available
-File = list.files("results",pattern = paste0("NEE_output_site_",SiteCode,"_CABLE"))
+File = list.files("results",pattern = paste0("NEE_CABLE_output_site_",SiteCode))
 # Read the data into R 
 load(paste0("results/",File))
 # data inside is called "nee_daily"
@@ -38,7 +38,7 @@ assign('SAM',nee_daily)
 rm(nee_daily)
 
 # Find the output files available
-File = list.files("results",pattern = paste0("NEE_current_output_site_",SiteCode,"_CABLE"))
+File = list.files("results",pattern = paste0("NEE_CABLE_current_output_site_",SiteCode))
 # Read the data into R 
 load(paste0("results/",File))
 # data inside is called "nee_daily"
@@ -46,7 +46,7 @@ assign('CUR',nee_daily)
 rm(nee_daily)
 
 # Find the output files available
-File = list.files("results",pattern = paste0("NEE_AR1_output_site_",SiteCode,"_CABLE"))
+File = list.files("results",pattern = paste0("NEE_CABLE_AR1_output_site_",SiteCode))
 # Read the data into R 
 load(paste0("results/",File))
 # data inside is called "nee_daily"

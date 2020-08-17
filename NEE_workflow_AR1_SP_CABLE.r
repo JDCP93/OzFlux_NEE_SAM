@@ -48,7 +48,7 @@ attach(`SP_Input`)
 
 
 # Load Howard Springs data
-load('results/NEE_output_site_SP_CABLE_2020-08-05.rda')
+load('results/NEE_CABLE_output_site_SP_2020-08-14.rda')
 # data inside is called "nee_daily"
 assign('SP',nee_daily)
 rm(nee_daily)
@@ -78,7 +78,7 @@ AR1.res <- jags.parfit(cl,
                        thin = 20)
 
 message("Save model output at ",Sys.time())
-save(AR1.res, file=paste('NEE_AR1_output_site_SP_CABLE_', Sys.Date(),'.rda', sep = ''))
+save(AR1.res, file=paste('NEE_CABLE_AR1_output_site_SP_', Sys.Date(),'.rda', sep = ''))
   
 
 
