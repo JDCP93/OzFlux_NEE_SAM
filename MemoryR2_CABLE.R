@@ -68,9 +68,20 @@ NEE_SAM_pred = summary(SAM)$statistics[substr(rownames(summary(SAM)$statistics),
 NEE_CUR_pred = summary(CUR)$statistics[substr(rownames(summary(CUR)$statistics),1,3)=="NEE",1]
 NEE_obs = Input$NEE[-(1:365)]
 
+# Find the summary of SAM run
+SAM.summary = summary(SAM)
+rm(SAM)
+
 # Calculate R2
 SAM.R2 = summary(lm(NEE_SAM_pred ~ NEE_obs))$r.squared
 message(Site," has R2 = ",round(SAM.R2,3)," for SAM")
+
+# Calculate current climate impact only
+fit = lm(NEE_CUR_pred ~ NEE_obs)
+CUR.R2 = summary(fit)$r.squared
+rm(CUR)
+message(Site," has R2 = ",round(CUR.R2,3)," for current climate only")
+message(Site," has enviro memory R2 improvement ",round(SAM.R2-CUR.R2,3))
 
 # Calculate AR(1) process
 Nmem = Input$Nmem
@@ -83,20 +94,12 @@ message(Site," has R2 = ",round(AR1.R2,3)," for AR(1)")
 message(Site," has bio memory R2 improvement ",round(AR1.R2-SAM.R2,3))
 
 
-# Calculate current climate impact only
-fit = lm(NEE_CUR_pred ~ NEE_obs)
-CUR.R2 = summary(fit)$r.squared
 
-message(Site," has R2 = ",round(CUR.R2,3)," for current climate only")
-message(Site," has enviro memory R2 improvement ",round(SAM.R2-CUR.R2,3))
 
 
 # ******************************************************************************
 # Plot the cumulative weights
 # ******************************************************************************
-
-# Find the summary of SAM run
-SAM.summary = summary(SAM)
 
 # Check cumulative weights
 cumSWR_mean = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,13)=="cum_weightA[2",1]
