@@ -1,4 +1,4 @@
-
+rm(list=ls())
 # Source functions
 source("MemoryR2.R")
 source("MemoryR2_CABLE.R")
