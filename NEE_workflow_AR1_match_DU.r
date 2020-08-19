@@ -48,7 +48,7 @@ attach(`DalyUncleared_Input`)
 
 
 # Load Howard Springs data
-load('results/NEE_output_match_site_DU_2020-08-12.rda')
+load('results/NEE_output_match_site_DU_2020-08-18.rda')
 # data inside is called "nee_daily"
 assign('DU',nee_daily)
 rm(nee_daily)

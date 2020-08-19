@@ -48,7 +48,7 @@ attach(`TiTreeEast_Input`)
 
 
 # Load Howard Springs data
-load('results/NEE_output_match_site_TT_2020-08-12.rda')
+load('results/NEE_output_match_site_TT_2020-08-19.rda')
 # data inside is called "nee_daily"
 assign('TT',nee_daily)
 rm(nee_daily)
