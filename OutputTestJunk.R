@@ -502,3 +502,43 @@ ggplot(df) +
   scale_y_date(labels = date_format("%Y"),  breaks = breaks_width("1 year")) +
   ylab("OzFlux Data Availability") +
   coord_flip()
+
+
+
+
+
+# Plot for overlapping dates
+
+source("MemoryR2_match.R")
+
+HS = MemoryR2_match("HowardSprings","HS")
+
+TT = MemoryR2_match("TiTreeEast","TT")
+
+SP = MemoryR2_match("SturtPlains","SP")
+
+DU = MemoryR2_match("DalyUncleared","DU")
+
+DR = MemoryR2_match("DryRiver","DR")
+
+Sites = list("HS"=HS,"TT"=TT,"SP"=SP,"DU"=DU,"DR"=DR)
+source("MemoryPlot.R")
+Plot = MemoryPlot(Sites,"LAT")
+
+# Plot for split of Howard Springs
+
+source("MemoryR2_match.R")
+source("MemoryR2_split.R")
+
+HS_2013 = MemoryR2_match("HowardSprings","HS")
+
+HS_2003 = MemoryR2_split("HowardSprings","HS",1)
+
+HS_2008 = MemoryR2_split("HowardSprings","HS",2)
+
+
+Sites = list("2003-2007"=HS_2003,"2008-2012"=HS_2008,"2013-2017"=HS_2013)
+source("MemoryPlot.R")
+Plot = MemoryPlot(Sites,"LAT")
+
+
