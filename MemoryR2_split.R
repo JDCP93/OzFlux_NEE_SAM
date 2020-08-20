@@ -1,4 +1,4 @@
-MemoryR2_match <- function(Site,SiteCode,Split){
+MemoryR2_split <- function(Site,SiteCode,Split){
   
 # This is a function which analyses the MCMC outputs from the 3 different models 
 # used to calculate current environmental effects, environmental memory and 
