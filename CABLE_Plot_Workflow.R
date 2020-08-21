@@ -31,8 +31,8 @@ Model = rep(c("Current Environmental","Environmental Memory","Biological Memory"
 Model = factor(Model,levels=c("Biological Memory","Environmental Memory","Current Environmental"))
 
 # HARD CODE VALUES HERE
-SAM = c(0.44,0.79,0.70,0.92)
-CUR = c(0.40,0.78,0.65,0.89)
+SAM = c(0.44,0.70,0.79,0.92)
+CUR = c(0.40,0.65,0.78,0.89)
 AR1 = c(0.68,0.84,0.84,0.95)
 Value = c(CUR,SAM-CUR,AR1-SAM)
 
