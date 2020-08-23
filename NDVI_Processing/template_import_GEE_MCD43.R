@@ -11,7 +11,7 @@ library(lubridate)
 setDTthreads(threads = 3)
 
 # Import and filter out first blank
-tmp <- read_csv("NDVI_Processing/MCD43_OzFlux_HS_SP_DRU_DR_LF_TTE.csv") %>% 
+tmp <- read_csv("NDVI_Processing/MCD43_OzFlux_HS_SP_DRU_DR_LF_TTE_AS.csv") %>% 
   filter(is.na(BRDF_Albedo_Band_Quality_Band1)==T) %>% # filter out the 'blank' image that instantiated the reducer columns
   select(-starts_with('BRDF'),-c('.geo'))
 
@@ -94,5 +94,6 @@ VegIndex$site[VegIndex$site=="Sturt Plains"] = "SturtPlains"
 VegIndex$site[VegIndex$site=="Daly River Uncleared"] = "DalyUncleared"
 VegIndex$site[VegIndex$site=="Dry River"] = "DryRiver"
 VegIndex$site[VegIndex$site=="Ti Tree East"] = "TiTreeEast"
+VegIndex$site[VegIndex$site=="Alice Springs"] = "AliceSprings"
 
 save(VegIndex,file = "VegIndex_NDVI.Rdata")
