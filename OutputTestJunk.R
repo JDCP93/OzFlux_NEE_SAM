@@ -542,3 +542,309 @@ source("MemoryPlot.R")
 Plot = MemoryPlot(Sites,"LAT")
 
 
+
+
+### Plotting CABLE vs OBS weights
+
+
+SPSWR = data.frame(x = 0:13,
+                   SP_mean = ggplot_build(SP$SWRplot)$data[[1]]$y,
+                   SP_min = ggplot_build(SP$SWRplot)$data[[2]]$ymin,
+                   SP_max = ggplot_build(SP$SWRplot)$data[[2]]$ymax,
+                   SP_CABLE_mean = ggplot_build(SP_CABLE$SWRplot)$data[[1]]$y,
+                   SP_CABLE_min = ggplot_build(SP_CABLE$SWRplot)$data[[2]]$ymin,
+                   SP_CABLE_max = ggplot_build(SP_CABLE$SWRplot)$data[[2]]$ymax)
+
+
+
+SPSWC = data.frame(x = 0:13,
+                   SP_mean = ggplot_build(SP$SWCplot)$data[[1]]$y,
+                   SP_min = ggplot_build(SP$SWCplot)$data[[2]]$ymin,
+                   SP_max = ggplot_build(SP$SWCplot)$data[[2]]$ymax,
+                   SP_CABLE_mean = ggplot_build(SP_CABLE$SWCplot)$data[[1]]$y,
+                   SP_CABLE_min = ggplot_build(SP_CABLE$SWCplot)$data[[2]]$ymin,
+                   SP_CABLE_max = ggplot_build(SP_CABLE$SWCplot)$data[[2]]$ymax)
+
+
+SPTair = data.frame(x = 0:13,
+                    SP_mean = ggplot_build(SP$Tairplot)$data[[1]]$y,
+                    SP_min = ggplot_build(SP$Tairplot)$data[[2]]$ymin,
+                    SP_max = ggplot_build(SP$Tairplot)$data[[2]]$ymax,
+                    SP_CABLE_mean = ggplot_build(SP_CABLE$Tairplot)$data[[1]]$y,
+                    SP_CABLE_min = ggplot_build(SP_CABLE$Tairplot)$data[[2]]$ymin,
+                    SP_CABLE_max = ggplot_build(SP_CABLE$Tairplot)$data[[2]]$ymax)
+
+
+SPVPD = data.frame(x = 0:13,
+                   SP_mean = ggplot_build(SP$VPDplot)$data[[1]]$y,
+                   SP_min = ggplot_build(SP$VPDplot)$data[[2]]$ymin,
+                   SP_max = ggplot_build(SP$VPDplot)$data[[2]]$ymax,
+                   SP_CABLE_mean = ggplot_build(SP_CABLE$VPDplot)$data[[1]]$y,
+                   SP_CABLE_min = ggplot_build(SP_CABLE$VPDplot)$data[[2]]$ymin,
+                   SP_CABLE_max = ggplot_build(SP_CABLE$VPDplot)$data[[2]]$ymax)
+
+
+
+SPPPT = data.frame(x = c(0,20,29,59,119,179,269,365),
+                   SP_mean = ggplot_build(SP$PPTplot)$data[[1]]$y,
+                   SP_min = ggplot_build(SP$PPTplot)$data[[2]]$ymin,
+                   SP_max = ggplot_build(SP$PPTplot)$data[[2]]$ymax,
+                   SP_CABLE_mean = ggplot_build(SP_CABLE$PPTplot)$data[[1]]$y,
+                   SP_CABLE_min = ggplot_build(SP_CABLE$PPTplot)$data[[2]]$ymin,
+                   SP_CABLE_max = ggplot_build(SP_CABLE$PPTplot)$data[[2]]$ymax)
+
+
+SPSWRPlot = ggplot(SPSWR) +
+  geom_path(aes(x,y=SP_mean,color="Obs"),size=1) +
+  geom_path(aes(x,y=SP_CABLE_mean,color="CABLE"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=SP_min,ymax=SP_max,color="Obs"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=SP_CABLE_min,ymax=SP_CABLE_max,color="CABLE"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  guides(color = "none") +
+  scale_color_manual(values=c("blue","black")) +
+  ggtitle("SWR")
+
+
+SPSWCPlot = ggplot(SPSWC) +
+  geom_path(aes(x,y=SP_mean,color="Obs"),size=1) +
+  geom_path(aes(x,y=SP_CABLE_mean,color="CABLE"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=SP_min,ymax=SP_max,color="Obs"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=SP_CABLE_min,ymax=SP_CABLE_max,color="CABLE"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  guides(color = "none") +
+  scale_color_manual(values=c("blue","black")) +
+  ggtitle("SWC")
+
+SPTairPlot = ggplot(SPTair) +
+  geom_path(aes(x,y=SP_mean,color="Obs"),size=1) +
+  geom_path(aes(x,y=SP_CABLE_mean,color="CABLE"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=SP_min,ymax=SP_max,color="Obs"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=SP_CABLE_min,ymax=SP_CABLE_max,color="CABLE"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  guides(color = "none") +
+  scale_color_manual(values=c("blue","black")) +
+  ggtitle("Tair")
+
+SPVPDPlot = ggplot(SPVPD) +
+  geom_path(aes(x,y=SP_mean,color="Obs"),size=1) +
+  geom_path(aes(x,y=SP_CABLE_mean,color="CABLE"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=SP_min,ymax=SP_max,color="Obs"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=SP_CABLE_min,ymax=SP_CABLE_max,color="CABLE"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  guides(color = "none") +
+  scale_color_manual(values=c("blue","black")) +
+  ggtitle("VPD")
+
+
+SPPPTPlot = ggplot(SPPPT) +
+  geom_path(aes(c(0,20,29,59,119,179,269,365),SP_mean,color="Obs"),size=1) +
+  geom_path(aes(c(0,20,29,59,119,179,269,365),SP_CABLE_mean,color="CABLE"),size=1) +
+  geom_linerange(aes(x=c(-2,18.5,27.5,57,117,177,267,363),ymin=SP_min,ymax=SP_max,color="Obs"),size=1) +
+  geom_linerange(aes(x=c(2,21.5,30.5,61,121,181,271,367),ymin=SP_CABLE_min,ymax=SP_CABLE_max,color="CABLE"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 365), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_color_manual(values=c("blue","black"),name = "Data") +
+  ggtitle("PPT")
+
+
+grid.arrange(SPSWRPlot,SPTairPlot,SPVPDPlot,SPSWCPlot,SPPPTPlot,
+             widths = c(1,1,1,1),
+             heights = c(3,3,4),
+             layout_matrix = rbind(c(1,1,2,2),
+                                   c(3,3,4,4),
+                                   c(NA,5,5,NA)),
+             top = "Sturt Plains")
+
+
+
+### Plot Howard Springs weights for 5 year periods
+rm(list = ls())
+
+
+source("MemoryR2_match.R")
+source("MemoryR2_split.R")
+
+HS_2013 = MemoryR2_match("HowardSprings","HS")
+
+HS_2003 = MemoryR2_split("HowardSprings","HS",1)
+
+HS_2008 = MemoryR2_split("HowardSprings","HS",2)
+
+
+Sites = list("2003-2007"=HS_2003,"2008-2012"=HS_2008,"2013-2017"=HS_2013)
+source("MemoryPlot.R")
+
+library(ggplot2)
+library(gridExtra)
+HSSWR = data.frame(x = 0:13,
+                   HS_mean_2003 = ggplot_build(HS_2003$SWRplot)$data[[1]]$y,
+                   HS_min_2003 = ggplot_build(HS_2003$SWRplot)$data[[2]]$ymin,
+                   HS_max_2003 = ggplot_build(HS_2003$SWRplot)$data[[2]]$ymax,
+                   HS_mean_2008 = ggplot_build(HS_2008$SWRplot)$data[[1]]$y,
+                   HS_min_2008 = ggplot_build(HS_2008$SWRplot)$data[[2]]$ymin,
+                   HS_max_2008 = ggplot_build(HS_2008$SWRplot)$data[[2]]$ymax,
+                   HS_mean_2013 = ggplot_build(HS_2013$SWRplot)$data[[1]]$y,
+                   HS_min_2013 = ggplot_build(HS_2013$SWRplot)$data[[2]]$ymin,
+                   HS_max_2013 = ggplot_build(HS_2013$SWRplot)$data[[2]]$ymax)
+
+
+
+HSSWC = data.frame(x = 0:13,
+                   HS_mean_2003 = ggplot_build(HS_2003$SWCplot)$data[[1]]$y,
+                   HS_min_2003 = ggplot_build(HS_2003$SWCplot)$data[[2]]$ymin,
+                   HS_max_2003 = ggplot_build(HS_2003$SWCplot)$data[[2]]$ymax,
+                   HS_mean_2008 = ggplot_build(HS_2008$SWCplot)$data[[1]]$y,
+                   HS_min_2008 = ggplot_build(HS_2008$SWCplot)$data[[2]]$ymin,
+                   HS_max_2008 = ggplot_build(HS_2008$SWCplot)$data[[2]]$ymax,
+                   HS_mean_2013 = ggplot_build(HS_2013$SWCplot)$data[[1]]$y,
+                   HS_min_2013 = ggplot_build(HS_2013$SWCplot)$data[[2]]$ymin,
+                   HS_max_2013 = ggplot_build(HS_2013$SWCplot)$data[[2]]$ymax)
+
+
+HSTair = data.frame(x = 0:13,
+                    HS_mean_2003 = ggplot_build(HS_2003$Tairplot)$data[[1]]$y,
+                    HS_min_2003 = ggplot_build(HS_2003$Tairplot)$data[[2]]$ymin,
+                    HS_max_2003 = ggplot_build(HS_2003$Tairplot)$data[[2]]$ymax,
+                    HS_mean_2008 = ggplot_build(HS_2008$Tairplot)$data[[1]]$y,
+                    HS_min_2008 = ggplot_build(HS_2008$Tairplot)$data[[2]]$ymin,
+                    HS_max_2008 = ggplot_build(HS_2008$Tairplot)$data[[2]]$ymax,
+                    HS_mean_2013 = ggplot_build(HS_2013$Tairplot)$data[[1]]$y,
+                    HS_min_2013 = ggplot_build(HS_2013$Tairplot)$data[[2]]$ymin,
+                    HS_max_2013 = ggplot_build(HS_2013$Tairplot)$data[[2]]$ymax)
+
+
+HSVPD = data.frame(x = 0:13,
+                   HS_mean_2003 = ggplot_build(HS_2003$VPDplot)$data[[1]]$y,
+                   HS_min_2003 = ggplot_build(HS_2003$VPDplot)$data[[2]]$ymin,
+                   HS_max_2003 = ggplot_build(HS_2003$VPDplot)$data[[2]]$ymax,
+                   HS_mean_2008 = ggplot_build(HS_2008$VPDplot)$data[[1]]$y,
+                   HS_min_2008 = ggplot_build(HS_2008$VPDplot)$data[[2]]$ymin,
+                   HS_max_2008 = ggplot_build(HS_2008$VPDplot)$data[[2]]$ymax,
+                   HS_mean_2013 = ggplot_build(HS_2013$VPDplot)$data[[1]]$y,
+                   HS_min_2013 = ggplot_build(HS_2013$VPDplot)$data[[2]]$ymin,
+                   HS_max_2013 = ggplot_build(HS_2013$VPDplot)$data[[2]]$ymax)
+
+
+
+HSPPT = data.frame(x = c(0,20,29,59,119,179,269,365),
+                   HS_mean_2003 = ggplot_build(HS_2003$PPTplot)$data[[1]]$y,
+                   HS_min_2003 = ggplot_build(HS_2003$PPTplot)$data[[2]]$ymin,
+                   HS_max_2003 = ggplot_build(HS_2003$PPTplot)$data[[2]]$ymax,
+                   HS_mean_2008 = ggplot_build(HS_2008$PPTplot)$data[[1]]$y,
+                   HS_min_2008 = ggplot_build(HS_2008$PPTplot)$data[[2]]$ymin,
+                   HS_max_2008 = ggplot_build(HS_2008$PPTplot)$data[[2]]$ymax,
+                   HS_mean_2013 = ggplot_build(HS_2013$PPTplot)$data[[1]]$y,
+                   HS_min_2013 = ggplot_build(HS_2013$PPTplot)$data[[2]]$ymin,
+                   HS_max_2013 = ggplot_build(HS_2013$PPTplot)$data[[2]]$ymax)
+
+
+HSSWRPlot = ggplot(HSSWR) +
+  geom_path(aes(x,y=HS_mean_2003,color="2003"),size=1) +
+  geom_path(aes(x,y=HS_mean_2008,color="2008"),size=1) +
+  geom_path(aes(x,y=HS_mean_2013,color="2013"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
+  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  guides(color = "none") +
+  scale_color_manual(values=c("green","orange","purple")) +
+  ggtitle("SWR")
+
+
+HSSWCPlot = ggplot(HSSWC) +
+  geom_path(aes(x,y=HS_mean_2003,color="2003"),size=1) +
+  geom_path(aes(x,y=HS_mean_2008,color="2008"),size=1) +
+  geom_path(aes(x,y=HS_mean_2013,color="2013"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
+  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  guides(color = "none") +
+  scale_color_manual(values=c("green","orange","purple")) +
+  ggtitle("SWC")
+
+HSTairPlot = ggplot(HSTair) +
+  geom_path(aes(x,y=HS_mean_2003,color="2003"),size=1) +
+  geom_path(aes(x,y=HS_mean_2008,color="2008"),size=1) +
+  geom_path(aes(x,y=HS_mean_2013,color="2013"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
+  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  guides(color = "none") +
+  scale_color_manual(values=c("green","orange","purple")) +
+  ggtitle("Tair")
+
+HSVPDPlot = ggplot(HSVPD) +
+  geom_path(aes(x,y=HS_mean_2003,color="2003"),size=1) +
+  geom_path(aes(x,y=HS_mean_2008,color="2008"),size=1) +
+  geom_path(aes(x,y=HS_mean_2013,color="2013"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
+  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  guides(color = "none") +
+  scale_color_manual(values=c("green","orange","purple")) +
+  ggtitle("VPD")
+
+
+HSPPTPlot = ggplot(HSPPT) +
+  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2003,color="2003"),size=1) +
+  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2008,color="2008"),size=1) +
+  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2013,color="2013"),size=1) +
+  geom_linerange(aes(x=c(-2,18,27,57,117,177,267,363),ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
+  geom_linerange(aes(x=c(0,20,29,59,119,179,269,365),ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
+  geom_linerange(aes(x=c(2,22,31,61,121,181,271,367),ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_hline(yintercept=0.5,linetype = "dashed") +
+  coord_cartesian(xlim = c(0, 365), ylim = c(0,1)) +
+  xlab("Days into Past") +
+  ylab("Cumulative Weight") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_color_manual(values=c("green","orange","purple"),name = "Data") +
+  ggtitle("PPT")
+
+
+grid.arrange(HSSWRPlot,HSTairPlot,HSVPDPlot,HSSWCPlot,HSPPTPlot,
+             widths = c(1,1,1,1),
+             heights = c(3,3,4),
+             layout_matrix = rbind(c(1,1,2,2),
+                                   c(3,3,4,4),
+                                   c(NA,5,5,NA)),
+             top = "Howard Springs - 5 Year Periods")
