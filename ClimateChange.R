@@ -353,9 +353,10 @@ HS.VPD = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(xintercept = mean(VPD),color="2003-2007"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2008-01-01" & HSDailyData$TIMESTAMP < "2013-01-01",],aes(xintercept = mean(VPD),color="2008-2012"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(VPD),color="2013-2017"),linetype = "dashed") +
-  scale_color_discrete(name = "") +
+  scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
   theme(axis.text.y = element_blank()) +
+  xlab("VPD") +
   guides(color = "none")
 
 HS.NEE = ggplot() +
@@ -365,9 +366,10 @@ HS.NEE = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(xintercept = mean(NEE_LL),color="2003-2007"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2008-01-01" & HSDailyData$TIMESTAMP < "2013-01-01",],aes(xintercept = mean(NEE_LL),color="2008-2012"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(NEE_LL),color="2013-2017"),linetype = "dashed") +
-  scale_color_discrete(name = "") +
+  scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
-  theme(axis.text.y = element_blank())+
+  theme(axis.text.y = element_blank()) +
+  xlab("NEE") +
   guides(color = "none")
 
 HS.SWR = ggplot() +
@@ -377,9 +379,10 @@ HS.SWR = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(xintercept = mean(Fsd),color="2003-2007"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2008-01-01" & HSDailyData$TIMESTAMP < "2013-01-01",],aes(xintercept = mean(Fsd),color="2008-2012"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(Fsd),color="2013-2017"),linetype = "dashed") +
-  scale_color_discrete(name = "") +
+  scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
   theme(axis.text.y = element_blank())+
+  xlab("SWR") +
   guides(color = "none")
 
 HS.SWC = ggplot() +
@@ -389,9 +392,10 @@ HS.SWC = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(xintercept = mean(Sws),color="2003-2007"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2008-01-01" & HSDailyData$TIMESTAMP < "2013-01-01",],aes(xintercept = mean(Sws),color="2008-2012"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(Sws),color="2013-2017"),linetype = "dashed") +
-  scale_color_discrete(name = "") +
+  scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
   theme(axis.text.y = element_blank())+
+  xlab("SWC") +
   guides(color = "none")
 
 HS.Tair = ggplot() +
@@ -401,9 +405,10 @@ HS.Tair = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(xintercept = mean(Ta),color="2003-2007"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2008-01-01" & HSDailyData$TIMESTAMP < "2013-01-01",],aes(xintercept = mean(Ta),color="2008-2012"),linetype = "dashed") +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(Ta),color="2013-2017"),linetype = "dashed") +
-  scale_color_discrete(name = "") +
+  scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
   theme(axis.text.y = element_blank())+
+  xlab("Tair") +
   guides(color = "none")
 
 HS.PPT = ggplot() +
@@ -413,15 +418,31 @@ HS.PPT = ggplot() +
   geom_vline(data = HSYearlyData[HSYearlyData$year<2008,],aes(xintercept = mean(Precip),color="2003-2007"),linetype = "dashed") +
   geom_vline(data = HSYearlyData[HSYearlyData$year>=2008 & HSYearlyData$year<2013,],aes(xintercept = mean(Precip),color="2008-2012"),linetype = "dashed") +
   geom_vline(data = HSYearlyData[HSYearlyData$year>=2013,],aes(xintercept = mean(Precip),color="2013-2017"),linetype = "dashed") +
-  scale_color_discrete(name = "") +
+  scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
   theme(axis.text.y = element_blank())+
+  xlab("PPT") +
   theme(legend.position = "bottom")
 
-grid.arrange(HS.NEE, HS.SWR, HS.SWC, HS.VPD, HS.Tair, HS.PPT, top = "HS",             
+grid.arrange(HS.NEE, HS.SWR, HS.Tair, HS.VPD, HS.SWC, HS.PPT, top = "HS",             
              widths = c(1,1,1,1),
              heights = c(3,3,3,4),
              layout_matrix = rbind(c(NA,1,1,NA),
                                    c(2,2,3,3),
                                    c(4,4,5,5),
                                    c(NA,6,6,NA)))
+
+
+
+
+HS.PPT = ggplot() +
+  geom_density(data = HSMonthlyData[HSMonthlyData$year<2008,],aes(x = Precip, y = ..density..,color = "2003-2007"),size = 1) +
+  geom_density(data = HSMonthlyData[HSMonthlyData$year>=2008 & HSMonthlyData$year<2013,], aes(x = Precip, y = ..density.., color = "2008-2012"), size = 1) +
+  geom_density(data = HSMonthlyData[HSMonthlyData$year>=2013,], aes(x = Precip, y = ..density.., color = "2013-2017"), size = 1) +
+  geom_vline(data = HSMonthlyData[HSMonthlyData$year<2008,],aes(xintercept = mean(Precip),color="2003-2007"),linetype = "dashed") +
+  geom_vline(data = HSMonthlyData[HSMonthlyData$year>=2008 & HSMonthlyData$year<2013,],aes(xintercept = mean(Precip),color="2008-2012"),linetype = "dashed") +
+  geom_vline(data = HSMonthlyData[HSMonthlyData$year>=2013,],aes(xintercept = mean(Precip),color="2013-2017"),linetype = "dashed") +
+  scale_color_manual(values=c("green","orange","purple")) +
+  theme_bw() +
+  xlab("PPT") +
+  theme(legend.position = "bottom")
