@@ -759,12 +759,12 @@ HSPPT = data.frame(x = c(0,20,29,59,119,179,269,365),
 
 
 HSSWRPlot = ggplot(HSSWR) +
-  geom_path(aes(x,y=HS_mean_2003,color="2003"),size=1) +
-  geom_path(aes(x,y=HS_mean_2008,color="2008"),size=1) +
-  geom_path(aes(x,y=HS_mean_2013,color="2013"),size=1) +
-  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
-  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
-  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_path(aes(x,y=HS_mean_2003,color="2003-2007"),size=1) +
+  geom_path(aes(x,y=HS_mean_2008,color="2008-2012"),size=1) +
+  geom_path(aes(x,y=HS_mean_2013,color="2013-2017"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003-2007"),size=1) +
+  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008-2012"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013-2017"),size=1) +
   geom_hline(yintercept=0.5,linetype = "dashed") +
   coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
   xlab("Days into Past") +
@@ -776,12 +776,12 @@ HSSWRPlot = ggplot(HSSWR) +
 
 
 HSSWCPlot = ggplot(HSSWC) +
-  geom_path(aes(x,y=HS_mean_2003,color="2003"),size=1) +
-  geom_path(aes(x,y=HS_mean_2008,color="2008"),size=1) +
-  geom_path(aes(x,y=HS_mean_2013,color="2013"),size=1) +
-  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
-  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
-  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_path(aes(x,y=HS_mean_2003,color="2003-2007"),size=1) +
+  geom_path(aes(x,y=HS_mean_2008,color="2008-2012"),size=1) +
+  geom_path(aes(x,y=HS_mean_2013,color="2013-2017"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003-2007"),size=1) +
+  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008-2012"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013-2017"),size=1) +
   geom_hline(yintercept=0.5,linetype = "dashed") +
   coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
   xlab("Days into Past") +
@@ -792,12 +792,12 @@ HSSWCPlot = ggplot(HSSWC) +
   ggtitle("SWC")
 
 HSTairPlot = ggplot(HSTair) +
-  geom_path(aes(x,y=HS_mean_2003,color="2003"),size=1) +
-  geom_path(aes(x,y=HS_mean_2008,color="2008"),size=1) +
-  geom_path(aes(x,y=HS_mean_2013,color="2013"),size=1) +
-  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
-  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
-  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_path(aes(x,y=HS_mean_2003,color="2003-2007"),size=1) +
+  geom_path(aes(x,y=HS_mean_2008,color="2008-2012"),size=1) +
+  geom_path(aes(x,y=HS_mean_2013,color="2013-2017"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003-2007"),size=1) +
+  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008-2012"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013-2017"),size=1) +
   geom_hline(yintercept=0.5,linetype = "dashed") +
   coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
   xlab("Days into Past") +
@@ -808,12 +808,12 @@ HSTairPlot = ggplot(HSTair) +
   ggtitle("Tair")
 
 HSVPDPlot = ggplot(HSVPD) +
-  geom_path(aes(x,y=HS_mean_2003,color="2003"),size=1) +
-  geom_path(aes(x,y=HS_mean_2008,color="2008"),size=1) +
-  geom_path(aes(x,y=HS_mean_2013,color="2013"),size=1) +
-  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
-  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
-  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_path(aes(x,y=HS_mean_2003,color="2003-2007"),size=1) +
+  geom_path(aes(x,y=HS_mean_2008,color="2008-2012"),size=1) +
+  geom_path(aes(x,y=HS_mean_2013,color="2013-2017"),size=1) +
+  geom_linerange(aes(x=-0.1:12.9,ymin=HS_min_2003,ymax=HS_max_2003,color="2003-2007"),size=1) +
+  geom_linerange(aes(x=0:13,ymin=HS_min_2008,ymax=HS_max_2008,color="2008-2012"),size=1) +
+  geom_linerange(aes(x=0.1:13.1,ymin=HS_min_2013,ymax=HS_max_2013,color="2013-2017"),size=1) +
   geom_hline(yintercept=0.5,linetype = "dashed") +
   coord_cartesian(xlim = c(0, 13), ylim = c(0,1)) +
   xlab("Days into Past") +
@@ -825,12 +825,12 @@ HSVPDPlot = ggplot(HSVPD) +
 
 
 HSPPTPlot = ggplot(HSPPT) +
-  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2003,color="2003"),size=1) +
-  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2008,color="2008"),size=1) +
-  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2013,color="2013"),size=1) +
-  geom_linerange(aes(x=c(-2,18,27,57,117,177,267,363),ymin=HS_min_2003,ymax=HS_max_2003,color="2003"),size=1) +
-  geom_linerange(aes(x=c(0,20,29,59,119,179,269,365),ymin=HS_min_2008,ymax=HS_max_2008,color="2008"),size=1) +
-  geom_linerange(aes(x=c(2,22,31,61,121,181,271,367),ymin=HS_min_2013,ymax=HS_max_2013,color="2013"),size=1) +
+  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2003,color="2003-2007"),size=1) +
+  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2008,color="2008-2012"),size=1) +
+  geom_path(aes(c(0,20,29,59,119,179,269,365),y=HS_mean_2013,color="2013-2017"),size=1) +
+  geom_linerange(aes(x=c(-2,18,27,57,117,177,267,363),ymin=HS_min_2003,ymax=HS_max_2003,color="2003-2007"),size=1) +
+  geom_linerange(aes(x=c(0,20,29,59,119,179,269,365),ymin=HS_min_2008,ymax=HS_max_2008,color="2008-2012"),size=1) +
+  geom_linerange(aes(x=c(2,22,31,61,121,181,271,367),ymin=HS_min_2013,ymax=HS_max_2013,color="2013-2017"),size=1) +
   geom_hline(yintercept=0.5,linetype = "dashed") +
   coord_cartesian(xlim = c(0, 365), ylim = c(0,1)) +
   xlab("Days into Past") +
@@ -848,3 +848,4 @@ grid.arrange(HSSWRPlot,HSTairPlot,HSVPDPlot,HSSWCPlot,HSPPTPlot,
                                    c(3,3,4,4),
                                    c(NA,5,5,NA)),
              top = "Howard Springs - 5 Year Periods")
+
