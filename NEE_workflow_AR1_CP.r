@@ -43,21 +43,21 @@ source('AR1Model.R')
 
 #############  END oF RUN CONFIGURAT #################
 # prepare site-level input data from raw data ------
-load('./AliceSprings_Input_NDVI.Rdata') # change these to functions
-attach(`AliceSprings_Input`)
+load('./Calperum_Input_NDVI.Rdata') # change these to functions
+attach(`Calperum_Input`)
 
 
 # Load Howard Springs data
-load('results/NEE_output_site_AS_2020-08-25.rda')
+load('results/NEE_output_site_CP_2020-08-26.rda')
 # data inside is called "nee_daily"
-assign('AS',nee_daily)
+assign('CP',nee_daily)
 rm(nee_daily)
-summary=summary(AS)
+summary=summary(CP)
 NEE_pred = summary$statistics[substr(rownames(summary$statistics),1,3)=="NEE",1]
-NEE_obs = `AliceSprings_Input`$NEE[-(1:365)]
+NEE_obs = `Calperum_Input`$NEE[-(1:365)]
 
 NEE.res = NEE_pred - NEE_obs
-Nmem = AliceSprings_Input$Nmem
+Nmem = Calperum_Input$Nmem
 
 
 
@@ -78,11 +78,11 @@ AR1.res <- jags.parfit(cl,
                        thin = 20)
 
 message("Save model output at ",Sys.time())
-save(AR1.res, file=paste('NEE_AR1_output_site_AS_', Sys.Date(),'.rda', sep = ''))
+save(AR1.res, file=paste('NEE_AR1_output_site_CP_', Sys.Date(),'.rda', sep = ''))
   
 
 
-detach(`AliceSprings_Input`)
+detach(`Calperum_Input`)
 stopCluster(cl)
 
 message("Finished the model run at ",Sys.time())
