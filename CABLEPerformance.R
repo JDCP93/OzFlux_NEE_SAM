@@ -22,6 +22,10 @@ RMSE = sqrt(mean((data$NEE_LL-data$NEE)^2))
 R2 = summary(lm(data$NEE ~ data$NEE_LL))$r.squared
 Adj.R2 = summary(lm(data$NEE ~ data$NEE_LL))$adj.r.squared
 
+
+# Calculate max and min
+minLim = min(data$NEE,data$NEE_LL)
+maxLim = max(data$NEE,data$NEE_LL)
 # Plot
 ObsModPlot <- ggplot(data.frame(data$NEE_LL,data$NEE)) +
   geom_point(aes(data$NEE_LL,data$NEE)) +
@@ -29,12 +33,12 @@ ObsModPlot <- ggplot(data.frame(data$NEE_LL,data$NEE)) +
   xlab("Observed") +
   ylab("CABLE") +
   theme_bw() +
-  coord_fixed(xlim=c(min(data$NEE,data$NEE_LL),max(data$NEE,data$NEE_LL)),
-              ylim=c(min(data$NEE,data$NEE_LL),max(data$NEE,data$NEE_LL))) +
+  coord_fixed(xlim=c(minLim,maxLim),
+              ylim=c(minLim,maxLim)) +
   labs(title=paste0(Site," Observed vs CABLE NEE")) +
-  annotate("text", x = max(data$NEE,data$NEE_LL)-4, y = min(data$NEE,data$NEE_LL)+1,
+  annotate("text", x = maxLim-0.25*(maxLim-minLim), y = minLim+0.05*(maxLim-minLim),
            label = paste0('atop(R^2 ==', signif(R2,3), ', RMSE ==', signif(RMSE,3),')'),parse=TRUE) +
- annotate("text", x = max(data$NEE,data$NEE_LL)-1, y = min(data$NEE,data$NEE_LL)+1,
+ annotate("text", x = maxLim-0.05*(maxLim-minLim), y = minLim+0.05*(maxLim-minLim),
        label = paste0('atop(AdjR^2 ==', signif(Adj.R2,3), ', MAE ==', signif(MAE,3),')'),parse=TRUE)
 
 #Combine into output
