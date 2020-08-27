@@ -1,0 +1,46 @@
+CABLEPerformance = function(Site){
+
+# A function for fnding CABLE performance at a site
+# INPUTS:
+# - Site: The 2 letter code used for the site
+# OUTPUTS:
+# - Output: A list of performance metrics and a plot of obs vs CABLE NEE
+
+# load the observations and the model outputs
+# Assign to generic names
+load(paste0(Site,"DailyData.Rdata"))
+assign("Obs",eval(as.name(paste0(Site,"DailyData"))))
+load(paste0(Site,"DailyData_CABLE.Rdata"))
+assign("CABLE",eval(as.name(paste0(Site,"DailyData_CABLE"))))
+
+# Combine the modelled and observed data over the same time period
+data = merge(Obs,CABLE,by.x="TIMESTAMP",by.y="TIMESTAMP")
+
+# Calculate performance metrics
+MAE = mean(abs(data$NEE_LL-data$NEE))
+RMSE = sqrt(mean((data$NEE_LL-data$NEE)^2))
+R2 = summary(lm(data$NEE ~ data$NEE_LL))$r.squared
+Adj.R2 = summary(lm(data$NEE ~ data$NEE_LL))$adj.r.squared
+
+# Plot
+ObsModPlot <- ggplot(data.frame(data$NEE_LL,data$NEE)) +
+  geom_point(aes(data$NEE_LL,data$NEE)) +
+  geom_abline(slope=1,intercept=0) +
+  xlab("Observed") +
+  ylab("CABLE") +
+  theme_bw() +
+  coord_fixed(xlim=c(min(data$NEE,data$NEE_LL),max(data$NEE,data$NEE_LL)),
+              ylim=c(min(data$NEE,data$NEE_LL),max(data$NEE,data$NEE_LL))) +
+  labs(title=paste0(Site," Observed vs CABLE NEE")) +
+  annotate("text", x = max(data$NEE,data$NEE_LL)-1, y = min(data$NEE,data$NEE_LL)+1,
+           #label = bquote(R^2 == .(round(R2,3)))
+           label = paste0('atop(R^2 ==', signif(R2,3), ', RMSE ==', signif(RMSE,3),')'),parse=TRUE)
+
+#Combine into output
+Output = list("ObsModPlot"=ObsModPlot,
+              "MAE"=MAE,
+              "RMSE"=RMSE,
+              "R2"=R2,
+              "Adj.R2"=Adj.R2)
+
+}
