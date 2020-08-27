@@ -13,6 +13,8 @@ library(lubridate)
 library(magrittr)
 library(dplyr)
 library(zoo)
+library(ggplot2)
+library(gridExtra)
 SPDailyData$year = year(SPDailyData$TIMESTAMP)
 SPDailyData$month = month(SPDailyData$TIMESTAMP)
 
@@ -46,7 +48,9 @@ HSYearlyData <- HSDailyData %>%
   group_by(year) %>%               # group by the year column
   summarise(NEE_LL=mean(NEE_LL),
             Fsd=mean(Fsd),
-            Ta=mean(Ta),
+            Ta.mean=mean(Ta),
+            Ta.min=min(Ta),
+            Ta.max=max(Ta),
             VPD=mean(VPD),
             Sws=mean(Sws),
             Precip=sum(Precip))
@@ -57,7 +61,9 @@ HSMonthlyData <- HSDailyData %>%
   group_by(year,month) %>%               # group by the year column
   summarise(NEE_LL=mean(NEE_LL),
             Fsd=mean(Fsd),
-            Ta=mean(Ta),
+            Ta.mean=mean(Ta),
+            Ta.min=min(Ta),
+            Ta.max=max(Ta),
             VPD=mean(VPD),
             Sws=mean(Sws),
             Precip=sum(Precip))
@@ -446,3 +452,68 @@ HS.PPT = ggplot() +
   theme_bw() +
   xlab("PPT") +
   theme(legend.position = "bottom")
+
+HS.PPT
+
+# Calculate metrics for the 5 year periods
+
+PPTmean = mean(HSYearlyData$Precip)
+PPTmean.2003 = mean(HSYearlyData$Precip[HSYearlyData$year<2008])
+PPTmean.2008 = mean(HSYearlyData$Precip[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+PPTmean.2013 = mean(HSYearlyData$Precip[HSYearlyData$year>=2013])
+
+PPTsd = sd(HSYearlyData$Precip)
+PPTsd.2003 = sd(HSYearlyData$Precip[HSYearlyData$year<2008])
+PPTsd.2008 = sd(HSYearlyData$Precip[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+PPTsd.2013 = sd(HSYearlyData$Precip[HSYearlyData$year>=2013])
+
+PPTcvp = PPTsd/PPTmean
+PPTcvp.2003 = PPTsd.2003/PPTmean.2003
+PPTcvp.2008 = PPTsd.2008/PPTmean.2008
+PPTcvp.2013 = PPTsd.2013/PPTmean.2013
+
+VPDmean = mean(HSYearlyData$VPD)
+VPDmean.2003 = mean(HSYearlyData$VPD[HSYearlyData$year<2008])
+VPDmean.2008 = mean(HSYearlyData$VPD[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+VPDmean.2013 = mean(HSYearlyData$VPD[HSYearlyData$year>=2013])
+
+VPDsd = sd(HSYearlyData$VPD)
+VPDsd.2003 = sd(HSYearlyData$VPD[HSYearlyData$year<2008])
+VPDsd.2008 = sd(HSYearlyData$VPD[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+VPDsd.2013 = sd(HSYearlyData$VPD[HSYearlyData$year>=2013])
+
+VPDcvp = VPDsd/VPDmean
+VPDcvp.2003 = VPDsd.2003/VPDmean.2003
+VPDcvp.2008 = VPDsd.2008/VPDmean.2008
+VPDcvp.2013 = VPDsd.2013/VPDmean.2013
+
+
+Fsdmean.2003 = mean(HSYearlyData$Fsd[HSYearlyData$year<2008])
+Fsdmean.2008 = mean(HSYearlyData$Fsd[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+Fsdmean.2013 = mean(HSYearlyData$Fsd[HSYearlyData$year>=2013])
+
+Fsdsd.2003 = sd(HSYearlyData$Fsd[HSYearlyData$year<2008])
+Fsdsd.2008 = sd(HSYearlyData$Fsd[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+Fsdsd.2013 = sd(HSYearlyData$Fsd[HSYearlyData$year>=2013])
+
+Fsdcvp.2003 = Fsdsd.2003/Fsdmean.2003
+Fsdcvp.2008 = Fsdsd.2008/Fsdmean.2008
+Fsdcvp.2013 = Fsdsd.2013/Fsdmean.2013
+
+
+
+
+TaRange.mean = mean(HSYearlyData$Ta.max-HSYearlyData$Ta.min)
+TaRange.mean.2003 = mean(HSYearlyData$Ta.max[HSYearlyData$year<2008]-HSYearlyData$Ta.min[HSYearlyData$year<2008])
+TaRange.mean.2008 = mean(HSYearlyData$Ta.max[HSYearlyData$year>=2008 & HSYearlyData$year<2013]-HSYearlyData$Ta.min[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+TaRange.mean.2013 = mean(HSYearlyData$Ta.max[HSYearlyData$year>=2013]-HSYearlyData$Ta.min[HSYearlyData$year>=2013])
+
+TaRange.sd = sd(HSYearlyData$Ta.max-HSYearlyData$Ta.min)
+TaRange.sd.2003 = sd(HSYearlyData$Ta.max[HSYearlyData$year<2008]-HSYearlyData$Ta.min[HSYearlyData$year<2008])
+TaRange.sd.2008 = sd(HSYearlyData$Ta.max[HSYearlyData$year>=2008 & HSYearlyData$year<2013]-HSYearlyData$Ta.min[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+TaRange.sd.2013 = sd(HSYearlyData$Ta.max[HSYearlyData$year>=2013]-HSYearlyData$Ta.min[HSYearlyData$year>=2013])
+
+TaRange.cvp = TaRange.sd/TaRange.mean
+TaRange.cvp.2003 = TaRange.sd.2003/TaRange.mean.2003
+TaRange.cvp.2008 = TaRange.sd.2008/TaRange.mean.2008
+TaRange.cvp.2013 = TaRange.sd.2013/TaRange.mean.2013
