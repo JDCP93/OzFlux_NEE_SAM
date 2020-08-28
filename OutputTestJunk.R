@@ -46,19 +46,19 @@ source("DBDA2E-utilities.R")
 
 # Use Kruschke's diag function
 
-# Model = SP
-# for (i in varnames(Model)[-grep(varnames(Model),pattern="NEE")]){
-#   
-#   diagMCMC(Model,i)
-#   print(i)
-#   question1 <- readline("Next plot? (Y/N)")
-#   
-#   if(regexpr(question1, 'n', ignore.case = TRUE) == 1){
-#     break
-#   } else {
-#     next  
-#   }
-# }
+ Model = TT
+ for (i in varnames(Model)[-grep(varnames(Model),pattern="NEE")]){
+   
+   diagMCMC(Model,i)
+   print(i)
+   question1 <- readline("Next plot? (Y/N)")
+   
+   if(regexpr(question1, 'n', ignore.case = TRUE) == 1){
+     break
+   } else {
+     next  
+   }
+ }
 
 # Summarise for other uses (means, quantiles, etc.)
 HS.summary=summary(HS)
@@ -449,15 +449,17 @@ SP = MemoryR2("SturtPlains","SP")
 
 DU = MemoryR2("DalyUncleared","DU")
 
-LF = MemoryR2("Litchfield","LF")
+# LF = MemoryR2("Litchfield","LF")
 
 DR = MemoryR2("DryRiver","DR")
+
+AS = MemoryR2("AliceSprings","AS")
 
 SP_CABLE = MemoryR2_CABLE("SturtPlains","SP")
 
 HS_CABLE = MemoryR2_CABLE("HowardSprings","HS")
 
-Sites = list("HS"=HS,"TT"=TT,"SP"=SP,"DU"=DU,"LF"=LF,"DR"=DR)
+Sites = list("HS"=HS,"TT"=TT,"SP"=SP,"DU"=DU,"AS"=AS,"DR"=DR)
 source("MemoryPlot.R")
 Plot = MemoryPlot(Sites,"LAT")
 
@@ -849,3 +851,47 @@ grid.arrange(HSSWRPlot,HSTairPlot,HSVPDPlot,HSSWCPlot,HSPPTPlot,
                                    c(NA,5,5,NA)),
              top = "Howard Springs - 5 Year Periods")
 
+
+
+###
+### Plotting of NATT and SW with actual sites
+###
+
+source("MemoryR2.R")
+
+HS = MemoryR2("HowardSprings","HS")
+
+TT = MemoryR2("TiTreeEast","TT")
+
+SP = MemoryR2("SturtPlains","SP")
+
+DU = MemoryR2("DalyUncleared","DU")
+
+DR = MemoryR2("DryRiver","DR")
+
+AS = MemoryR2("AliceSprings","AS")
+
+Sites = list("HS"=HS,"TT"=TT,"SP"=SP,"DU"=DU,"AS"=AS,"DR"=DR)
+source("MemoryPlot.R")
+Plot_NATT = MemoryPlot(Sites,"LAT")
+
+Plot_NATT
+
+
+
+
+TR = MemoryR2("Tumbarumba","TR")
+
+WO = MemoryR2("Whroo","WO")
+
+GW = MemoryR2("GreatWesternWoodlands","GW")
+
+GG = MemoryR2("Gingin","GG")
+
+CP = MemoryR2("Calperum","CP")
+
+Sites = list("TR"=TR,"WO"=WO,"GW"=GW,"GG"=GG,"CP"=CP)
+source("MemoryPlot.R")
+Plot_SW = MemoryPlot(Sites,"MAP")
+
+Plot_SW
