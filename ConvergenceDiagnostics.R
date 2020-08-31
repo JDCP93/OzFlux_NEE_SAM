@@ -5,11 +5,12 @@
 
 
 # Load the required output
-load("results/NEE_output_long_site_HS_2020-08-31.rda")
+load("results/NEE_output_site_HS_2020-08-05.rda")
 
-# Load the required libraries
+# Load the required libraries and Kruschke's functions
 library(coda)
 library(ggplot2)
+source('DBDA2E-utilities.R')
 
 # We find the Gelman diagnostic (it has a proper name but I'm a hack)
 Gelman = gelman.diag(nee_daily,multivariate=FALSE)
