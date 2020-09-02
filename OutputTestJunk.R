@@ -901,8 +901,11 @@ Plot_SW
 #*******************************
 # Find phi0 value
 HS.phi0 = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,3)=="phi",1]
+# Calculate phi_t
 HS.phi = HowardSprings_Input$NDVI*(1-HS.phi0+HS.phi0*HowardSprings_Input$NDVI)
-HS.phi.df = data.frame("Time"=HowardSprings_Input$)
+# Put into a dataframe with timestamps
+# NEED TO GET DAILY DATA ONTO MY MAC
+HS.phi.df = data.frame("Time"=HS_DailyData$TIMESTAMP,"Phi"=HS.phi)
 
 SP.phi0 = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,3)=="phi",1]
 SP.phi = SturtPlains_Input$NDVI*(1-SP.phi0+SP.phi0*SturtPlains_Input$NDVI)
