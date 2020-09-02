@@ -391,13 +391,15 @@ HS.SWR = ggplot() +
   xlab("SWR") +
   guides(color = "none")
 
+
+## This has been changed to median from mean
 HS.SWC = ggplot() +
   geom_density(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(x = Sws, y = ..density..,color = "2003-2007"),size = 1) +
   geom_density(data = HSDailyData[HSDailyData$TIMESTAMP>="2008-01-01" & HSDailyData$TIMESTAMP < "2013-01-01",],aes(x = Sws, y = ..density..,color = "2008-2012"),size = 1) +
   geom_density(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",], aes(x = Sws, y = ..density.., color = "2013-2017"), size = 1) +
-  geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(xintercept = mean(Sws),color="2003-2007"),linetype = "dashed") +
-  geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2008-01-01" & HSDailyData$TIMESTAMP < "2013-01-01",],aes(xintercept = mean(Sws),color="2008-2012"),linetype = "dashed") +
-  geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(Sws),color="2013-2017"),linetype = "dashed") +
+  geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(xintercept = median(Sws),color="2003-2007"),linetype = "dashed") +
+  geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2008-01-01" & HSDailyData$TIMESTAMP < "2013-01-01",],aes(xintercept = median(Sws),color="2008-2012"),linetype = "dashed") +
+  geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = median(Sws),color="2013-2017"),linetype = "dashed") +
   scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
   theme(axis.text.y = element_blank())+
@@ -417,13 +419,14 @@ HS.Tair = ggplot() +
   xlab("Tair") +
   guides(color = "none")
 
+## This has been changed to median from mean
 HS.PPT = ggplot() +
   geom_density(data = HSYearlyData[HSYearlyData$year<2008,],aes(x = Precip, y = ..density..,color = "2003-2007"),size = 1) +
   geom_density(data = HSYearlyData[HSYearlyData$year>=2008 & HSYearlyData$year<2013,], aes(x = Precip, y = ..density.., color = "2008-2012"), size = 1) +
   geom_density(data = HSYearlyData[HSYearlyData$year>=2013,], aes(x = Precip, y = ..density.., color = "2013-2017"), size = 1) +
-  geom_vline(data = HSYearlyData[HSYearlyData$year<2008,],aes(xintercept = mean(Precip),color="2003-2007"),linetype = "dashed") +
-  geom_vline(data = HSYearlyData[HSYearlyData$year>=2008 & HSYearlyData$year<2013,],aes(xintercept = mean(Precip),color="2008-2012"),linetype = "dashed") +
-  geom_vline(data = HSYearlyData[HSYearlyData$year>=2013,],aes(xintercept = mean(Precip),color="2013-2017"),linetype = "dashed") +
+  geom_vline(data = HSYearlyData[HSYearlyData$year<2008,],aes(xintercept = median(Precip),color="2003-2007"),linetype = "dashed") +
+  geom_vline(data = HSYearlyData[HSYearlyData$year>=2008 & HSYearlyData$year<2013,],aes(xintercept = median(Precip),color="2008-2012"),linetype = "dashed") +
+  geom_vline(data = HSYearlyData[HSYearlyData$year>=2013,],aes(xintercept = median(Precip),color="2013-2017"),linetype = "dashed") +
   scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
   theme(axis.text.y = element_blank())+
@@ -502,6 +505,19 @@ Fsdcvp.2013 = Fsdsd.2013/Fsdmean.2013
 
 
 
+Swsmean.2003 = mean(HSYearlyData$Sws[HSYearlyData$year<2008])
+Swsmean.2008 = mean(HSYearlyData$Sws[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+Swsmean.2013 = mean(HSYearlyData$Sws[HSYearlyData$year>=2013])
+
+Swssd.2003 = sd(HSYearlyData$Sws[HSYearlyData$year<2008])
+Swssd.2008 = sd(HSYearlyData$Sws[HSYearlyData$year>=2008 & HSYearlyData$year<2013])
+Swssd.2013 = sd(HSYearlyData$Sws[HSYearlyData$year>=2013])
+
+Swscvp.2003 = Swssd.2003/Swsmean.2003
+Swscvp.2008 = Swssd.2008/Swsmean.2008
+Swscvp.2013 = Swssd.2013/Swsmean.2013
+
+
 
 TaRange.mean = mean(HSYearlyData$Ta.max-HSYearlyData$Ta.min)
 TaRange.mean.2003 = mean(HSYearlyData$Ta.max[HSYearlyData$year<2008]-HSYearlyData$Ta.min[HSYearlyData$year<2008])
@@ -517,3 +533,20 @@ TaRange.cvp = TaRange.sd/TaRange.mean
 TaRange.cvp.2003 = TaRange.sd.2003/TaRange.mean.2003
 TaRange.cvp.2008 = TaRange.sd.2008/TaRange.mean.2008
 TaRange.cvp.2013 = TaRange.sd.2013/TaRange.mean.2013
+
+## Calculate Precip metrics but monthly
+
+PPTmean = mean(HSMonthlyData$Precip)
+PPTmean.2003 = mean(HSMonthlyData$Precip[HSMonthlyData$year<2008])
+PPTmean.2008 = mean(HSMonthlyData$Precip[HSMonthlyData$year>=2008 & HSMonthlyData$year<2013])
+PPTmean.2013 = mean(HSMonthlyData$Precip[HSMonthlyData$year>=2013])
+
+PPTsd = sd(HSMonthlyData$Precip)
+PPTsd.2003 = sd(HSMonthlyData$Precip[HSMonthlyData$year<2008])
+PPTsd.2008 = sd(HSMonthlyData$Precip[HSMonthlyData$year>=2008 & HSMonthlyData$year<2013])
+PPTsd.2013 = sd(HSMonthlyData$Precip[HSMonthlyData$year>=2013])
+
+PPTcvp = PPTsd/PPTmean
+PPTcvp.2003 = PPTsd.2003/PPTmean.2003
+PPTcvp.2008 = PPTsd.2008/PPTmean.2008
+PPTcvp.2013 = PPTsd.2013/PPTmean.2013
