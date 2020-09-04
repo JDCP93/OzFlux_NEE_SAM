@@ -79,28 +79,6 @@ UniformPlot
 
 
 ## *****************************************************************************
-## Weight Plot
-
-# Create data frame
-x = 1:8
-y = c(0,1,4,10,15,6,3,2)
-df = data.frame("x"=x,"y"=y)
-# Create plot
-WeightPlot = ggplot(df) +
-  geom_bar(aes(x,y),stat="identity", fill = "blue") +
-  theme_classic() +
-  xlab("Lag") +
-  ylab(expression(omega)) +
-  coord_cartesian(xlim=c(1,9),ylim=c(0,18),expand = 0) +
-  theme(axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        text = element_text(size=20))
-
-# Save as 300x300
-WeightPlot
-
-
-## *****************************************************************************
 ## Omega Plot
 
 # Create data frame
@@ -108,7 +86,7 @@ x = 1:8
 y = c(0,1,4,10,15,6,3,2)
 df = data.frame("x"=x,"y"=y)
 # Create plot
-WeightPlot = ggplot(df) +
+OmegaPlot = ggplot(df) +
   geom_bar(aes(x,y),stat="identity", fill = "blue") +
   theme_classic() +
   xlab("Lag") +
@@ -119,4 +97,30 @@ WeightPlot = ggplot(df) +
         text = element_text(size=20))
 
 # Save as 300x300
-WeightPlot
+OmegaPlot
+
+
+## *****************************************************************************
+## Phi Plot
+
+# Create data frame
+x = seq(0,1,by=0.01)
+ymin = (1+1-x)*x
+y = x
+ymax = (1-1+x)*x 
+df = data.frame("x"=x,"ymin"=ymin,"y"=y,"ymax"=ymax)
+# Create plot
+PhiPlot = ggplot(df) +
+  geom_line(aes(x,ymin),color="lightblue",size=2) +
+  geom_line(aes(x,y),color="blue",size=2) +
+  geom_line(aes(x,ymax),color="darkblue",size=2) +
+  theme_classic() +
+  xlab("NDVI") +
+  ylab(expression(phi)) +
+  coord_cartesian(xlim=c(0,1),ylim=c(0,1),expand = 0) +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        text = element_text(size=20))
+
+# Save as 300x300
+PhiPlot
