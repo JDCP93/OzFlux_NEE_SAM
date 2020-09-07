@@ -3,9 +3,10 @@
 # other fun and important shenanigans.
 # Eventually this will be a function, because I am not a complete hack
 
-
+# Tidy up
+rm(list=ls())
 # Load the required output
-load("results/NEE_output_site_HS_2020-08-05.rda")
+load("results/NEE_output_long3_site_HS_2020-09-07.rda")
 
 # Load the required libraries and Kruschke's functions
 library(coda)
@@ -15,7 +16,7 @@ source('DBDA2E-utilities.R')
 # We find the Gelman diagnostic (it has a proper name but I'm a hack)
 Gelman = gelman.diag(nee_daily,multivariate=FALSE)
 # This should be less than 1.1 for all parameters if the chains have converged
-Oops = Gelman$psrf[Gelman$psrf[,2]>1.1,]
+Oops1 = Gelman$psrf[Gelman$psrf[,2]>1.1,]
 # "Bayesian credible intervals based on the t-distribution are too wide, 
 # and have the potential to shrink by this factor if the MCMC run is continued."
 # The above is from the function definition and is the case when the value is 
@@ -29,6 +30,9 @@ ESS.raw = effectiveSize(nee_daily)
 ESS = ESS.raw[ESS.raw > 0]
 ESSPlot = ggplot(data.frame(ESS)) +
   geom_histogram(aes(ESS),binwidth=250)
+ESSPlot
+# See how many parameters are way below 10,000 ESS
+Oops2 = sum(ESS<7500)
 
 
 # We calculate the Geweke diagnostic - this should fall within the confidence 
@@ -36,3 +40,6 @@ ESSPlot = ggplot(data.frame(ESS)) +
 Geweke = geweke.diag(nee_daily)
 # I think this is less important - or at least, it depends on the length of the
 # burn-in period
+# Count how many elements are outside the bounds
+GewekeOOB = unlist(lapply(Geweke, function(i) sum(i$z>2 | i$z<(-2),na.rm=TRUE)))
+Oops3 = mean(GewekeOOB)
