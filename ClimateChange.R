@@ -361,9 +361,12 @@ HS.VPD = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(VPD),color="2013-2017"),linetype = "dashed") +
   scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
-  theme(axis.text.y = element_blank()) +
-  xlab("VPD") +
-  guides(color = "none")
+  theme(axis.text.y = element_blank(),
+        text = element_text(size = 20)) +
+  xlab("") +
+  ylab("") +
+  ggtitle("VPD") +
+  guides(color = "none") 
 
 HS.NEE = ggplot() +
   geom_density(data = HSDailyData[HSDailyData$TIMESTAMP<"2008-01-01",],aes(x = NEE_LL, y = ..density..,color = "2003-2007"),size = 1) +
@@ -374,8 +377,11 @@ HS.NEE = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(NEE_LL),color="2013-2017"),linetype = "dashed") +
   scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
-  theme(axis.text.y = element_blank()) +
-  xlab("NEE") +
+  theme(axis.text.y = element_blank(),
+        text = element_text(size = 20)) +
+  xlab("") +
+  ylab("") +
+  ggtitle("NEE") +
   guides(color = "none")
 
 HS.SWR = ggplot() +
@@ -387,8 +393,11 @@ HS.SWR = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(Fsd),color="2013-2017"),linetype = "dashed") +
   scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
-  theme(axis.text.y = element_blank())+
-  xlab("SWR") +
+  theme(axis.text.y = element_blank(),
+        text = element_text(size = 20))+
+  xlab("") +
+  ylab("") +
+  ggtitle("SWR") +
   guides(color = "none")
 
 
@@ -402,8 +411,11 @@ HS.SWC = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = median(Sws),color="2013-2017"),linetype = "dashed") +
   scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
-  theme(axis.text.y = element_blank())+
-  xlab("SWC") +
+  theme(axis.text.y = element_blank(),
+        text = element_text(size = 20))+
+  xlab("") +
+  ylab("") +
+  ggtitle("SWC") +
   guides(color = "none")
 
 HS.Tair = ggplot() +
@@ -415,8 +427,11 @@ HS.Tair = ggplot() +
   geom_vline(data = HSDailyData[HSDailyData$TIMESTAMP>="2013-01-01",],aes(xintercept = mean(Ta),color="2013-2017"),linetype = "dashed") +
   scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
-  theme(axis.text.y = element_blank())+
-  xlab("Tair") +
+  theme(axis.text.y = element_blank(),
+        text = element_text(size = 20))+
+  xlab("") +
+  ylab("") +
+  ggtitle("Tair") +
   guides(color = "none")
 
 ## This has been changed to median from mean
@@ -430,10 +445,14 @@ HS.PPT = ggplot() +
   scale_color_manual(values=c("green","orange","purple")) +
   theme_bw() +
   theme(axis.text.y = element_blank())+
-  xlab("PPT") +
-  theme(legend.position = "bottom")
+  xlab("") +
+  ylab("") +
+  ggtitle("PPT") +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        text = element_text(size = 20))
 
-grid.arrange(HS.NEE, HS.SWR, HS.Tair, HS.VPD, HS.SWC, HS.PPT, top = "HS",             
+grid.arrange(HS.NEE, HS.SWR, HS.Tair, HS.VPD, HS.SWC, HS.PPT,             
              widths = c(1,1,1,1),
              heights = c(3,3,3,4),
              layout_matrix = rbind(c(NA,1,1,NA),
