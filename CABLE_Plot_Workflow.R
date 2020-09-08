@@ -47,7 +47,8 @@ Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Type)) +
                     guide = guide_legend(reverse = TRUE)) +
   facet_grid(Site ~ .) +
   theme_bw() +
-  theme(legend.position = "bottom") +
-  ggtitle(paste0("Memory of Sites in CABLE"))+
+  theme(legend.position = "bottom",
+        text = element_text(size = 20),
+        legend.title = element_blank()) +
   xlab("Sites") +
   ylab(parse(text="R^2"))
