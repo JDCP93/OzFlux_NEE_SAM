@@ -54,7 +54,9 @@ Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site)) +
   coord_flip(ylim=c(0,1)) +
   scale_fill_manual(values=c("darkgreen","royalblue4","skyblue"),
                     guide = guide_legend(reverse = TRUE)) +
+  ylab(parse(text="R^2")) +
   theme_bw() +
-  theme(legend.position = "bottom") +
-  ggtitle(paste0("Memory of Sites ordered by ",VAR))
+  theme(legend.position = "bottom", 
+        text = element_text(size = 20),
+        legend.title = element_blank())
 }
