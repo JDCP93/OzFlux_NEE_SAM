@@ -695,6 +695,8 @@ HS_2008 = MemoryR2_split("HowardSprings","HS",2)
 
 Sites = list("2003-2007"=HS_2003,"2008-2012"=HS_2008,"2013-2017"=HS_2013)
 source("MemoryPlot.R")
+Plot = MemoryPlot(Sites,"LAT")
+
 
 library(ggplot2)
 library(gridExtra)
@@ -772,6 +774,7 @@ HSSWRPlot = ggplot(HSSWR) +
   xlab("Days into Past") +
   ylab("Cumulative Weight") +
   theme_bw() +
+  theme(text = element_text(size = 20)) +
   guides(color = "none") +
   scale_color_manual(values=c("green","orange","purple")) +
   ggtitle("SWR")
@@ -789,6 +792,7 @@ HSSWCPlot = ggplot(HSSWC) +
   xlab("Days into Past") +
   ylab("Cumulative Weight") +
   theme_bw() +
+  theme(text = element_text(size = 20)) +
   guides(color = "none") +
   scale_color_manual(values=c("green","orange","purple")) +
   ggtitle("SWC")
@@ -805,6 +809,7 @@ HSTairPlot = ggplot(HSTair) +
   xlab("Days into Past") +
   ylab("Cumulative Weight") +
   theme_bw() +
+  theme(text = element_text(size = 20)) +
   guides(color = "none") +
   scale_color_manual(values=c("green","orange","purple")) +
   ggtitle("Tair")
@@ -821,6 +826,7 @@ HSVPDPlot = ggplot(HSVPD) +
   xlab("Days into Past") +
   ylab("Cumulative Weight") +
   theme_bw() +
+  theme(text = element_text(size = 20)) +
   guides(color = "none") +
   scale_color_manual(values=c("green","orange","purple")) +
   ggtitle("VPD")
@@ -838,7 +844,8 @@ HSPPTPlot = ggplot(HSPPT) +
   xlab("Days into Past") +
   ylab("Cumulative Weight") +
   theme_bw() +
-  theme(legend.position = "bottom") +
+  theme(text = element_text(size = 20)) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
   scale_color_manual(values=c("green","orange","purple"),name = "Data") +
   ggtitle("PPT")
 
@@ -848,8 +855,7 @@ grid.arrange(HSSWRPlot,HSTairPlot,HSVPDPlot,HSSWCPlot,HSPPTPlot,
              heights = c(3,3,4),
              layout_matrix = rbind(c(1,1,2,2),
                                    c(3,3,4,4),
-                                   c(NA,5,5,NA)),
-             top = "Howard Springs - 5 Year Periods")
+                                   c(NA,5,5,NA)))
 
 
 

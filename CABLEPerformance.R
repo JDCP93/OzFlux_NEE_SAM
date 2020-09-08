@@ -30,16 +30,16 @@ maxLim = max(data$NEE,data$NEE_LL)
 ObsModPlot <- ggplot(data.frame(data$NEE_LL,data$NEE)) +
   geom_point(aes(data$NEE_LL,data$NEE)) +
   geom_abline(slope=1,intercept=0) +
-  xlab("Observed") +
-  ylab("CABLE") +
+  xlab("Observed NEE") +
+  ylab("CABLE NEE ") +
   theme_bw() +
   coord_fixed(xlim=c(minLim,maxLim),
               ylim=c(minLim,maxLim)) +
-  labs(title=paste0(Site," Observed vs CABLE NEE")) +
   annotate("text", x = maxLim-0.25*(maxLim-minLim), y = minLim+0.05*(maxLim-minLim),
-           label = paste0('atop(R^2 ==', signif(R2,3), ', RMSE ==', signif(RMSE,3),')'),parse=TRUE) +
+           label = paste0('atop(R^2 ==', signif(R2,3), ', RMSE ==', signif(RMSE,3),')'),parse=TRUE,size = 5) +
  annotate("text", x = maxLim-0.05*(maxLim-minLim), y = minLim+0.05*(maxLim-minLim),
-       label = paste0('atop(AdjR^2 ==', signif(Adj.R2,3), ', MAE ==', signif(MAE,3),')'),parse=TRUE)
+       label = paste0('atop(AdjR^2 ==', signif(Adj.R2,3), ', MAE ==', signif(MAE,3),')'),parse=TRUE, size = 5) +
+theme(text = element_text(size = 20))
 
 #Combine into output
 Output = list("ObsModPlot"=ObsModPlot,
