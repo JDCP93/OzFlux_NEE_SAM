@@ -905,16 +905,30 @@ Plot_SW
 #*******************************
 ## Plot example of NDVI impact
 #*******************************
+#Load daily data
+load('HSDailyData.Rdata')
 # Find phi0 value
 HS.phi0 = HS.summary$statistics[substr(rownames(HS.summary$statistics),1,3)=="phi",1]
 # Calculate phi_t
 HS.phi = HowardSprings_Input$NDVI*(1-HS.phi0+HS.phi0*HowardSprings_Input$NDVI)
 # Put into a dataframe with timestamps
-# NEED TO GET DAILY DATA ONTO MY MAC
-HS.phi.df = data.frame("Time"=HS_DailyData$TIMESTAMP,"Phi"=HS.phi,"NDVI" = HowardSprings_Input$NDVI)
+HS.phi.df = data.frame("Time"=HSDailyData$TIMESTAMP,"Phi"=HS.phi,"NDVI" = HowardSprings_Input$NDVI)
 
-HS.phi.plot = 
-
+HS.phi.plot = ggplot(HS.phi.df) +
+              geom_line(aes(x=Time,y=Phi),color="green") +
+              geom_line(aes(x=Time,y=NDVI))
+# repeat for SP
+load('SPDailyData.Rdata')
 SP.phi0 = SP.summary$statistics[substr(rownames(SP.summary$statistics),1,3)=="phi",1]
 SP.phi = SturtPlains_Input$NDVI*(1-SP.phi0+SP.phi0*SturtPlains_Input$NDVI)
+SP.phi.df = data.frame("Time"=SPDailyData$TIMESTAMP,"Phi"=SP.phi,"NDVI" = SturtPlains_Input$NDVI)
 
+
+
+#**********************************
+## Check Yao's inputs
+#**********************************
+
+source('MemoryR2_Yao.R')
+HS_Yao = MemoryR2_Yao("HowardSprings","HS")
+SP_Yao = MemoryR2_Yao("SturtPlains","SP")
