@@ -43,7 +43,7 @@ source('AR1Model.R')
 
 #############  END oF RUN CONFIGURAT #################
 # prepare site-level input data from raw data ------
-load('./SturtPlains_Input_Yao.Rdata') # change these to functions
+load('./SturtPlains_Input_Yao.rda') # change these to functions
 attach(`nee_input_data`)
 
 
