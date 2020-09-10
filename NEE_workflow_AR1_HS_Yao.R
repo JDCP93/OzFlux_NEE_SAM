@@ -48,7 +48,7 @@ attach(`nee_input_data`)
 
 
 # Load Howard Springs data
-load('results/NEE_Yao_output_site_HS_2020-08-16.rda')
+load('results/NEE_Yao_output_site_HS_2020-09-09.rda')
 # data inside is called "nee_daily"
 assign('HS',nee_daily)
 rm(nee_daily)
