@@ -25,9 +25,8 @@ MemoryR2_Yao <- function(Site,SiteCode){
 # ******************************************************************************
 
 # load model input for Site
-name = paste0(SiteCode,"_Input")
-load(paste0(SiteCode,'_Input_Yao.Rdata'))
-assign("Input",eval(as.name(name)))
+load(paste0(Site,'_Input_Yao.rda'))
+assign("Input",nee_input_data)
   
 # Find the output files available
 File = list.files("results",pattern = paste0("NEE_Yao_output_site_",SiteCode))
