@@ -932,3 +932,60 @@ SP.phi.df = data.frame("Time"=SPDailyData$TIMESTAMP,"Phi"=SP.phi,"NDVI" = SturtP
 source('MemoryR2_Yao.R')
 HS_Yao = MemoryR2_Yao("HowardSprings","HS")
 SP_Yao = MemoryR2_Yao("SturtPlains","SP")
+
+# SO! We have checked and the input files ARE the difference! Sanity saved!
+# 
+#**********************************
+## Identifying the parameters and chains that haven't converged
+#**********************************
+
+# Load the site output of interest
+load()
+
+# Load the library coda
+library(coda)
+
+# For each chain
+for (i in 1:length(nee_daily)){
+  # Summarise the chain
+  chain = summary(nee_daily[[i]])
+  name = paste0("Chain.",i)
+  assign(name,chain)
+  # Find the chain deviance
+  dev = chain$statistics[substr(rownames(chain$statistics),1,3)=="dev",1]
+  name = paste0("Dev.",i)
+  assign(name,dev)
+  # Trim the chain data to parameters of interest
+  trim = chain$statistics[!(substr(rownames(chain$statistics),1,3)=="NEE"),1]
+  name = paste0("Trim.",i)
+  assign(name,trim)
+}
+
+# Put the chain data into one dataframe
+df = data.frame(rep(NA,length(Trim.1)))
+for (i in 1:length(nee_daily)){
+  df[i]= eval(as.name(paste0("Trim.",i)))
+  colnames(df)[i] = paste0("Trim.",i)
+}
+
+# Find any outlying chains wrt the parameters values
+conv.df = data.frame("chain","position","var")
+count = 0
+for (j in 1:nrow(df)){
+  # Outliers calculated as Median +/- 1.5 IQR
+  med = median(as.numeric(df[j,]))
+  iqr = IQR(as.numeric(df[j,]))
+  for (i in 1:length(nee_daily))
+    # parameter too large
+    if (df[j,i] > med+1.5*iqr){
+      count = count + 1
+      conv.df[count,] = c(i,j,names(Trim.1)[j])
+      # parameter too small
+    } else if (df[j,i] < med-1.5*iqr){
+      count = count + 1
+      conv.df[count,] = c(i,j,names(Trim.1)[j])
+      # Parameter within tolerance 
+    } else {
+      # Do nothing
+    }
+}
