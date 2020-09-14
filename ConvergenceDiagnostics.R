@@ -6,7 +6,7 @@
 # Tidy up
 rm(list=ls())
 # Load the required output
-load("results/NEE_output_long3_site_HS_2020-09-07.rda")
+load("results/NEE_output_site_HS_2020-08-05.rda")
 
 # Load the required libraries and Kruschke's functions
 library(coda)
@@ -72,6 +72,7 @@ df = data.frame(rep(NA,length(Trim.1)))
 for (i in 1:length(nee_daily)){
   df[i]= eval(as.name(paste0("Trim.",i)))
   colnames(df)[i] = paste0("Trim.",i)
+  rownames(df) = names(Trim.1)
 }
 
 # Find any outlying chains wrt the parameters values
@@ -102,3 +103,21 @@ fund.params = c("wei","sig","phi","dev","an[","ag[")
 conv.params = conv.df[substr(conv.df$X.var.,1,3) %in% fund.params,]
 # Let's count the number of parameters for which each chain hasn't converged
 chain.count = conv.params %>% group_by(X.chain.) %>% summarise(count = n())
+
+
+# Check details of the un-converged parameters
+for (i in unique(conv.params$X.var.)){
+  # View Kruschke's plot
+  diagMCMC(nee_daily,i)
+  # Output the variable
+  print(i)
+  # Ask to show next plot
+  question1 <- readline("Next plot? (Y/N)")
+  if(regexpr(question1, 'n', ignore.case = TRUE) == 1){
+    break
+  } else {
+    next  
+  }
+  
+}
+
