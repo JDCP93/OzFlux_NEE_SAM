@@ -11,6 +11,7 @@ load("results/NEE_output_long3_site_HS_2020-09-07.rda")
 # Load the required libraries and Kruschke's functions
 library(coda)
 library(ggplot2)
+library(dplyr)
 source('DBDA2E-utilities.R')
 
 # We find the Gelman diagnostic (it has a proper name but I'm a hack)
@@ -43,3 +44,61 @@ Geweke = geweke.diag(nee_daily)
 # Count how many elements are outside the bounds
 GewekeOOB = unlist(lapply(Geweke, function(i) sum(i$z>2 | i$z<(-2),na.rm=TRUE)))
 Oops3 = mean(GewekeOOB)
+
+
+
+#**********************************
+## Identifying the parameters and chains that haven't converged
+#**********************************
+
+# For each chain
+for (i in 1:length(nee_daily)){
+  # Summarise the chain
+  chain = summary(nee_daily[[i]])
+  name = paste0("Chain.",i)
+  assign(name,chain)
+  # Find the chain deviance
+  dev = chain$statistics[substr(rownames(chain$statistics),1,3)=="dev",1]
+  name = paste0("Dev.",i)
+  assign(name,dev)
+  # Trim the chain data to parameters of interest
+  trim = chain$statistics[!(substr(rownames(chain$statistics),1,3)=="NEE"),1]
+  name = paste0("Trim.",i)
+  assign(name,trim)
+}
+
+# Put the chain data into one dataframe
+df = data.frame(rep(NA,length(Trim.1)))
+for (i in 1:length(nee_daily)){
+  df[i]= eval(as.name(paste0("Trim.",i)))
+  colnames(df)[i] = paste0("Trim.",i)
+}
+
+# Find any outlying chains wrt the parameters values
+conv.df = data.frame("chain","position","var")
+count = 0
+for (j in 1:nrow(df)){
+  # Outliers calculated as Median +/- 1.5 IQR
+  med = median(as.numeric(df[j,]))
+  iqr = IQR(as.numeric(df[j,]))
+  for (i in 1:length(nee_daily))
+    # parameter too large
+    if (df[j,i] > med+1.5*iqr){
+      count = count + 1
+      conv.df[count,] = c(i,j,names(Trim.1)[j])
+      # parameter too small
+    } else if (df[j,i] < med-1.5*iqr){
+      count = count + 1
+      conv.df[count,] = c(i,j,names(Trim.1)[j])
+      # Parameter within tolerance 
+    } else {
+      # Do nothing
+    }
+}
+
+# Limit to directly estimated (fundamental?) parameters
+# Take first 3 characters of the fundamental parameters
+fund.params = c("wei","sig","phi","dev","an[","ag[")
+conv.params = conv.df[substr(conv.df$X.var.,1,3) %in% fund.params,]
+# Let's count the number of parameters for which each chain hasn't converged
+chain.count = conv.params %>% group_by(X.chain.) %>% summarise(count = n())
