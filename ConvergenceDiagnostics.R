@@ -6,7 +6,7 @@
 # Tidy up
 rm(list=ls())
 # Load the required output
-load("results/NEE_output_site_HS_2020-08-05.rda")
+load("results/NEE_output_long3_site_HS_2020-09-07.rda")
 
 # Load the required libraries and Kruschke's functions
 library(coda)
@@ -84,11 +84,11 @@ for (j in 1:nrow(df)){
   iqr = IQR(as.numeric(df[j,]))
   for (i in 1:length(nee_daily))
     # parameter too large
-    if (df[j,i] > med+1.5*iqr){
+    if (df[j,i] > max(med+1.5*iqr,med-1.5*iqr)){
       count = count + 1
       conv.df[count,] = c(i,j,names(Trim.1)[j])
       # parameter too small
-    } else if (df[j,i] < med-1.5*iqr){
+    } else if (df[j,i] < min(med+1.5*iqr,med-1.5*iqr)){
       count = count + 1
       conv.df[count,] = c(i,j,names(Trim.1)[j])
       # Parameter within tolerance 
@@ -103,7 +103,7 @@ fund.params = c("wei","sig","phi","dev","an[","ag[")
 conv.params = conv.df[substr(conv.df$X.var.,1,3) %in% fund.params,]
 # Let's count the number of parameters for which each chain hasn't converged
 chain.count = conv.params %>% group_by(X.chain.) %>% summarise(count = n())
-
+print(chain.count)
 
 # Check details of the un-converged parameters
 for (i in unique(conv.params$X.var.)){
@@ -118,6 +118,52 @@ for (i in unique(conv.params$X.var.)){
   } else {
     next  
   }
-  
 }
 
+#************************
+# Not sure med+/-1.5IQR is picking up all non-convergence - essential if we have
+# 6 chains and 2 are wildly larger (no loss of generality) then the 75th 
+# percentile will always be heavily influenced by one of the larger values. This
+# increases the IQR to a size large enough to include all chains
+# Here we try an error of margin of 10% from the median
+# I am only unsure here where parameter values are small to begin with)
+#************************
+
+# Find any outlying chains wrt the parameters values
+conv.df.test = data.frame("chain","position","var")
+count.test = 0
+for (j in 1:nrow(df)){
+  # Outliers calculated as Median +/- 1.5 IQR
+  med = median(as.numeric(df[j,]))
+  for (i in 1:length(nee_daily))
+    # parameter too different
+    if (!between(df[j,i],min(med*0.9,med*1.1),max(med*0.9,med*1.1))){
+      count.test = count.test + 1
+      conv.df.test[count.test,] = c(i,j,names(Trim.1)[j])
+    } else {
+      # Do nothing
+    }
+}
+
+# Limit to directly estimated parameters
+conv.params.test = conv.df.test[substr(conv.df.test$X.var.,1,3) %in% fund.params,]
+# Let's count the number of parameters for which each chain hasn't converged
+chain.count.test = conv.params.test %>% group_by(X.chain.) %>% summarise(count = n())
+
+# Check details of the un-converged parameters
+for (i in unique(conv.params.test$X.var.)){
+  # View Kruschke's plot
+  diagMCMC(nee_daily,i)
+  # Output the variable
+  print(i)
+  # Ask to show next plot
+  question1 <- readline("Next plot? (Y/N)")
+  if(regexpr(question1, 'n', ignore.case = TRUE) == 1){
+    break
+  } else {
+    next  
+  }
+}
+
+# This is better - I'd rather false positives I have to manually check than 
+# missing a convergence issue
