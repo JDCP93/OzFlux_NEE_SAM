@@ -199,7 +199,9 @@ OzFluxProcess = function(Site){
   NEE = Data_day$NEE
   
   ## NDVI
-  load("VegIndex_NDVI.Rdata")
+  # NDVI was extracted from Google Earth Engine on 17/09/20 at 12:00 
+  # Product was MCD43A3.006 MODIS Albedo Daily 500m
+  load("VegIndex.Rdata")
   NDVI_df = VegIndex[VegIndex$site==Site,]
   NDVI_df = NDVI_df[as.Date(NDVI_df$date) %in% as.Date(Data_day$TIMESTAMP),c("date","ndvi_sg")]
   NDVI_df$date = as.Date(NDVI_df$date)
