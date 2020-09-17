@@ -26,6 +26,10 @@ OzFluxProcess = function(Site){
   #  OUTPUTS:
   #  -
 
+  
+  # ##################
+  # Extract raw data
+  # ##################
   # Source the ncdf package
   library(ncdf4)
   # Load in the OzFlux data we need:
@@ -43,12 +47,23 @@ OzFluxProcess = function(Site){
   TIMESTAMP = as.POSIXct(TIMESTAMP*Days_to_Secs, origin=time_from, tz = ncatt_get(NCDF, 0)$time_zone)
 
   # List the variables we want to extract as well as their quality control
-  Variables = c("NEE_LL",
+  # Note some sites are using L5 PI data as recommended by site PIs - as such
+  # we must check and take different variables for this data
+  if (substr(File,8,9)=="L5"){
+  Variables = c("NEE",
                 "Fsd",
                 "Ta",
                 "VPD",
                 "Sws",
                 "Precip")
+  } else {
+    Variables = c("Fc",
+                  "Fsd",
+                  "Ta",
+                  "VPD",
+                  "Sws",
+                  "Precip")
+  }
   # Extract the variables we require
   Data = data.frame(TIMESTAMP)
   for (Var in Variables){
@@ -57,9 +72,13 @@ OzFluxProcess = function(Site){
     Data[QC] = ncvar_get(NCDF,QC)
   }
   
-  # Check the quality of the data:
-  # Since all data is daily, _QC variables are percentage of measured/good 
-  # quality gapfill data, ranging from 0-1 
+  # Give common names to NEE/Fc columns
+  colnames(Data)[2] = "NEE"
+  colnames(Data)[3] = "NEE_QCFlag"
+  
+  # ##################
+  # Quality check data
+  # ##################
   
   # Identify QC columns
   QCcols = grep("QC",colnames(Data))
