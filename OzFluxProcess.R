@@ -84,7 +84,7 @@ OzFluxProcess = function(Site){
   QCcols = grep("QC",colnames(Data))
   # Remove first row if any data is poor - repeat as necessary
   count = 0
-  while(any(Data[1,QCcols]%%10!=0)){
+  while(any(Data[1,QCcols]!=0)){
     Data = Data[-1,]
     count = count + 1
   }
@@ -93,7 +93,7 @@ OzFluxProcess = function(Site){
   }
   # Remove last row if any data is poor - repeat as necessary
   count = 0
-  while(any(Data[nrow(Data),QCcols]%%10!=0)){
+  while(any(Data[nrow(Data),QCcols]!=0)){
     Data = Data[-nrow(Data),]
     count = count + 1
   }
@@ -104,21 +104,21 @@ OzFluxProcess = function(Site){
   
   # Perform checks on the amount of poor data remaining:
   
-  # Arbitarily decide that less than 75% measured/good data for a day is 
+  # Arbitarily decide that less than 95% measured/good data is 
   # worrying
-  # If any QC columns are < 0.75 for a row, count the row as poor data
-  QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x%%10 != 0)))
-  # Calculate percentage of remaining data that is poor
+  # Count columns that have one or more bad QC flag
+  QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x != 0)))
+  # Calculate percentage of data that is poor
   PercentQC = QC*100/nrow(Data)
-  # If more than 5% of the dat is poor, print a warning
+  # If more than 5% of the data is poor, print a warning
   if (PercentQC > 5){
     message("Warning! ",
                  round(PercentQC,digits=3),
-                 "% of data is poor!")
+                 "% of data is poor or gap-filled!")
   }
   # Check for excessive consecutive streaks of poor data
   # Find the sequences of poor/good data
-  Seq = rle(apply(Data[,QCcols],MARGIN=1,function(x) any(x%%10 != 0)))
+  Seq = rle(apply(Data[,QCcols],MARGIN=1,function(x) any(x != 0)))
   # Find the lengths of these sequences for the poor data
   Lengths = Seq$lengths[Seq$values==TRUE]
   # If a run of 5 or more days of poor data exists, print a warning
@@ -130,9 +130,9 @@ OzFluxProcess = function(Site){
   }
   }
   
-  # ############################################################################
+  # #####################
   # Retime data to daily
-  # ############################################################################
+  # #####################
   # Source required packages
   library(lubridate)
   library(magrittr)
@@ -144,16 +144,16 @@ OzFluxProcess = function(Site){
                              format="%Y-%m-%d %H:%M:%S", 
                              tz = ncatt_get(NCDF, 0)$time_zone)) %>%
     group_by(TIMESTAMP) %>%               # group by the day column
-    summarise(NEE_LL=mean(NEE_LL),
+    summarise(NEE=mean(NEE),
               Fsd=mean(Fsd),
               Ta=mean(Ta),
               VPD=mean(VPD),
               Sws=mean(Sws),
               Precip=sum(Precip))
   
-  # ############################################################################
+  # ####################
   # Create inputs required for modelling
-  # ############################################################################
+  # ####################
   
   # First, create the fixed parameters:
   
@@ -196,33 +196,9 @@ OzFluxProcess = function(Site){
   clim = scale(clim,scale=FALSE)
   
   # Create the NEE vector
-  NEE = Data_day$NEE_LL
+  NEE = Data_day$NEE
   
   ## NDVI
-   
-  ## AMENDED - SAMI PROVIDED A DIFFERENT TYPE OF FORMAT - OG CODE REMAINS FOR 
-  ## FUTURE USE IF NEEDED
-  
-  # # Source the NDVI processing function
-  # source("NDVIProcess.R")
-  # # Extract raw NDVI
-  # NDVI = NDVIProcess(Site)
-  # # Source the NDVI indexing function
-  # source("NDVIIndexProcess.R")
-  # # Calculate the NDVI indices
-  # NDVI_index = NDVIIndexProcess(NDVI)
-  # # Trim the NDVI indices to the dates from the FluxNet data
-  # NDVI_index = NDVI_index[NDVI_index$Date %in% Data_day$TIMESTAMP,]
-  # # Trim the start of the NDVI data to match these indices
-  # NDVI = NDVI[-(1:NDVI_index$Index[1]),]
-  # # Relabel indices to begin at 1
-  # NDVI_index$Index = NDVI_index$Index-NDVI_index$Index[1]+1
-  # # Trim the end of the NDVI data to match these indices
-  # NDVI = NDVI[-((NDVI_index$Index[nrow(NDVI_index)]+1):nrow(NDVI)),]
-  # # Extract just the NDVI values 
-  # NDVI = NDVI[,3]
-  # # Extract just the NDVI index values
-  # NDVI_index = NDVI_index[,2]
   load("VegIndex_NDVI.Rdata")
   NDVI_df = VegIndex[VegIndex$site==Site,]
   NDVI_df = NDVI_df[as.Date(NDVI_df$date) %in% as.Date(Data_day$TIMESTAMP),c("date","ndvi_sg")]
@@ -249,9 +225,9 @@ OzFluxProcess = function(Site){
   # Note this gives precip values of less than 0 which is intriguing.
   
   
-  # ############################################################################
+  # ###############
   # Create output list
-  # ############################################################################
+  # ###############
   
   output = list("Nv"=Nv,
                 "Ns"=Ns,
@@ -269,7 +245,7 @@ OzFluxProcess = function(Site){
                 "Nblocks" = Nblocks)
   name = paste0(Site,"_Input")
   assign(name,output)
-  save(list=c(name),file=paste0(name,"_NDVI.Rdata"))
+  save(list=c(name),file=paste0(name,".Rdata"))
   
   
 ##### STILL TO BE DONE - BETTER QC
