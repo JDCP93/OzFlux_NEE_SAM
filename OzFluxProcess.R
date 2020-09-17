@@ -30,9 +30,9 @@ OzFluxProcess = function(Site){
   library(ncdf4)
   # Load in the OzFlux data we need:
   # Look in folder "Site_raw_data" for the data
-  File = list.files("Site_raw_data",pattern = Site)
+  File = list.files("Site_data_v2",pattern = Site)
   # Read the data into R 
-  NCDF = nc_open(paste0("Site_raw_data/",File))
+  NCDF = nc_open(paste0("Site_data_v2/",File))
   # Change timestamps into dates
   TIMESTAMP = ncvar_get(NCDF,"time")
   # Convert time into datetimes
@@ -103,12 +103,13 @@ OzFluxProcess = function(Site){
   # Find the lengths of these sequences for the poor data
   Lengths = Seq$lengths[Seq$values==TRUE]
   # If a run of 5 or more days of poor data exists, print a warning
+  if (length(Lengths)>0){
   if (max(Lengths)>=5){
     message("Warning! There is a run of ",
                  max(Lengths),
                  " consecutive half-hours with poor data!")
   }
-  
+  }
   
   # ############################################################################
   # Retime data to daily
@@ -124,8 +125,8 @@ OzFluxProcess = function(Site){
                              format="%Y-%m-%d %H:%M:%S", 
                              tz = ncatt_get(NCDF, 0)$time_zone)) %>%
     group_by(TIMESTAMP) %>%               # group by the day column
-    summarise(NEE_LL=sum(NEE_LL),
-              Fsd=sum(Fsd),
+    summarise(NEE_LL=mean(NEE_LL),
+              Fsd=mean(Fsd),
               Ta=mean(Ta),
               VPD=mean(VPD),
               Sws=mean(Sws),
@@ -203,20 +204,20 @@ OzFluxProcess = function(Site){
   # NDVI = NDVI[,3]
   # # Extract just the NDVI index values
   # NDVI_index = NDVI_index[,2]
-  load("VegIndex.Rdata")
-  NIRV_df = VegIndex[VegIndex$site==Site,]
-  NIRV_df = NIRV_df[as.Date(NIRV_df$date) %in% as.Date(Data_day$TIMESTAMP),c("date","nirv_sg")]
-  NIRV_df$date = as.Date(NIRV_df$date)
+  load("VegIndex_NDVI.Rdata")
+  NDVI_df = VegIndex[VegIndex$site==Site,]
+  NDVI_df = NDVI_df[as.Date(NDVI_df$date) %in% as.Date(Data_day$TIMESTAMP),c("date","ndvi_sg")]
+  NDVI_df$date = as.Date(NDVI_df$date)
   # Check for missing data
-  for (i in Data_day$TIMESTAMP[!(Data_day$TIMESTAMP %in% NIRV_df$date)]){
+  for (i in Data_day$TIMESTAMP[!(Data_day$TIMESTAMP %in% NDVI_df$date)]){
     NewDate = as.Date(i,origin="1970-01-01")
-    NewNIRV = mean(c(NIRV_df$nirv_sg[NIRV_df$date==(i-1)],NIRV_df$nirv_sg[NIRV_df$date==(i+1)]))
-    df = data.frame("date" = NewDate, "nirv_sg" = NewNIRV)
-    NIRV_df = rbind(NIRV_df,df) 
+    NewNDVI = mean(c(NDVI_df$ndvi_sg[NDVI_df$date==(i-1)],NDVI_df$ndvi_sg[NDVI_df$date==(i+1)]))
+    df = data.frame("date" = NewDate, "ndvi_sg" = NewNDVI)
+    NDVI_df = rbind(NDVI_df,df) 
   }
-  NIRV_df = NIRV_df[order(NIRV_df$date),]
+  NDVI_df = NDVI_df[order(NDVI_df$date),]
   
-  NIRV = NIRV_df$nirv_sg
+  NDVI = NDVI_df$ndvi_sg
   
   ## PPT
   
@@ -242,14 +243,14 @@ OzFluxProcess = function(Site){
                 "clim"=clim,
                 "ppt_multiscale"=ppt_multiscale,
                 "NEE"=NEE,
-                "NIRV"=NIRV,
+                "NDVI"=NDVI,
                 "NblocksP" = NblocksP,
                 "block" = block,
                 "BlockSize" = BlockSize,
                 "Nblocks" = Nblocks)
   name = paste0(Site,"_Input")
   assign(name,output)
-  save(list=c(name),file=paste0(name,".Rdata"))
+  save(list=c(name),file=paste0(name,"_NDVI.Rdata"))
   
   
 ##### STILL TO BE DONE - BETTER QC
