@@ -22,3 +22,7 @@ Sites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW","AU-How
 
 # Call extraction functions
 source("OzFluxProcess.R")
+# Run extraction process for each site
+for (Site in Sites){
+  OzFluxProcess(Site)
+}
