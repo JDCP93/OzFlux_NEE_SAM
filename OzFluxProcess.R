@@ -80,29 +80,57 @@ OzFluxProcess = function(Site){
   # Quality check data
   # ##################
   
+  # A QC flag that is not mod10 is bad data - i.e. should be masked
+  # A QC flag of greater than 0 but mod10 is gap-filled in a robust manner - but
+  # still gap-filled! 
+  
   # Identify QC columns
   QCcols = grep("QC",colnames(Data))
+  
+  # First, we deal with BAD data - i.e data that is not robust/reliable
   # Remove first row if any data is poor - repeat as necessary
   count = 0
-  while(any(Data[1,QCcols]!=0)){
+  while(any(Data[1,QCcols]%%10!=0)){
     Data = Data[-1,]
     count = count + 1
   }
   if (count > 0){
-  message("Info! ",count," rows removed from start of record due to poor data.")
+  message("Info! ",count," rows removed from start of record due to poor data (QC flag not mod 10).")
   }
   # Remove last row if any data is poor - repeat as necessary
   count = 0
-  while(any(Data[nrow(Data),QCcols]!=0)){
+  while(any(Data[nrow(Data),QCcols]%%10!=0)){
     Data = Data[-nrow(Data),]
     count = count + 1
   }
   if (count > 0){
-  message("Info! ",count," rows removed from end of record due to poor data.")
+  message("Info! ",count," rows removed from end of record due to poor data (QC flag not mod 10).")
   }
   
+  # Find any remaining bad data and mask as NA:
+  QC = Data[,QCcols]%%10 != 0
+  # Find the corresponding rows
+  BadDataRows = which(apply(QC,MARGIN=1,function(x) any(x == TRUE)) %in% TRUE)
   
-  # Perform checks on the amount of poor data remaining:
+  if (sum(QC)>0){
+    message("Info! ",sum(QC)," individual observations are bad data and will be masked as NA!")
+    message("These observations occur in ",length(BadDataRows)," different 30-min periods.")
+  } else {
+    message("Info! All data are measured or good quality gap-filled!")
+  }
+  ## NOTE: The below loops are quite slow... attempt to vectorise if possible
+  #for all rows with bad data
+  for(i in BadDataRows){
+    # for each QC flag
+    for (j in QCcols){
+      # if the flag indicates bad data
+      if (Data[i,j] %%10 !=0){
+        # set the data to NA
+        Data[i,(j-1)] = NA
+      }
+    }
+  }
+  
   
   # Arbitarily decide that less than 95% measured/good data is 
   # worrying
@@ -244,7 +272,8 @@ OzFluxProcess = function(Site){
                 "NblocksP" = NblocksP,
                 "block" = block,
                 "BlockSize" = BlockSize,
-                "Nblocks" = Nblocks)
+                "Nblocks" = Nblocks,
+                "DailyData" = Data_day)
   name = paste0(Site,"_Input")
   assign(name,output)
   save(list=c(name),file=paste0(name,".Rdata"))
