@@ -131,18 +131,26 @@ OzFluxProcess = function(Site){
     }
   }
   
+  # Now check for any data that is GOOD but GAP-FILLED i.e. > 0 && mod10 = 0
   
-  # Arbitarily decide that less than 95% measured/good data is 
+  # Arbitrarily decide that less than 95% measured/good data is 
   # worrying
-  # Count columns that have one or more bad QC flag
-  QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x != 0)))
-  # Calculate percentage of data that is poor
+  # Count columns that have one or more gap-fill QC flag
+  QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x > 0 && x%%10 == 0)))
+  GapFilledData = Data[,QCcols] > 0 & Data[,QCcols]%%10 == 0  
+  # Calculate percentage of data that is gap-filled.
   PercentQC = QC*100/nrow(Data)
+  PercentGapFilled = round(100*sum(GapFilledData)/(nrow(Data)*5),digits = 0)
   # If more than 5% of the data is poor, print a warning
   if (PercentQC > 5){
-    message("Warning! ",
-                 round(PercentQC,digits=3),
-                 "% of data is poor or gap-filled!")
+    message("Info! ",
+            round(PercentQC,digits=0),
+            "% of the 30-minute data intervals contain at least one gap-filled observation!")
+    message("This is ",
+            sum(GapFilledData),
+            " individual observations, equivalent to ",
+            PercentGapFilled,
+            "% of all observations.")
   }
   # Check for excessive consecutive streaks of poor data
   # Find the sequences of poor/good data
@@ -152,9 +160,9 @@ OzFluxProcess = function(Site){
   # If a run of 5 or more days of poor data exists, print a warning
   if (length(Lengths)>0){
   if (max(Lengths)>=5){
-    message("Warning! There is a run of ",
+    message("Info! There is a run of ",
                  max(Lengths),
-                 " consecutive half-hours with poor data!")
+                 " consecutive half-hours with at least one gap-filled observation!")
   }
   }
   
