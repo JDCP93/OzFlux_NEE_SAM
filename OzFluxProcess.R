@@ -226,6 +226,35 @@ OzFluxProcess = function(Site){
   # Trim to full years
   # ####################
   
+  # First remove any days at the beginning or end of the record with more than
+  # 6 instances (12.5%) of bad data
+  # Remove first row if too much data is poor - repeat as necessary
+  # Define QC cols
+  QCcols_day = seq(8,19,by=2)
+  count_daystart = 0
+  while(any(Data_day[1,QCcols_day]>6)){
+    Data_day = Data_day[-1,]
+    count_daystart = count_daystart + 1
+  }
+  if (count_daystart > 0){
+    message("Info! ",
+            count_daystart,
+            " days removed from start of daily record due to more than 12.5% bad data existing")
+  }
+  # Remove last row if too much data is poor - repeat as necessary
+  count_dayend = 0
+  while(any(Data_day[nrow(Data_day),QCcols_day]>6)){
+    Data_day = Data_day[-nrow(Data_day),]
+    count_dayend = count_dayend + 1
+  }
+  if (count_dayend > 0){
+    message("Info! ",
+            count_dayend,
+            " days removed from end of daily record due to more than 12.5% bad data existing")
+  }
+  
+  #
+  DaysRemoved = count_daystart+count_dayend
   # Find the years that are complete in the daily data
   AllYears = unique(year(Data_day$TIMESTAMP))
   FullYears = rle(year(Data_day$TIMESTAMP))$values[rle(year(Data_day$TIMESTAMP))$lengths > 364]
@@ -242,6 +271,8 @@ OzFluxProcess = function(Site){
           FullYears[1],
           " to ",
           FullYears[length(FullYears)])
+  
+  
   
   # ####################
   # Create inputs required for modelling
@@ -327,6 +358,7 @@ OzFluxProcess = function(Site){
                 "Filled30Min" = Filled30Min,
                 "PercentFilledObs" = PercentFilledObs,
                 "PercentFilled30Min" = PercentFilled30Min,
+                "DaysRemoved" = DaysRemoved,
                 "CutYears" = CutYears)
   
   
