@@ -117,9 +117,21 @@ OzFluxProcess = function(Site){
   BadObs = sum(QC)
   Bad30Min = length(BadDataRows)
   
+  # Calculate percentage of data that is bad.
+  PercentBad30Min = round(Bad30Min*100/nrow(Data),digits = 0)
+  PercentBadObs = round(100*BadObs/(nrow(Data)*5),digits = 0)
+  
   if (BadObs>0){
-    message("Info! ",BadObs," individual observations are bad data and will be masked as NA!")
-    message("These observations occur in ",Bad30Min," different 30-min periods.")
+    message("Info! ",
+            BadObs,
+            " individual observations (",
+            PercentBadObs,
+            "% of all observations) are bad data and will be masked as NA!")
+    message("These observations occur in ",
+            Bad30Min,
+            " different 30-min periods, equal to ",
+            PercentBad30Min,
+            "% of all 30 min periods")
   } else {
     message("Info! All data are measured or good quality gap-filled!")
   }
@@ -144,21 +156,23 @@ OzFluxProcess = function(Site){
   QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x > 0 && x%%10 == 0)))
   GapFilledData = Data[,QCcols] > 0 & Data[,QCcols]%%10 == 0  
   # Calculate percentage of data that is gap-filled.
-  PercentQC = QC*100/nrow(Data)
-  PercentGapFilled = round(100*sum(GapFilledData)/(nrow(Data)*5),digits = 0)
+  PercentFilled30Min = round(QC*100/nrow(Data),digits = 0)
+  PercentFilledObs = round(100*sum(GapFilledData)/(nrow(Data)*5),digits = 0)
   # Create outputs for QC reference
   FilledObs = sum(GapFilledData)
   Filled30Min = QC
   # If more than 5% of the data is poor, print a warning
-  if (PercentQC > 5){
+  if (PercentFilledObs > 0){
     message("Info! ",
-            round(PercentQC,digits=0),
+            PercentFilled30Min,
             "% of the 30-minute data intervals contain at least one gap-filled observation!")
     message("This is ",
             FilledObs,
             " individual observations, equivalent to ",
-            PercentGapFilled,
+            PercentFilledObs,
             "% of all observations.")
+  } else {
+    "All data are good measurements! Rejoice!"
   }
   # Check for excessive consecutive streaks of poor data
   # Find the sequences of poor/good data
@@ -223,7 +237,7 @@ OzFluxProcess = function(Site){
   # Report the cut years
   message("Info! The years ",paste(shQuote(CutYears), collapse=", "),
           " have been cut for being incomplete!")
-  message(FullYears[length(FullYears)]-FullYears[1],
+  message(FullYears[length(FullYears)]+1-FullYears[1],
           " full years remain between ",
           FullYears[1],
           " to ",
@@ -307,9 +321,12 @@ OzFluxProcess = function(Site){
   ## Create QC list for reference
   QCList = list("BadObs" = BadObs,
                 "Bad30Min" = Bad30Min,
+                "PercentBadObs" = PercentBadObs,
+                "PercentBad30Min" = PercentBad30Min,
                 "FilledObs" = FilledObs,
                 "Filled30Min" = Filled30Min,
-                "PercentGapFilled" = PercentGapFilled,
+                "PercentFilledObs" = PercentFilledObs,
+                "PercentFilled30Min" = PercentFilled30Min,
                 "CutYears" = CutYears)
   
   
