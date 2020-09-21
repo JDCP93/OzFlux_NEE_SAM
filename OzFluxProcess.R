@@ -188,6 +188,26 @@ OzFluxProcess = function(Site){
               Precip=sum(Precip))
   
   # ####################
+  # Trim to full years
+  # ####################
+  
+  # Find the years that are complete in the daily data
+  AllYears = unique(year(Data_day$TIMESTAMP))
+  FullYears = rle(year(Data_day$TIMESTAMP))$values[rle(year(Data_day$TIMESTAMP))$lengths > 364]
+  
+  # Trim the daily data to these years
+  Data_day = Data_day[year(Data_day$TIMESTAMP) %in% FullYears,]
+  
+  # Report the cut years
+  message("Info! The years ",paste(shQuote(AllYears[!(AllYears %in% FullYears)]), collapse=", "),
+          " have been cut for being incomplete!")
+  message(FullYears[length(FullYears)]-FullYears[1],
+          " full years remain between ",
+          FullYears[1],
+          " to ",
+          FullYears[length(FullYears)])
+  
+  # ####################
   # Create inputs required for modelling
   # ####################
   
@@ -287,5 +307,5 @@ OzFluxProcess = function(Site){
   save(list=c(name),file=paste0(name,".Rdata"))
   
   
-##### STILL TO BE DONE - BETTER QC
+##### STILL TO BE DONE - Check QC for L6 data
 }
