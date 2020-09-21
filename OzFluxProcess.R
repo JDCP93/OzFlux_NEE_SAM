@@ -27,7 +27,7 @@ OzFluxProcess = function(Site){
   #  -
 
   # Let the user know which site the function is looking at
-  message("Extracting data for ",Site)
+  message("*** Extracting data for ",Site," ***")
   
   # ##################
   # Extract raw data
@@ -167,11 +167,11 @@ OzFluxProcess = function(Site){
   Lengths = Seq$lengths[Seq$values==TRUE]
   # If a run of 5 or more days of poor data exists, print a warning
   if (length(Lengths)>0){
-  if (max(Lengths)>=5){
-    message("Info! There is a run of ",
+    if (max(Lengths)>=5){
+      message("Info! There is a run of ",
                  max(Lengths),
                  " consecutive half-hours with at least one gap-filled observation!")
-  }
+    }
   }
   
   # #####################
@@ -182,7 +182,7 @@ OzFluxProcess = function(Site){
   library(magrittr)
   library(tidyverse)
   
-  # Create dataframe of daily values
+  # Create dataframe of daily values and QC counts
   Data_day <- Data %>%
     mutate(TIMESTAMP=as.Date(TIMESTAMP, 
                              format="%Y-%m-%d %H:%M:%S", 
@@ -193,7 +193,20 @@ OzFluxProcess = function(Site){
               Ta=mean(Ta),
               VPD=mean(VPD),
               Sws=mean(Sws),
-              Precip=sum(Precip))
+              Precip=sum(Precip),
+              # Count the amount of bad and gap-filled observations each day
+              NEE_BD=sum(NEE_QCFlag%%10 != 0),
+              NEE_GF = sum(NEE_QCFlag%%10 == 0 & NEE_QCFlag > 0),
+              Fsd_BD=sum(Fsd_QCFlag%%10 != 0),
+              Fsd_GF = sum(Fsd_QCFlag%%10 == 0 & Fsd_QCFlag > 0),
+              Ta_BD=sum(Ta_QCFlag%%10 != 0),
+              Ta_GF = sum(Ta_QCFlag%%10 == 0 & Ta_QCFlag > 0),
+              VPD_BD=sum(VPD_QCFlag%%10 != 0),
+              VPD_GF = sum(VPD_QCFlag%%10 == 0 & VPD_QCFlag > 0),
+              Sws_BD=sum(Sws_QCFlag%%10 != 0),
+              Sws_GF = sum(Sws_QCFlag%%10 == 0 & Sws_QCFlag > 0),
+              Precip_BD=sum(Precip_QCFlag%%10 != 0),
+              Precip_GF = sum(Precip_QCFlag%%10 == 0 & Precip_QCFlag > 0))
   
   # ####################
   # Trim to full years
