@@ -26,6 +26,8 @@ OzFluxProcess = function(Site){
   #  OUTPUTS:
   #  -
 
+  # Let the user know which site the function is looking at
+  message("Extracting data for ",Site)
   
   # ##################
   # Extract raw data
@@ -111,10 +113,13 @@ OzFluxProcess = function(Site){
   QC = Data[,QCcols]%%10 != 0
   # Find the corresponding rows
   BadDataRows = which(apply(QC,MARGIN=1,function(x) any(x == TRUE)) %in% TRUE)
+  # Create outputs for QC reference
+  BadObs = sum(QC)
+  Bad30Min = length(BadDataRows)
   
-  if (sum(QC)>0){
-    message("Info! ",sum(QC)," individual observations are bad data and will be masked as NA!")
-    message("These observations occur in ",length(BadDataRows)," different 30-min periods.")
+  if (BadObs>0){
+    message("Info! ",BadObs," individual observations are bad data and will be masked as NA!")
+    message("These observations occur in ",Bad30Min," different 30-min periods.")
   } else {
     message("Info! All data are measured or good quality gap-filled!")
   }
@@ -135,19 +140,22 @@ OzFluxProcess = function(Site){
   
   # Arbitrarily decide that less than 95% measured/good data is 
   # worrying
-  # Count columns that have one or more gap-fill QC flag
+  # Count rows that have one or more gap-fill QC flag
   QC = sum(apply(Data[,QCcols],MARGIN=1,function(x) any(x > 0 && x%%10 == 0)))
   GapFilledData = Data[,QCcols] > 0 & Data[,QCcols]%%10 == 0  
   # Calculate percentage of data that is gap-filled.
   PercentQC = QC*100/nrow(Data)
   PercentGapFilled = round(100*sum(GapFilledData)/(nrow(Data)*5),digits = 0)
+  # Create outputs for QC reference
+  FilledObs = sum(GapFilledData)
+  Filled30Min = QC
   # If more than 5% of the data is poor, print a warning
   if (PercentQC > 5){
     message("Info! ",
             round(PercentQC,digits=0),
             "% of the 30-minute data intervals contain at least one gap-filled observation!")
     message("This is ",
-            sum(GapFilledData),
+            FilledObs,
             " individual observations, equivalent to ",
             PercentGapFilled,
             "% of all observations.")
@@ -194,12 +202,13 @@ OzFluxProcess = function(Site){
   # Find the years that are complete in the daily data
   AllYears = unique(year(Data_day$TIMESTAMP))
   FullYears = rle(year(Data_day$TIMESTAMP))$values[rle(year(Data_day$TIMESTAMP))$lengths > 364]
+  CutYears = AllYears[!(AllYears %in% FullYears)]
   
   # Trim the daily data to these years
   Data_day = Data_day[year(Data_day$TIMESTAMP) %in% FullYears,]
   
   # Report the cut years
-  message("Info! The years ",paste(shQuote(AllYears[!(AllYears %in% FullYears)]), collapse=", "),
+  message("Info! The years ",paste(shQuote(CutYears), collapse=", "),
           " have been cut for being incomplete!")
   message(FullYears[length(FullYears)]-FullYears[1],
           " full years remain between ",
@@ -282,6 +291,14 @@ OzFluxProcess = function(Site){
   ppt_multiscale = scale(ppt_multiscale,scale=FALSE)
   # Note this gives precip values of less than 0 which is intriguing.
   
+  ## Create QC list for reference
+  QCList = list("BadObs" = BadObs,
+                "Bad30Min" = Bad30Min,
+                "FilledObs" = FilledObs,
+                "Filled30Min" = Filled30Min,
+                "PercentGapFilled" = PercentGapFilled,
+                "CutYears" = CutYears)
+  
   
   # ###############
   # Create output list
@@ -301,7 +318,8 @@ OzFluxProcess = function(Site){
                 "block" = block,
                 "BlockSize" = BlockSize,
                 "Nblocks" = Nblocks,
-                "DailyData" = Data_day)
+                "DailyData" = Data_day,
+                "QCList" = QCList)
   name = paste0(Site,"_Input")
   assign(name,output)
   save(list=c(name),file=paste0(name,".Rdata"))
