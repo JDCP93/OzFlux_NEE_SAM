@@ -142,13 +142,8 @@ OzFluxProcess = function(Site){
     for (j in QCcols){
       # if the flag indicates bad data
       if (Data[i,j] %%10 !=0){
-        # set the data to NA if it is NEE
-        if (j == 3){
-          Data[i,(j-1)] = NA
-        } else {
-        # set data to the mean for climate variables
-          Data[i,(j-1)] = mean(Data[,j-1],na.rm=TRUE)
-        }
+        # set the data to NA
+        Data[i,(j-1)] = NA
       }
     }
   }
@@ -319,7 +314,8 @@ OzFluxProcess = function(Site){
                   Data_day$Sws,
                   Data_day$Sws),
                 ncol = Nv)
-  
+  # Fill any climate NAs by interpolating over the gap
+  clim = na.approx(clim)
   # Mean centre the climatic variables
   clim = scale(clim,scale=FALSE)
   
