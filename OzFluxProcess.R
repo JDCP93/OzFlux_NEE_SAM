@@ -142,8 +142,13 @@ OzFluxProcess = function(Site){
     for (j in QCcols){
       # if the flag indicates bad data
       if (Data[i,j] %%10 !=0){
-        # set the data to NA
-        Data[i,(j-1)] = NA
+        # set the data to NA if it is NEE
+        if (j == 3){
+          Data[i,(j-1)] = NA
+        } else {
+        # set data to the mean for climate variables
+          Data[i,(j-1)] = mean(Data[,j-1],na.rm=TRUE)
+        }
       }
     }
   }
