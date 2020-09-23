@@ -15,10 +15,6 @@ monitor_vars <- c("an", "ag", "phi0", "deltaXA", "weightA", "weightAP", "deltaXA
                       "cum_weightA", "cum_weightAP", "sig_y", "NEE_pred","muNEE",
                       "ESen", 'deviance')
 
-# source the functions and models
-source('NEEModel_v2.R')
-
-
 # Load the site inputs
 load('./AU-ASM_Input.Rdata') 
 data = `AU-ASM_Input`
@@ -55,10 +51,17 @@ initial_results <- run.jags(model = 'NEEModel_v2.R',
                     n.sims = 6)
 
 message("Calculating DIC for the model at",Sys.time())
-results <- extend.jags(initial_results,add.monitor=c("pd","dic"))
+results <- extend.jags(initial_results,
+                       add.monitor=c("pd","dic"),
+                       sample = 100,
+                       adapt = 10,
+                       thin = 1,
+                       method='rjags')
+
 message("Save model output at ",Sys.time())
-# Save the coda samples
-save(results, file=paste('NEE_output_AU-ASM_', Sys.Date(),'.Rdata', sep = ''))
+# Save the results samples
+output = list("results"=results,"initial_results"=initial_results)
+save(output, file=paste('NEE_output_AU-ASM_', Sys.Date(),'.Rdata', sep = ''))
   
 # Tidy up
 rm(list=ls())
