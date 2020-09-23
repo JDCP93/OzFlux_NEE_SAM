@@ -37,7 +37,7 @@ inputdata = dump.format(inputdata)
 
 # parallelize using runjags
 message("Begin model run at ",Sys.time())
-# run model 
+# run model in parallel with 6 chains and cores
 initial_results <- run.jags(model = 'NEEModel_v2.R',
                     monitor = monitor_vars,
                     data = inputdata,
@@ -50,7 +50,8 @@ initial_results <- run.jags(model = 'NEEModel_v2.R',
                     method = 'parallel',
                     n.sims = 6)
 
-message("Calculating DIC for the model at",Sys.time())
+# Extend the run on a single core to calculate DIC
+message("Calculating DIC for the model at ",Sys.time())
 results <- extend.jags(initial_results,
                        add.monitor=c("pd","dic"),
                        sample = 100,
@@ -59,7 +60,7 @@ results <- extend.jags(initial_results,
                        method='rjags')
 
 message("Save model output at ",Sys.time())
-# Save the results samples
+# Save the results
 output = list("results"=results,"initial_results"=initial_results)
 save(output, file=paste('NEE_output_AU-ASM_', Sys.Date(),'.Rdata', sep = ''))
   
