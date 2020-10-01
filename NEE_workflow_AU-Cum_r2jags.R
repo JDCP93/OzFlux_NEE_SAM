@@ -10,8 +10,6 @@ message("Start the workflow at ",Sys.time())
 nee_packs <- c('rjags', 'coda', 'stats', 'R2jags', 'parallel','runjags')
 lapply(nee_packs, require, character.only = T)
 
-# runjags.options("force.summary"=T)
-
 # variables to monitor
 monitor_vars <- c("an", "ag", "phi0", "deltaXA", "weightA", "weightAP", "deltaXAP", 
                   "cum_weightA", "cum_weightAP", "sig_y", "NEE_pred","muNEE",
@@ -35,33 +33,21 @@ inputdata = list("Nv"=data$Nv,
                  "BlockSize"=data$BlockSize,
                  "Nblocks"=data$Nblocks)
 
-#inputdata = dump.format(inputdata)
 
 # parallelize using runjags
 message("Begin model run at ",Sys.time())
 # run model in parallel with 6 chains and cores
-initial_results <- jags.parallel(model.file = 'NEEModel_v2.R',
+output <- jags.parallel(model.file = 'NEEModel_v2.R',
                             parameters.to.save = monitor_vars,
                             data = inputdata,
                             n.chains = 6, 
-                            n.burnin = 10000, 
-                            n.iter = 100000,
+                            n.burnin = 50000, 
+                            n.iter = 500000,
                             jags.module = c('glm','dic'),
                             n.thin = 100)
 
-# Extend the run on a single core to calculate DIC
-#message("Calculating DIC for the model at ",Sys.time())
-# results <- extend.jags(initial_results,
-#                        add.monitor=c("pd","dic"),
-#                        sample = 1000,
-#                        adapt = 200,
-#                        thin = 10,
-#                        method='rjags')
-results = c("foo")
 message("Save model output at ",Sys.time())
 # Save the results
-output = list(#"results"=results,
-              "initial_results"=initial_results)
 save(output, file=paste('NEE_output_AU-Cum_', Sys.Date(),'.Rdata', sep = ''))
 
 # Tidy up
