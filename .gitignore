@@ -12,3 +12,4 @@
 *.pdf
 .DS_store
 results/
+old_data/
