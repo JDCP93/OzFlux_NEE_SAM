@@ -24,7 +24,10 @@ OzFluxProcess = function(Site){
   #  - Site: A character vector with the FluxNet siteID
   #  
   #  OUTPUTS:
-  #  -
+  #  - "AU-Site_Input.Rdata": a .Rdata file containing a list of the same name. 
+  #                           The list includes all necessary inputs for the 
+  #                           NEEModel.R workflows as well as a dataframe of
+  #                           daily data and a list of QC metrics
 
   # Let the user know which site the function is looking at
   message("*** Extracting data for ",Site," ***")
