@@ -1,0 +1,146 @@
+r2jags_analysis <- function(SiteCode){
+  
+  # A function to take the output from a R2jags model run for an OzFlux site and
+  # turn it into something useful and interesting and possibly, hopefully, 
+  # insightful. Fingers crossed!
+  # 
+  # INPUTS:
+  # - SiteCode: A character vector of length 6 containing the offical OzFlux code
+  #             for the site, including the 'AU-' part
+  # 
+  # OUTPUTS:
+  # - We'll have to wait and see what I come up with!
+  # 
+  # HERE WE GO!
+  # 
+  
+  # ##################
+  # Let's ACTIVATE!
+  # ##################
+  
+  # Let the user know which site the function is looking at
+  message("*** Analysing R2jags output for ",Site," ***")
+  # 
+  # Load in the output data we are analysing
+  # Look in folder "results" for the data
+  File = list.files("results",pattern = Site)
+  # Read the data into R 
+  load(paste0("results/",File))
+  
+  # Source the necessary packages
+  library(coda)
+  library(ggplot2)
+  library(dplyr)
+  library(rjags)
+  library(R2jags)
+  library(mcmcplots)
+  library(lubridate)
+  library(magrittr)
+  library(zoo)
+  source('DBDA2E-utilities.R')
+  
+  # ##################
+  # Convergence checks
+  # ##################
+  
+  # List the "fundamental" parameters - e.g. those that are assigned priors and
+  # are not a function of other parameters. Stochastic parameters? Maybe.
+  stochastic.params = c("phi0",
+                       "sig_y",
+                       sprintf("deltaXAP[%d]",seq(1:8)),
+                       sprintf("deltaXA[%d,%d]",rep(1:5,10),rep(1:10,each=5)),
+                       sprintf("an[%d]",seq(1:22)),
+                       sprintf("ag[%d]",seq(1:22)))
+
+  # Convert output to an mcmc object
+  output.mcmc = as.mcmc.rjags(output)
+  
+  # We find the Gelman diagnostic (it has a proper name but I'm a hack)
+  # I think it's the shrink factor or something lol
+  Gelman = gelman.diag(output.mcmc,multivariate=FALSE)
+  # Find how many, and which, parameters fall outside of the acceptable limits
+  # which here is set to 1.1
+  Gelman.Fail = Gelman$psrf[Gelman$psrf[,2]>1.1,]
+  # This picks up NA values for those parameters that are fixed to a certain 
+  # value - we should exclude these
+  Gelman.Fail = Gelman.Fail[complete.cases(Gelman.Fail),]
+  
+  # We find the effective sample size for each parameter
+  ESS.raw = effectiveSize(output.mcmc)
+  # Where parameters are forced to 0, then the ESS is also 0. Therefore we exclude
+  # these when considering the fit. In general, higher ESS is better, with 10,000+
+  # being ideal
+  ESS = ESS.raw[ESS.raw > 0]
+  # Plot a histogram to visualise how the ESS distribution breaks down
+  ESSPlot = ggplot(data.frame(ESS)) +
+            geom_histogram(aes(ESS),binwidth=250)
+  # See which parameters are way below 10,000 ESS
+  ESS.Fail = ESS[ESS<10000 & names(ESS) %in% stochastic.params]
+  
+  
+  
+  # We calculate the Geweke diagnostic - this should fall within the confidence 
+  # bounds of -2 and 2. 
+  Geweke = geweke.diag(output.mcmc)
+  # I think this is less important - or at least, it depends on the length of the
+  # burn-in period
+  # Count how many elements are outside the bounds
+  GewekeCount = unlist(lapply(Geweke, function(i) sum((i$z>2 | i$z<(-2)) & names(i$z) %in% stochastic.params,na.rm=TRUE)))
+  GewekeNames = (lapply(Geweke, function(i) names(i$z)[(i$z>2 | i$z<(-2)) & names(i$z) %in% stochastic.params]))
+  Geweke.Fail = mean(GewekeCount)
+  
+  
+  # ##################
+  # Model Performance
+  # ##################
+  
+  # Load the observations
+  name = paste0(Site,"_Input")
+  load(paste0(name,".Rdata"))
+  assign("obs",eval(as.name(name)))
+  
+  # Create dataframe of observed vs modelled with confidence intervals
+  NEE_pred = output$BUGSoutput$median$NEE_pred
+  NEE_pred_min = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",3]
+  NEE_pred_max = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",7]
+  NEE_OBS = obs$NEE[-(1:365)]
+  
+  df = data.frame("Date" = obs$DailyData$TIMESTAMP[-(1:365)],
+                  "Pred" = NEE_pred,
+                  "min" = NEE_pred_min,
+                  "max" = NEE_pred_max,
+                  "Obs" = NEE_OBS)
+  
+  # Plot the daily data
+  ObsVsNEE_daily = ggplot(df) +
+    geom_ribbon(aes(x=Date,ymin=min,ymax=max, fill = "Pred"),alpha=0.5) +
+    geom_line(aes(x=Date,y=Obs,color = "Obs", fill = "Obs")) +
+    geom_line(aes(x=Date,y=Pred,color = "Pred", fill = "Obs")) +
+    scale_color_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
+    scale_fill_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
+    theme_bw()
+  
+  # Since the daily data is likely to be very noisy, aggregate into monthly
+  # data with sums 
+  # I HAVE NO IDEA IF SUMMING CONFIDENCE INTERVALS IS LEGIT
+  df$year = year(df$Date)
+  df$month = month(df$Date)
+  
+  df_monthly <-  df %>%
+    group_by(year,month) %>%               
+    summarise(Pred=sum(Pred),
+              min=sum(min),
+              max=sum(max),
+              Obs=sum(Obs))
+  
+  df_monthly$Date = as.yearmon(paste(df_monthly$year, df_monthly$month), "%Y %m")
+  # Plot monthly data
+  ObsVsNEE_monthly = ggplot(df_monthly) +
+    geom_ribbon(aes(x=Date,ymin=min,ymax=max, fill = "Pred"),alpha=0.5) +
+    geom_line(aes(x=Date,y=Obs,color = "Obs", fill = "Obs")) +
+    geom_line(aes(x=Date,y=Pred,color = "Pred", fill = "Obs")) +
+    scale_color_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
+    scale_fill_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
+    theme_bw()
+}
+
