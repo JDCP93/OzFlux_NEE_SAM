@@ -1,11 +1,11 @@
-r2jags_analysis <- function(SiteCode){
+r2jags_analysis <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
   # insightful. Fingers crossed!
   # 
   # INPUTS:
-  # - SiteCode: A character vector of length 6 containing the offical OzFlux code
+  # - Site: A character vector of length 6 containing the offical OzFlux code
   #             for the site, including the 'AU-' part
   # 
   # OUTPUTS:
@@ -88,6 +88,13 @@ r2jags_analysis <- function(SiteCode){
   GewekeCount = unlist(lapply(Geweke, function(i) sum((i$z>2 | i$z<(-2)) & names(i$z) %in% stochastic.params,na.rm=TRUE)))
   GewekeNames = (lapply(Geweke, function(i) names(i$z)[(i$z>2 | i$z<(-2)) & names(i$z) %in% stochastic.params]))
   Geweke.Fail = mean(GewekeCount)
+  
+  
+  for (param in stochastic.params){
+    # Output the variable
+    print(param)
+    diagMCMC(output.mcmc,param,saveName = Site)
+  }
   
   
   # ##################
