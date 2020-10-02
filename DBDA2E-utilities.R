@@ -237,7 +237,7 @@ diagMCMC = function( codaObject , parName=varnames(codaObject)[1] ,
   DbdaDensPlot(codaObject,parName,plColors=DBDAplColors)
   mtext( text=parName , outer=TRUE , adj=c(0.5,0.5) , cex=2.0 )
   if ( !is.null(saveName) ) {
-    saveGraph( file=paste0(saveName,"Diag",parName), type=saveType)
+    saveGraph( file=paste0(saveName,"_MCMCDiag_",parName), type=saveType)
   }
 }
 
