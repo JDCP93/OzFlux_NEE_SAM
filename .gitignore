@@ -13,3 +13,4 @@
 .DS_store
 results/
 old_data/
+*MCMCDiag*.jpg
