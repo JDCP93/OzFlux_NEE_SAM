@@ -24,8 +24,9 @@ r2jags_analysis <- function(Site){
   # Load in the output data we are analysing
   # Look in folder "results" for the data
   File = list.files("results",pattern = Site)
-  # Read the data into R 
-  load(paste0("results/",File))
+  # Read the data into R - note that if multiple results are available for a 
+  # site, we take the most recent
+  load(paste0("results/",File[length(File)]))
   
   # Source the necessary packages
   library(coda)
@@ -110,13 +111,13 @@ r2jags_analysis <- function(Site){
   NEE_pred = output$BUGSoutput$median$NEE_pred
   NEE_pred_min = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",3]
   NEE_pred_max = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",7]
-  NEE_OBS = obs$NEE[-(1:365)]
+  NEE_obs = obs$NEE[-(1:365)]
   
   df = data.frame("Date" = obs$DailyData$TIMESTAMP[-(1:365)],
                   "Pred" = NEE_pred,
                   "min" = NEE_pred_min,
                   "max" = NEE_pred_max,
-                  "Obs" = NEE_OBS)
+                  "Obs" = NEE_obs)
   
   # Plot the daily data
   ObsVsNEE_daily = ggplot(df) +
@@ -149,5 +150,8 @@ r2jags_analysis <- function(Site){
     scale_color_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
     scale_fill_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
     theme_bw()
+  
+  # Calculate the r squared value for the SAM model
+  SAM.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
 }
 
