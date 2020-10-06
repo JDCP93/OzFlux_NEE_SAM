@@ -115,13 +115,22 @@ r2jags_analysis <- function(Site){
   
   df = data.frame("Date" = obs$DailyData$TIMESTAMP[-(1:365)],
                   "Pred" = NEE_pred,
-                  "min" = NEE_pred_min,
-                  "max" = NEE_pred_max,
+                  "Min" = NEE_pred_min,
+                  "Max" = NEE_pred_max,
                   "Obs" = NEE_obs)
+  
+  # We also calculate a dataframe of moving averages to smooth out the plot
+  # Set the window for moving average
+  k = 14
+  df_ma = data.frame("Date" = rollmean(df$Date,k),
+                    "Pred" = rollmean(df$Pred,k),
+                    "Min" = rollmean(df$Min,k),
+                    "Max" = rollmean(df$Max,k),
+                    "Obs" = rollmean(df$Obs,k))
   
   # Plot the daily data
   ObsVsNEE_daily = ggplot(df) +
-    geom_ribbon(aes(x=Date,ymin=min,ymax=max, fill = "Pred"),alpha=0.5) +
+    geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill = "Pred"),alpha=0.5) +
     geom_line(aes(x=Date,y=Obs,color = "Obs", fill = "Obs")) +
     geom_line(aes(x=Date,y=Pred,color = "Pred", fill = "Obs")) +
     scale_color_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
@@ -137,14 +146,14 @@ r2jags_analysis <- function(Site){
   df_monthly <-  df %>%
     group_by(year,month) %>%               
     summarise(Pred=sum(Pred),
-              min=sum(min),
-              max=sum(max),
+              Min=sum(Min),
+              Max=sum(Max),
               Obs=sum(Obs))
   
   df_monthly$Date = as.yearmon(paste(df_monthly$year, df_monthly$month), "%Y %m")
   # Plot monthly data
   ObsVsNEE_monthly = ggplot(df_monthly) +
-    geom_ribbon(aes(x=Date,ymin=min,ymax=max, fill = "Pred"),alpha=0.5) +
+    geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill = "Pred"),alpha=0.5) +
     geom_line(aes(x=Date,y=Obs,color = "Obs", fill = "Obs")) +
     geom_line(aes(x=Date,y=Pred,color = "Pred", fill = "Obs")) +
     scale_color_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
