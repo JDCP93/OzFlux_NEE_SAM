@@ -113,37 +113,71 @@ r2jags_analysis <- function(Site){
   NEE_pred_max = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",7]
   NEE_obs = obs$NEE[-(1:365)]
   
-  df = data.frame("Date" = obs$DailyData$TIMESTAMP[-(1:365)],
-                  "Pred" = NEE_pred,
-                  "Min" = NEE_pred_min,
-                  "Max" = NEE_pred_max,
-                  "Obs" = NEE_obs)
-  
-  # We also calculate a dataframe of moving averages to smooth out the plot
-  # Set the window for moving average
-  k = 14
-  df_ma = data.frame("Date" = rollmean(df$Date,k),
-                    "Pred" = rollmean(df$Pred,k),
-                    "Min" = rollmean(df$Min,k),
-                    "Max" = rollmean(df$Max,k),
-                    "Obs" = rollmean(df$Obs,k))
+  df = data.frame("Date"=obs$DailyData$TIMESTAMP[-(1:365)],
+                  "Pred"=NEE_pred,
+                  "Min"=NEE_pred_min,
+                  "Max"=NEE_pred_max,
+                  "Obs"=NEE_obs)
   
   # Plot the daily data
   ObsVsNEE_daily = ggplot(df) +
-    geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill = "Pred"),alpha=0.5) +
-    geom_line(aes(x=Date,y=Obs,color = "Obs", fill = "Obs")) +
-    geom_line(aes(x=Date,y=Pred,color = "Pred", fill = "Obs")) +
-    scale_color_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
-    scale_fill_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
+    geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill="Pred"),alpha=0.5) +
+    geom_line(aes(x=Date,y=Obs,color="Obs", fill="Obs")) +
+    geom_line(aes(x=Date,y=Pred,color="Pred", fill="Obs")) +
+    scale_color_viridis_d(name="Data",
+                          labels=c("Obs"="Observations","Pred"="Predicted"),
+                          guide="legend",
+                          option="magma",
+                          direction=-1,
+                          begin=0.2,
+                          end=0.8) +
+    scale_fill_viridis_d(name="Data",
+                         labels=c("Obs"="Observations","Pred"="Predicted"),
+                         guide="legend",
+                         option="magma",
+                         direction=-1,
+                         begin=0.2,
+                         end=0.8) +
     theme_bw()
   
+  # We also calculate a dataframe of moving averages to smooth out the plot
+  # Set the window for moving average
+  k = 15
+  # Create the dataframe
+  df_ma = data.frame("Date"=rollmedian(df$Date,k),
+                    "Pred"=rollmedian(df$Pred,k),
+                    "Min"=rollmedian(df$Min,k),
+                    "Max"=rollmedian(df$Max,k),
+                    "Obs"=rollmedian(df$Obs,k))
+  
+  # Plot the moving average data
+  ObsVsNEE_ma = ggplot(df_ma) +
+    geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill="Pred"),alpha=0.5) +
+    geom_line(aes(x=Date,y=Obs,color="Obs", fill="Obs")) +
+    geom_line(aes(x=Date,y=Pred,color="Pred", fill="Obs")) +
+    scale_color_viridis_d(name="Data",
+                          labels=c("Obs"="Observations","Pred"="Predicted"),
+                          guide="legend",
+                          option="magma",
+                          direction=-1,
+                          begin=0.2,
+                          end=0.8) +
+    scale_fill_viridis_d(name="Data",
+                         labels=c("Obs"="Observations","Pred"="Predicted"),
+                         guide="legend",
+                         option="magma",
+                         direction=-1,
+                         begin=0.2,
+                         end=0.8) +
+    theme_bw()
+
   # Since the daily data is likely to be very noisy, aggregate into monthly
   # data with sums 
   # I HAVE NO IDEA IF SUMMING CONFIDENCE INTERVALS IS LEGIT
   df$year = year(df$Date)
   df$month = month(df$Date)
   
-  df_monthly <-  df %>%
+  df_monthly = df %>%
     group_by(year,month) %>%               
     summarise(Pred=sum(Pred),
               Min=sum(Min),
@@ -153,11 +187,23 @@ r2jags_analysis <- function(Site){
   df_monthly$Date = as.yearmon(paste(df_monthly$year, df_monthly$month), "%Y %m")
   # Plot monthly data
   ObsVsNEE_monthly = ggplot(df_monthly) +
-    geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill = "Pred"),alpha=0.5) +
-    geom_line(aes(x=Date,y=Obs,color = "Obs", fill = "Obs")) +
-    geom_line(aes(x=Date,y=Pred,color = "Pred", fill = "Obs")) +
-    scale_color_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
-    scale_fill_viridis_d(name="Data",labels = c("Obs"="Observations","Pred" = "Predicted"),guide = "legend",option="magma",direction=-1,begin=0.2,end=0.8) +
+    geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill="Pred"),alpha=0.5) +
+    geom_line(aes(x=Date,y=Obs,color="Obs", fill="Obs")) +
+    geom_line(aes(x=Date,y=Pred,color="Pred", fill="Obs")) +
+    scale_color_viridis_d(name="Data",
+                          labels=c("Obs"="Observations","Pred"="Predicted"),
+                          guide="legend",
+                          option="magma",
+                          direction=-1,
+                          begin=0.2,
+                          end=0.8) +
+    scale_fill_viridis_d(name="Data",
+                         labels=c("Obs"="Observations","Pred"="Predicted"),
+                         guide="legend",
+                         option="magma",
+                         direction=-1,
+                         begin=0.2,
+                         end=0.8) +
     theme_bw()
   
   # Calculate the r squared value for the SAM model
