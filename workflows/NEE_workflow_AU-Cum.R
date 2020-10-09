@@ -7,15 +7,13 @@ rm(list = ls())
 message("Start the workflow at ",Sys.time())
 
 # load needed packages
-nee_packs <- c('rjags', 'coda', 'stats', 'R2jags', 'parallel','runjags')
+nee_packs <- c('rjags', 'coda', 'stats', 'R2jags', 'parallel','runjags','mcmcplots')
 lapply(nee_packs, require, character.only = T)
-
-runjags.options("force.summary"=T)
 
 # variables to monitor
 monitor_vars <- c("an", "ag", "phi0", "deltaXA", "weightA", "weightAP", "deltaXAP", 
-                      "cum_weightA", "cum_weightAP", "sig_y", "NEE_pred","muNEE",
-                      "ESen", 'deviance')
+                  "cum_weightA", "cum_weightAP", "sig_y", "NEE_pred","muNEE",
+                  "ESen", 'deviance')
 
 # Load the site inputs
 load('./AU-Cum_Input.Rdata') 
@@ -35,37 +33,30 @@ inputdata = list("Nv"=data$Nv,
                  "BlockSize"=data$BlockSize,
                  "Nblocks"=data$Nblocks)
 
-inputdata = dump.format(inputdata)
 
 # parallelize using runjags
 message("Begin model run at ",Sys.time())
 # run model in parallel with 6 chains and cores
-initial_results <- run.jags(model = 'NEEModel_v2.R',
-                    monitor = monitor_vars,
-                    data = inputdata,
-                    n.chains = 6, 
-                    burnin = 200, 
-                    sample = 1000,
-                    adapt = 200,
-                    modules = c('glm','dic'),
-                    thin = 10,
-                    method = 'parallel',
-                    n.sims = 6)
-
-# Extend the run on a single core to calculate DIC
-message("Calculating DIC for the model at ",Sys.time())
-results <- extend.jags(initial_results,
-                       add.monitor=c("pd","dic"),
-                       sample = 1000,
-                       adapt = 200,
-                       thin = 10,
-                       method='rjags')
+output <- jags.parallel(model.file = 'NEEModel_v2.R',
+                            parameters.to.save = monitor_vars,
+                            data = inputdata,
+                            n.chains = 6, 
+                            n.burnin = 100000, 
+                            n.iter = 1000000,
+                            jags.module = c('glm','dic'),
+                            n.thin = 200)
 
 message("Save model output at ",Sys.time())
+# Transform output into mcmc object to save space
+output.mcmc = as.mcmc.rjags(output)
+DIC = output$BUGSoutput$DIC
+pD = output$BUGSoutput$pD
+output = list("output.mcmc"=output.mcmc,
+              "DIC" = DIC,
+              "pD" = pD)
 # Save the results
-output = list("results"=results,"initial_results"=initial_results)
 save(output, file=paste('NEE_output_AU-Cum_', Sys.Date(),'.Rdata', sep = ''))
-  
+
 # Tidy up
 rm(list=ls())
 

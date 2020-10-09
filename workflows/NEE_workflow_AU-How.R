@@ -16,8 +16,8 @@ monitor_vars <- c("an", "ag", "phi0", "deltaXA", "weightA", "weightAP", "deltaXA
                   "ESen", 'deviance')
 
 # Load the site inputs
-load('./AU-Cpr_Input.Rdata') 
-data = `AU-Cpr_Input`
+load('./AU-How_Input.Rdata') 
+data = `AU-How_Input`
 inputdata = list("Nv"=data$Nv,
                  "Ns"=data$Ns,
                  "Nlag"=data$Nlag,
@@ -55,7 +55,7 @@ output = list("output.mcmc"=output.mcmc,
               "DIC" = DIC,
               "pD" = pD)
 # Save the results
-save(output, file=paste('NEE_output_AU-Cpr_', Sys.Date(),'.Rdata', sep = ''))
+save(output, file=paste('NEE_output_AU-How_', Sys.Date(),'.Rdata', sep = ''))
 
 # Tidy up
 rm(list=ls())
