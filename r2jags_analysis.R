@@ -76,7 +76,7 @@ r2jags_analysis <- function(Site){
   ESSPlot = ggplot(data.frame(ESS)) +
             geom_histogram(aes(ESS),binwidth=250)
   # See which parameters are way below 10,000 ESS
-  ESS.Fail = ESS[ESS<10000 & names(ESS) %in% stochastic.params]
+  ESS.Fail = ESS[ESS<10000] # & names(ESS) %in% stochastic.params]
   
   
   
@@ -86,8 +86,9 @@ r2jags_analysis <- function(Site){
   # I think this is less important - or at least, it depends on the length of the
   # burn-in period
   # Count how many elements are outside the bounds
-  GewekeCount = unlist(lapply(Geweke, function(i) sum((i$z>2 | i$z<(-2)) & names(i$z) %in% stochastic.params,na.rm=TRUE)))
-  GewekeNames = (lapply(Geweke, function(i) names(i$z)[(i$z>2 | i$z<(-2)) & names(i$z) %in% stochastic.params]))
+  GewekeCount = unlist(lapply(Geweke, function(i) sum((i$z>2 | i$z<(-2)), #& names(i$z) %in% stochastic.params,
+                                                      na.rm=TRUE)))
+  GewekeNames = (lapply(Geweke, function(i) names(i$z)[(i$z>2 | i$z<(-2))])) # & names(i$z) %in% stochastic.params]))
   Geweke.Fail = mean(GewekeCount)
   
   
@@ -108,9 +109,13 @@ r2jags_analysis <- function(Site){
   assign("obs",eval(as.name(name)))
   
   # Create dataframe of observed vs modelled with confidence intervals
-  NEE_pred = output$BUGSoutput$median$NEE_pred
-  NEE_pred_min = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",3]
-  NEE_pred_max = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",7]
+#  NEE_pred = output$BUGSoutput$median$NEE_pred
+#  NEE_pred_min = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",3]
+#  NEE_pred_max = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",7]
+  summary = summary(output.mcmc)
+  NEE_pred = summary$statistics[substr(rownames(summary$statistics),1,5)=="NEE_p",1]
+  NEE_pred_min = summary$quantiles[substr(rownames(summary$quantiles),1,5)=="NEE_p",1]
+  NEE_pred_max = summary$quantiles[substr(rownames(summary$quantiles),1,5)=="NEE_p",5]
   NEE_obs = obs$NEE[-(1:365)]
   
   df = data.frame("Date"=obs$DailyData$TIMESTAMP[-(1:365)],
@@ -208,5 +213,13 @@ r2jags_analysis <- function(Site){
   
   # Calculate the r squared value for the SAM model
   SAM.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
+  
+  output = list("Gelman.Fail" = Gelman.Fail,
+                "ESS.Fail" = ESS.Fail,
+                "Geweke.Fail" = Geweke.Fail,
+                "SAM.R2" = SAM.R2,
+                "df" = df)
+  
+  save(output,file = paste0("NEE_ConvAnalysis_",Site,".Rdata"))
 }
 
