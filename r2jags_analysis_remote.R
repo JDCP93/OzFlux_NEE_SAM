@@ -54,14 +54,8 @@ r2jags_analysis <- function(Site){
                        sprintf("ag[%d]",seq(1:22)))
 
   # Convert output to an mcmc object
-  # Either take the object already saved as an mcmc object for the current 
-  # workflows or, to maintain compatibility with older workflows, calculate it
-  # from the rjags object
-  if (class(output) == "list"){
-    output.mcmc = output$output.mcmc
-  }else{
-    output.mcmc = as.mcmc.rjags(output)
-  }
+  output.mcmc = as.mcmc.rjags(output)
+  
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
   # I think it's the shrink factor or something lol
   Gelman = gelman.diag(output.mcmc,multivariate=FALSE)
@@ -97,12 +91,13 @@ r2jags_analysis <- function(Site){
   GewekeNames = (lapply(Geweke, function(i) names(i$z)[(i$z>2 | i$z<(-2))])) # & names(i$z) %in% stochastic.params]))
   Geweke.Fail = mean(GewekeCount)
   
+  # Remove plotting as not possible remotely
   
-  for (param in stochastic.params){
-    # Output the variable
-    print(param)
-    diagMCMC(output.mcmc,param,saveName = Site)
-  }
+  #for (param in stochastic.params){
+  #  # Output the variable
+  #  print(param)
+  #  diagMCMC(output.mcmc,param,saveName = Site)
+  #}
   
   
   # ##################
