@@ -220,11 +220,31 @@ r2jags_analysis <- function(Site){
   # Calculate the r squared value for the SAM model
   SAM.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
   
+  # Extract climate sensitivities
+  
+  # Define params
+  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:7)))
+  # Extract 2.5%, median and 97.5%
+  ESenMedian = summary$statistics[rownames(summary$statistics) %in% SensitivityCovariates,1]
+  ESenLow = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,1]
+  ESenHigh = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,5]
+  # Place in dataframe
+  ESen = data.frame(ESenLow,ESenMedian,ESenHigh)
+  rownames(ESen) = c("Tair",
+                     "Fsd",
+                     "VPD",
+                     "curSWC",
+                     "antSWC",
+                     "Precip",
+                     "SWC")
+  
+  # Create a nice output and save it
   output = list("Gelman.Fail" = Gelman.Fail,
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
                 "SAM.R2" = SAM.R2,
-                "df" = df)
+                "df" = df,
+                "ESen" = ESen)
   
   save(output,file = paste0("NEE_ConvAnalysis_",Site,".Rdata"))
 }
