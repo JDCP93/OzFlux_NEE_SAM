@@ -49,7 +49,7 @@ r2jags_analysis <- function(Site){
   stochastic.params = c("phi0",
                        "sig_y",
                        sprintf("deltaXAP[%d]",seq(1:8)),
-                       sprintf("deltaXA[%d,%d]",rep(1:5,10),rep(1:10,each=5)),
+                       sprintf("deltaXA[%d,%d]",rep(1:5,14),rep(1:14,each=5)),
                        sprintf("an[%d]",seq(1:22)),
                        sprintf("ag[%d]",seq(1:22)))
 
@@ -238,14 +238,32 @@ r2jags_analysis <- function(Site){
                      "Precip",
                      "SWC")
   
+  # Extract cumulative weights
+  # Define params
+  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:5,14),rep(1:14,each=5)),
+                      sprintf("cum_weightAP[%d]",seq(1:8)))
+  # Extract 2.5%, median and 97.5%
+  WeightsMedian = summary$statistics[rownames(summary$statistics) %in% CumWeightParams,1]
+  WeightsLow = summary$quantiles[rownames(summary$quantiles) %in% CumWeightParams,1]
+  WeightsHigh = summary$quantiles[rownames(summary$quantiles) %in% CumWeightParams,5]
+  # Place in dataframe
+  CumWeights = data.frame(WeightsLow,WeightsMedian,WeightsHigh)
+  # rownames(CumWeights) = c(rep("Tair",10),
+  #                    rep("Fsd",10),
+  #                    rep("VPD",10),
+  #                    rep("curSWC",10),
+  #                    rep("antSWC",10),
+  #                    rep("Precip",8))
+  
   # Create a nice output and save it
   output = list("Gelman.Fail" = Gelman.Fail,
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
                 "SAM.R2" = SAM.R2,
                 "df" = df,
-                "ESen" = ESen)
+                "ESen" = ESen,
+                "CumWeights" = CumWeights)
   
-  save(output,file = paste0("NEE_ConvAnalysis_",Site,".Rdata"))
+  save(output,file = paste0("NEE_Analysis_",Site,".Rdata"))
 }
 
