@@ -49,7 +49,7 @@ r2jags_analysis <- function(Site){
   stochastic.params = c("phi0",
                        "sig_y",
                        sprintf("deltaXAP[%d]",seq(1:8)),
-                       sprintf("deltaXA[%d,%d]",rep(1:5,14),rep(1:14,each=5)),
+                       sprintf("deltaXA[%d,%d]",rep(1:5,10),rep(1:10,each=5)),
                        sprintf("an[%d]",seq(1:22)),
                        sprintf("ag[%d]",seq(1:22)))
 
@@ -62,6 +62,16 @@ r2jags_analysis <- function(Site){
   }else{
     output.mcmc = as.mcmc.rjags(output)
   }
+  
+  # Produce plots of each parameter to assess convergence.
+  for (param in stochastic.params){
+    # Output the variable
+    print(param)
+    diagMCMC(output.mcmc,param,saveName = Site)
+    Sys.sleep(1)
+    graphics.off()
+  }
+  
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
   # I think it's the shrink factor or something lol
   Gelman = gelman.diag(output.mcmc,multivariate=FALSE)
@@ -96,14 +106,6 @@ r2jags_analysis <- function(Site){
                                                       na.rm=TRUE)))
   GewekeNames = (lapply(Geweke, function(i) names(i$z)[(i$z>2 | i$z<(-2))])) # & names(i$z) %in% stochastic.params]))
   Geweke.Fail = mean(GewekeCount)
-  
-  
-  for (param in stochastic.params){
-    # Output the variable
-    print(param)
-    diagMCMC(output.mcmc,param,saveName = Site)
-  }
-  
   
   # ##################
   # Model Performance
