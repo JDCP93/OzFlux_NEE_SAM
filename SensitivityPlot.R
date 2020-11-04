@@ -7,7 +7,6 @@ for (Site in Sites){
     message("Analysis file already exists for ",Site,". Moving to next site...")
   } else {
     message("Conducting model output analysis for ",Site,". Please wait...")
-    source("OzFluxProcess_NDVI.R")
     r2jags_analysis(Site)
   }
 }
