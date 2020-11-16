@@ -1,4 +1,4 @@
-WeightPlot = function(Sites){
+WeightPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Precip","SWC")){
   
   # Run the analysis of the model outputs if they don't exist
   source("r2jags_analysis.R")
@@ -12,11 +12,27 @@ WeightPlot = function(Sites){
   }
   message("Plotting weights for sites...")
   
+  # Initialise MAP dataframe
+  MAP = data.frame("Site"=Sites,
+                   "MAP"=rep(NA,length(Sites)))
+  
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
     load(paste0("NEE_Analysis_",Site,".Rdata"))
     assign(Site,output)
     rm(output)
+    
+    # We also load the daily data to calculate MAP
+    load(paste0(Site,"_Input.Rdata"))
+    Input = eval(as.name(paste0(Site,"_Input")))
+    DailyData = Input$DailyData
+    DailyData$year = year(DailyData$TIMESTAMP)
+    
+    YearlyData <- DailyData %>%
+      group_by(year) %>%               # group by the year column
+      summarise(Precip=sum(Precip,na.rm=TRUE))
+    
+    MAP$MAP[MAP$Site==Site] = mean(YearlyData$Precip)
   }
   
   # Let's load in the prior information
@@ -78,9 +94,21 @@ WeightPlot = function(Sites){
   
   # Remove current SWC (all weights are 1)
   CumWeights = CumWeights[!(CumWeights$Variable=="curSWC"),]
-  # Assign levels to the variables
-  CumWeights$Variable = factor(CumWeights$Variable,
-                               levels = unique(CumWeights$Variable))
+  # Limit the dataframe to the variables requested
+  CumWeights = CumWeights[CumWeights$Variable %in% Vars,]
+  
+  # Rename variables to nice names
+  CumWeights$Variable[CumWeights$Variable == "Fsd"] = "Shortwave Radiation"
+  CumWeights$Variable[CumWeights$Variable == "Tair"] = "Air Temperature"
+  CumWeights$Variable[CumWeights$Variable == "antSWC"] = "Antecedent SWC"
+  CumWeights$Variable[CumWeights$Variable == "SWC"] = "Antecedent + Current SWC"
+  
+  # Assign levels to Variable
+  CumWeights$Variable = factor(CumWeights$Variable,levels = sort(unique(CumWeights$Variable)))
+  
+  # Order sites by MAP
+  MAP = MAP[order(MAP$MAP,decreasing = TRUE),]
+  CumWeights$Site = factor(CumWeights$Site,levels=MAP$Site)
   
   # Check whether the climate variable is significant - does the CI contain 0?
  # ?????? ESen$Significant = sign(ESen$Low*ESen$High)==1
