@@ -105,6 +105,6 @@ for(Site in Sites){
   source("SensitivityPlot.R")
   source("WeightPlot.R")
   Sites = c("AU-Cpr","AU-DaS","AU-Dry","AU-Stp","AU-TTE","AU-Wom")
-  ESenPlot = SensitivityPlot(Sites)
+  ESenPlot = SensitivityPlot(Sites,c("Fsd","Precip"))
   WeightPlot = WeightPlot(Sites)
   

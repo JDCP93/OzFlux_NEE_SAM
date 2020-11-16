@@ -1,4 +1,4 @@
-SensitivityPlot = function(Sites){
+SensitivityPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Precip","SWC")){
 
 # Run the analysis of the model outputs if they don't exist
 source("r2jags_analysis.R")
@@ -21,13 +21,25 @@ for (Site in Sites){
 
 # Extract the sensitvity covariates
 ESen = data.frame("Site"=rep(Sites,each = 7),
-          "Variable" = factor(rep(rownames(eval(as.name(Sites[1]))$ESen),length(Sites)),
-                              levels = rownames(eval(as.name(Sites[1]))$ESen)),
+          "Variable" = rep(rownames(eval(as.name(Sites[1]))$ESen),length(Sites)),
           "Low" = unlist(lapply(Sites,function(x) eval(as.name(x))$ESen$ESenLow)),
           "Med" = unlist(lapply(Sites,function(x) eval(as.name(x))$ESen$ESenMedian)),
           "High" = unlist(lapply(Sites,function(x) eval(as.name(x))$ESen$ESenHigh)))
 # Check whether the climate variable is significant - does the CI contain 0?
 ESen$Significant = sign(ESen$Low*ESen$High)==1
+
+# Limit the dataframe to the variables requested
+ESen = ESen[ESen$Variable %in% Vars,]
+
+# Rename variables to nice names
+ESen$Variable[ESen$Variable == "Fsd"] = "Shortwave Radiation"
+ESen$Variable[ESen$Variable == "Tair"] = "Air Temperature"
+ESen$Variable[ESen$Variable == "antSWC"] = "Antecedent SWC"
+ESen$Variable[ESen$Variable == "curSWC"] = "Current SWC"
+ESen$Variable[ESen$Variable == "SWC"] = "Antecedent + Current SWC"
+
+# Assign levels to Variable
+ESen$Variable = factor(ESen$Variable,levels = sort(unique(ESen$Variable)))
 
 # Plot the sensitivity covariates
 library(ggplot2)
