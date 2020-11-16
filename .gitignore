@@ -15,3 +15,4 @@ results/
 old_data/
 *MCMCDiag*.jpg
 slides/
+tests/
