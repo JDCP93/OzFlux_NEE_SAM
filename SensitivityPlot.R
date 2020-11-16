@@ -1,5 +1,10 @@
 SensitivityPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Precip","SWC")){
 
+  # Source packages needed
+  library(lubridate)
+  library(magrittr)
+  library(dplyr)
+  
 # Run the analysis of the model outputs if they don't exist
 source("r2jags_analysis.R")
 for (Site in Sites){
@@ -79,7 +84,7 @@ ESenPlot = ggplot(ESen) +
                 width = 0.5) +
   facet_wrap(Variable~.,
               scales = "free_y",
-             ncol = 2) +
+             ncol = (length(Vars)>=4)*2+(length(Vars)<4*1)) +
   scale_color_viridis_d(name="",
                         labels=c("FALSE"="Non-Significant","TRUE"="Significant"),
                         guide="legend",

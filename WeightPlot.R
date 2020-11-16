@@ -1,5 +1,11 @@
 WeightPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Precip","SWC")){
   
+  # Source packages needed
+  library(lubridate)
+  library(magrittr)
+  library(dplyr)
+  library(coda)
+  
   # Run the analysis of the model outputs if they don't exist
   source("r2jags_analysis.R")
   for (Site in Sites){
