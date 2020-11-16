@@ -42,7 +42,7 @@ AvgMonthData <- DailyData %>%
             Ta=mean(Ta),
             VPD=mean(VPD),
             Sws=mean(Sws),
-            Precip=sum(Precip))
+            Precip=sum(Precip,na.rm=TRUE))
 
 plot(AvgMonthData$month,AvgMonthData$NEE,type='l',main=paste(Site,"NEE"))
 plot(AvgMonthData$month,AvgMonthData$Precip,type='l',main=paste(Site,"Precip"))

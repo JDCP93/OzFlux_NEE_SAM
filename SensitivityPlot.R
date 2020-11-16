@@ -12,11 +12,28 @@ for (Site in Sites){
 }
 message("Plotting sensitivities for sites...")
 
-# Collect the analysis outputs and name them with each site
+# Initialise MAP dataframe
+MAP = data.frame("Site"=Sites,
+                 "MAP"=rep(NA,length(Sites)))
+
 for (Site in Sites){
+  # Collect the analysis outputs and name them with each site
   load(paste0("NEE_Analysis_",Site,".Rdata"))
   assign(Site,output)
   rm(output)
+  
+  
+  # We also load the daily data to calculate MAP
+  load(paste0(Site,"_Input.Rdata"))
+  Input = eval(as.name(paste0(Site,"_Input")))
+  DailyData = Input$DailyData
+  DailyData$year = year(DailyData$TIMESTAMP)
+  
+  YearlyData <- DailyData %>%
+    group_by(year) %>%               # group by the year column
+    summarise(Precip=sum(Precip,na.rm=TRUE))
+  
+  MAP$MAP[MAP$Site==Site] = mean(YearlyData$Precip)
 }
 
 # Extract the sensitvity covariates
@@ -40,6 +57,10 @@ ESen$Variable[ESen$Variable == "SWC"] = "Antecedent + Current SWC"
 
 # Assign levels to Variable
 ESen$Variable = factor(ESen$Variable,levels = sort(unique(ESen$Variable)))
+
+# Order sites by MAP
+MAP = MAP[order(MAP$MAP,decreasing = TRUE),]
+ESen$Site = factor(ESen$Site,levels=MAP$Site)
 
 # Plot the sensitivity covariates
 library(ggplot2)
