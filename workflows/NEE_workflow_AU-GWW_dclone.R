@@ -16,8 +16,8 @@ monitor_vars <- c("an", "ag", "phi0", "deltaXA", "weightA", "weightAP", "deltaXA
                   "ESen", 'deviance')
 
 # Load the site inputs
-load('./AU-Cum_Input.Rdata') 
-data = `AU-Cum_Input`
+load('./AU-GWW_Input.Rdata') 
+data = `AU-GWW_Input`
 inputdata = list("Nv"=data$Nv,
                  "Ns"=data$Ns,
                  "Nlag"=data$Nlag,
@@ -66,7 +66,7 @@ NEE_Output <- parCodaSamples(cl,
 
 message("Save model output at ",Sys.time())
 # Save the results
-save(NEE_Output, file=paste('NEE_output_AU-Cum_', Sys.Date(),'_dclone.Rdata', sep = ''))
+save(NEE_Output, file=paste('NEE_output_AU-GWW_', Sys.Date(),'_dclone.Rdata', sep = ''))
 
 # Tidy up
 rm(list=ls())
