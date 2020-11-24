@@ -54,7 +54,14 @@ r2jags_analysis <- function(Site){
                        sprintf("ag[%d]",seq(1:22)))
 
   # Convert output to an mcmc object
-  output.mcmc = as.mcmc.rjags(output)
+  # Either take the object already saved as an mcmc object for the current 
+  # workflows or, to maintain compatibility with older workflows, calculate it
+  # from the rjags object
+  if (class(output) == "list"){
+    output.mcmc = output$output.mcmc
+  }else{
+    output.mcmc = as.mcmc.rjags(output)
+  }
   
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
   # I think it's the shrink factor or something lol
@@ -215,11 +222,49 @@ r2jags_analysis <- function(Site){
   # Calculate the r squared value for the SAM model
   SAM.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
   
+  # Extract climate sensitivities
+  
+  # Define params
+  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:7)))
+  # Extract 2.5%, median and 97.5%
+  ESenMedian = summary$statistics[rownames(summary$statistics) %in% SensitivityCovariates,1]
+  ESenLow = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,1]
+  ESenHigh = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,5]
+  # Place in dataframe
+  ESen = data.frame(ESenLow,ESenMedian,ESenHigh)
+  rownames(ESen) = c("Tair",
+                     "Fsd",
+                     "VPD",
+                     "curSWC",
+                     "antSWC",
+                     "Precip",
+                     "SWC")
+  
+  # Extract cumulative weights
+  # Define params
+  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:5,14),rep(1:14,each=5)),
+                      sprintf("cum_weightAP[%d]",seq(1:8)))
+  # Extract 2.5%, median and 97.5%
+  WeightsMedian = summary$statistics[rownames(summary$statistics) %in% CumWeightParams,1]
+  WeightsLow = summary$quantiles[rownames(summary$quantiles) %in% CumWeightParams,1]
+  WeightsHigh = summary$quantiles[rownames(summary$quantiles) %in% CumWeightParams,5]
+  # Place in dataframe
+  CumWeights = data.frame(WeightsLow,WeightsMedian,WeightsHigh)
+  # rownames(CumWeights) = c(rep("Tair",10),
+  #                    rep("Fsd",10),
+  #                    rep("VPD",10),
+  #                    rep("curSWC",10),
+  #                    rep("antSWC",10),
+  #                    rep("Precip",8))
+  
+  # Create a nice output and save it
   output = list("Gelman.Fail" = Gelman.Fail,
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
                 "SAM.R2" = SAM.R2,
-                "df" = df)
+                "df" = df,
+                "ESen" = ESen,
+                "CumWeights" = CumWeights)
   
   save(output,file = paste0("NEE_ConvAnalysis_",Site,".Rdata"))
 }
