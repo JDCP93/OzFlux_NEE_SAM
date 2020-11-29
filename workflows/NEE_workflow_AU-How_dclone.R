@@ -34,7 +34,7 @@ inputdata = list("Nv"=data$Nv,
                  "Nblocks"=data$Nblocks)
 
 # parallelize using dclone
-cl <- makeCluster(8, type = "SOCK")
+cl <- makeCluster(6, type = "SOCK")
 parLoadModule(cl, "glm")
 parLoadModule(cl, 'lecuyer')
 parLoadModule(cl, 'dic')
@@ -46,27 +46,27 @@ parJagsModel(cl,
              name = 'OzFlux_NEE_Model', 
              file = NEEModel, 
              data = inputdata,
-             n.chains = 8, 
-             n.adapt = 50000, 
+             n.chains = 6, 
+             n.adapt = 100000, 
              quiet=FALSE)
 
 message("Update the model at ",Sys.time())
 parUpdate(cl, 
           "OzFlux_NEE_Model", 
-          n.iter=50000)
+          n.iter=100000)
 
 
-samp_iter <- 500000
+samp_iter <- 1000000
 message("Start the coda sampling at ",Sys.time())
 NEE_Output <- parCodaSamples(cl, 
                              "OzFlux_NEE_Model",
                              variable.names = monitor_vars,
                              n.iter = samp_iter, 
-                             thin = 100)
+                             thin = 200)
 
 message("Save model output at ",Sys.time())
 # Save the results
-save(NEE_Output, file=paste('NEE_output_AU-How_', Sys.Date(),'.Rdata', sep = ''))
+save(NEE_Output, file=paste('NEE_output_AU-How_', Sys.Date(),'_dclone.Rdata', sep = ''))
 
 # Tidy up
 rm(list=ls())
