@@ -25,8 +25,8 @@ for (Site in Sites){
 hist(`AU-Wom_Input`$DailyData$Ta)
 
 
-source("r2jags_analysis.R")
-r2jags_analysis("AU-Gin")
+source("r2jags_analysis_current.R")
+r2jags_analysis_current("AU-How")
 
 
 for (Site in Sites){
