@@ -67,7 +67,7 @@ r2jags_analysis <- function(Site){
   for (param in stochastic.params){
     # Output the variable
     print(param)
-    diagMCMC(output.mcmc,param,saveName = Site)
+    diagMCMC(output.mcmc,param,saveName = paste0(Site,"_",Sys.Date()))
     Sys.sleep(1)
     graphics.off()
   }
@@ -113,7 +113,7 @@ r2jags_analysis <- function(Site){
   
   # Load the observations
   name = paste0(Site,"_Input")
-  load(paste0(name,".Rdata"))
+  load(paste0("inputs/",name,".Rdata"))
   assign("obs",eval(as.name(name)))
   
   # Create dataframe of observed vs modelled with confidence intervals
@@ -266,6 +266,6 @@ r2jags_analysis <- function(Site){
                 "ESen" = ESen,
                 "CumWeights" = CumWeights)
   
-  save(output,file = paste0("NEE_Analysis_",Site,".Rdata"))
+  save(output,file = paste0("NEE_Analysis_",Site,"_",Sys.Date(),".Rdata"))
 }
 

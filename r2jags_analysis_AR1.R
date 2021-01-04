@@ -1,4 +1,4 @@
-r2jags_analysis_current <- function(Site){
+r2jags_analysis_AR1 <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
@@ -23,7 +23,7 @@ r2jags_analysis_current <- function(Site){
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("results",pattern = paste0("current_output_",Site))
+  File = list.files("results",pattern = paste0("AR1_output_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
   load(paste0("results/",File[length(File)]))
@@ -46,12 +46,7 @@ r2jags_analysis_current <- function(Site){
   
   # List the "fundamental" parameters - e.g. those that are assigned priors and
   # are not a function of other parameters. Stochastic parameters? Maybe.
-  stochastic.params = c("phi0",
-                       "sig_y",
-                       sprintf("deltaXAP[%d]",seq(1:8)),
-                       sprintf("deltaXA[%d,%d]",rep(1:5,10),rep(1:10,each=5)),
-                       sprintf("an[%d]",seq(1:22)),
-                       sprintf("ag[%d]",seq(1:22)))
+  stochastic.params = c("b0","b1","sig.res","mu.res","deviance")
 
   # Convert output to an mcmc object
   # Either take the object already saved as an mcmc object for the current 
@@ -121,9 +116,9 @@ r2jags_analysis_current <- function(Site){
 #  NEE_pred_min = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",3]
 #  NEE_pred_max = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",7]
   summary = summary(output.mcmc)
-  NEE_pred = summary$statistics[substr(rownames(summary$statistics),1,5)=="NEE_p",1]
-  NEE_pred_min = summary$quantiles[substr(rownames(summary$quantiles),1,5)=="NEE_p",1]
-  NEE_pred_max = summary$quantiles[substr(rownames(summary$quantiles),1,5)=="NEE_p",5]
+  NEE_pred = summary$statistics[substr(rownames(summary$statistics),1,11)=="NEE.res_rep",1]
+  NEE_pred_min = summary$quantiles[substr(rownames(summary$quantiles),1,11)=="NEE.res_rep",1]
+  NEE_pred_max = summary$quantiles[substr(rownames(summary$quantiles),1,11)=="NEE.res_rep",5]
   NEE_obs = obs$NEE[-(1:365)]
   
   df = data.frame("Date"=obs$DailyData$TIMESTAMP[-(1:365)],
@@ -220,7 +215,7 @@ r2jags_analysis_current <- function(Site){
     theme_bw()
   
   # Calculate the r squared value for the SAM model
-  CUR.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
+  AR1.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
   
   # Extract climate sensitivities
   
@@ -261,11 +256,11 @@ r2jags_analysis_current <- function(Site){
   output = list("Gelman.Fail" = Gelman.Fail,
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
-                "CUR.R2" = CUR.R2,
+                "AR1.R2" = AR1.R2,
                 "df" = df,
                 "ESen" = ESen,
                 "CumWeights" = CumWeights)
   
-  save(output,file = paste0("NEE_Analysis_current_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("NEE_Analysis_AR1_",Site,"_",Sys.Date(),".Rdata"))
 }
 

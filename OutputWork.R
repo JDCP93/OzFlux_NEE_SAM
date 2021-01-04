@@ -1,3 +1,6 @@
+rm(list=ls())
+
+# List all sites
 Sites = c("AU-ASM",
           "AU-Cpr",
           "AU-Cum",
@@ -5,13 +8,25 @@ Sites = c("AU-ASM",
           "AU-Dry",
           "AU-Gin",
           "AU-GWW",
-          "AU-How",
+        # "AU-How",
           "AU-Stp",
           "AU-TTE",
-          "AU-Tum",
-          "AU-Whr",
-          "AU-Wom")
+        # "AU-Tum",
+        # "AU-Whr",
+        # "AU-Wom"
+         )
 
+# Source analysis function
+source("r2jags_analysis_current.R")
+
+for (Site in Sites){
+  r2jags_analysis_current(Site)
+}
+
+
+
+
+# Calculate mean air temperature
 
 for (Site in Sites){
   load(paste0(Site,"_Input.Rdata"))
@@ -23,11 +38,6 @@ for (Site in Sites){
 
 
 hist(`AU-Wom_Input`$DailyData$Ta)
-
-
-source("r2jags_analysis_current.R")
-r2jags_analysis_current("AU-How")
-
 
 for (Site in Sites){
   load(paste0(Site,"_Input.Rdata"))
