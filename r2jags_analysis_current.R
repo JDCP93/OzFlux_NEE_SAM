@@ -67,7 +67,7 @@ r2jags_analysis_current <- function(Site){
   for (param in stochastic.params){
     # Output the variable
     print(param)
-    diagMCMC(output.mcmc,param,saveName = paste0(Site,"_",Sys.Date()))
+    diagMCMC(output.mcmc,param,saveName = paste0(Site,"_current_",Sys.Date()))
     Sys.sleep(1)
     graphics.off()
   }
