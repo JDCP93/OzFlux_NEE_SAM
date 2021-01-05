@@ -1,19 +1,19 @@
 rm(list=ls())
 
 # List all sites
-Sites = c("AU-ASM",
-          "AU-Cpr",
-          "AU-Cum",
-          "AU-DaS",
-          "AU-Dry",
-          "AU-Gin",
-          "AU-GWW",
-        # "AU-How",
-          "AU-Stp",
-          "AU-TTE",
-        # "AU-Tum",
-        # "AU-Whr",
-        # "AU-Wom"
+Sites = c(#"AU-ASM"
+          #,"AU-Cpr"
+          #,"AU-Cum"
+          #,"AU-DaS"
+          #,"AU-Dry"
+          #,"AU-Gin"
+          #,"AU-GWW"
+          #,"AU-How"
+          #,"AU-Stp"
+          #,"AU-TTE"
+          #,"AU-Tum"
+          #,"AU-Whr"
+          "AU-Wom"
          )
 
 # Source analysis function
