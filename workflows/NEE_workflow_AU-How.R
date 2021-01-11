@@ -41,10 +41,10 @@ output <- jags.parallel(model.file = 'NEEModel_v2.R',
                             parameters.to.save = monitor_vars,
                             data = inputdata,
                             n.chains = 6, 
-                            n.burnin = 100000, 
-                            n.iter = 1000000,
+                            n.burnin = 50000, 
+                            n.iter = 500000,
                             jags.module = c('glm','dic'),
-                            n.thin = 200)
+                            n.thin = 100)
 
 message("Save model output at ",Sys.time())
 # Transform output into mcmc object to save space

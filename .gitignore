@@ -11,10 +11,12 @@
 *.xlsx
 *.pptx
 *.pdf
+*.icloud
+*MCMCDiag*.jpg
 .DS_store
 results/
 old_data/
-*MCMCDiag*.jpg
 slides/
 tests/
 trash/
+inputs/
