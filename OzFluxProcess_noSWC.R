@@ -1,4 +1,4 @@
-OzFluxProcess = function(Site){
+OzFluxProcess_noSWC = function(Site){
 
   # A function to extract the necessary data from the daily OzFlux netcdf for a 
   # given site. This is designed to work with the model from Liu et al, 2019. 
@@ -24,7 +24,7 @@ OzFluxProcess = function(Site){
   #  - Site: A character vector with the FluxNet siteID
   #  
   #  OUTPUTS:
-  #  - "AU-Site_Input.Rdata": a .Rdata file containing a list of the same name. 
+  #  - "AU-Site_Input_noSWC.Rdata": a .Rdata file containing a list of the same name. 
   #                           The list includes all necessary inputs for the 
   #                           NEEModel.R workflows as well as a dataframe of
   #                           daily data and a list of QC metrics
@@ -196,6 +196,7 @@ OzFluxProcess = function(Site){
   library(lubridate)
   library(magrittr)
   library(tidyverse)
+  library(zoo)
   
   # Create dataframe of daily values and QC counts
   Data_day <- Data %>%
@@ -203,20 +204,20 @@ OzFluxProcess = function(Site){
                              format="%Y-%m-%d %H:%M:%S", 
                              tz = ncatt_get(NCDF, 0)$time_zone)) %>%
     group_by(TIMESTAMP) %>%               # group by the day column
+    # Count the amount of bad and gap-filled observations each day
     summarise(NEE=mean(NEE),
-              Fsd=mean(Fsd),
-              Ta=mean(Ta),
-              VPD=mean(VPD),
-              Precip=sum(Precip),
-              # Count the amount of bad and gap-filled observations each day
               NEE_BD=sum(NEE_QCFlag%%10 != 0),
               NEE_GF = sum(NEE_QCFlag%%10 == 0 & NEE_QCFlag > 0),
+              Fsd=mean(Fsd),
               Fsd_BD=sum(Fsd_QCFlag%%10 != 0),
               Fsd_GF = sum(Fsd_QCFlag%%10 == 0 & Fsd_QCFlag > 0),
+              Ta=mean(Ta),
               Ta_BD=sum(Ta_QCFlag%%10 != 0),
               Ta_GF = sum(Ta_QCFlag%%10 == 0 & Ta_QCFlag > 0),
+              VPD=mean(VPD),
               VPD_BD=sum(VPD_QCFlag%%10 != 0),
               VPD_GF = sum(VPD_QCFlag%%10 == 0 & VPD_QCFlag > 0),
+              Precip=sum(Precip),
               Precip_BD=sum(Precip_QCFlag%%10 != 0),
               Precip_GF = sum(Precip_QCFlag%%10 == 0 & Precip_QCFlag > 0))
   
@@ -228,7 +229,7 @@ OzFluxProcess = function(Site){
   # 6 instances (12.5%) of bad data
   # Remove first row if too much data is poor - repeat as necessary
   # Define QC cols
-  QCcols_day = seq(8,19,by=2)
+  QCcols_day = seq(3,16,by=3)
   count_daystart = 0
   while(any(Data_day[1,QCcols_day]>6)){
     Data_day = Data_day[-1,]
@@ -322,7 +323,7 @@ OzFluxProcess = function(Site){
   ## NDVI
   # NDVI was extracted from Google Earth Engine on 17/09/20 at 12:00 
   # Product was MCD43A3.006 MODIS Albedo Daily 500m
-  load("VegIndex.Rdata")
+  load("inputs/VegIndex.Rdata")
   NDVI_df = VegIndex[VegIndex$site==Site,]
   NDVI_df = NDVI_df[as.Date(NDVI_df$date) %in% as.Date(Data_day$TIMESTAMP),c("date","ndvi_sg")]
   NDVI_df$date = as.Date(NDVI_df$date)

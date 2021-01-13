@@ -86,9 +86,9 @@ for(Site in Sites){
 library(ggplot2)
 
 plot = ggplot(df) +
-        geom_point(aes(Site,r.value,color=(p.value<0.05 & abs(r.value)>0.5))) +
-        geom_hline(yintercept = 0.5) +
-        geom_hline(yintercept = -0.5) +
+        geom_point(aes(Site,r.value,color=(p.value<0.05 & abs(r.value)>0.75))) +
+        geom_hline(yintercept = 0.75) +
+        geom_hline(yintercept = -0.75) +
         ylim(-1,1) +
         facet_grid(Correlation~.,
                    scales="free")
