@@ -1,6 +1,6 @@
 # NEE SAM memory exploration
 # Based on Liu et al, 2019
-# Uses the same model
+# Uses the same model with SWC removed and PPT instead. NDVI is also 0-1 normalised
 
 # Start the workflow
 rm(list = ls())
@@ -41,10 +41,10 @@ output <- jags.parallel(model.file = 'NEEModel_noSWC_r2jags.R',
                             parameters.to.save = monitor_vars,
                             data = inputdata,
                             n.chains = 6, 
-                            n.burnin = 100000, 
-                            n.iter = 1000000,
+                            n.burnin = 5000, 
+                            n.iter = 50000,
                             jags.module = c('glm','dic'),
-                            n.thin = 200)
+                            n.thin = 10)
 
 message("Save model output at ",Sys.time())
 # Transform output into mcmc object to save space
