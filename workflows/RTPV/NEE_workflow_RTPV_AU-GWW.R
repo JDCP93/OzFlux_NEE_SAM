@@ -16,8 +16,8 @@ monitor_vars <- c("an", "ag", "phi0", "deltaXA", "weightA", "weightAP", "deltaXA
                   "ESen", 'deviance')
 
 # Load the site inputs
-load('./inputs/RTPV/AU-ASM_Input_RTPV.Rdata') 
-data = `AU-ASM_Input`
+load('./inputs/RTPV/AU-GWW_Input_RTPV.Rdata') 
+data = `AU-GWW_Input`
 inputdata = list("Nv"=data$Nv,
                  "Ns"=data$Ns,
                  "Nlag"=data$Nlag,
@@ -55,7 +55,7 @@ output = list("output.mcmc"=output.mcmc,
               "DIC" = DIC,
               "pD" = pD)
 # Save the results
-save(output, file=paste('NEE_output_RTPV_AU-ASM_', Sys.Date(),'.Rdata', sep = ''))
+save(output, file=paste('NEE_output_RTPV_AU-GWW_', Sys.Date(),'.Rdata', sep = ''))
 
 # Tidy up
 rm(list=ls())

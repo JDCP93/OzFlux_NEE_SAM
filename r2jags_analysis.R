@@ -266,6 +266,6 @@ r2jags_analysis <- function(Site){
                 "ESen" = ESen,
                 "CumWeights" = CumWeights)
   
-  save(output,file = paste0("NEE_Analysis_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("NEE_analysis_RTPVS_",Site,"_",Sys.Date(),".Rdata"))
 }
 

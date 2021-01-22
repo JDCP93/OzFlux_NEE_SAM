@@ -386,9 +386,9 @@ OzFluxProcess = function(Site){
                 "Nblocks" = Nblocks,
                 "DailyData" = Data_day,
                 "QCList" = QCList)
-  name = paste0(Site,"_Input")
+  name = paste0(Site,"_input")
   assign(name,output)
-  save(list=c(name),file=paste0(name,".Rdata"))
+  save(list=c(name),file=paste0(name,"_RTPVS.Rdata"))
   
   
 ##### STILL TO BE DONE - Check QC for L6 data

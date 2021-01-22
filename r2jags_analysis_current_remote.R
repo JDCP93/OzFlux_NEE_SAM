@@ -266,6 +266,6 @@ r2jags_analysis_current <- function(Site){
                 "ESen" = ESen,
                 "CumWeights" = CumWeights)
   
-  save(output,file = paste0("NEE_Analysis_current_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("NEE_current_analysis_RTPVS_",Site,"_",Sys.Date(),".Rdata"))
 }
 
