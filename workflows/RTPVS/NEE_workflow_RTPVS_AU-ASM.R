@@ -7,7 +7,7 @@ rm(list = ls())
 message("Start the workflow at ",Sys.time())
 
 # load needed packages
-nee_packs <- c('rjags', 'coda', 'stats', 'R2jags', 'parallel','runjags','mcmcplots')
+nee_packs <- c('rjags', 'coda', 'stats', 'R2jags', 'parallel','mcmcplots')
 lapply(nee_packs, require, character.only = T)
 
 # variables to monitor
@@ -16,7 +16,7 @@ monitor_vars <- c("an", "ag", "phi0", "deltaXA", "weightA", "weightAP", "deltaXA
                   "ESen", 'deviance')
 
 # Load the site inputs
-load('./AU-ASM_Input.Rdata') 
+load('./inputs/RTPVS/AU-ASM_Input_RTPVS.Rdata') 
 data = `AU-ASM_Input`
 inputdata = list("Nv"=data$Nv,
                  "Ns"=data$Ns,
@@ -37,7 +37,7 @@ inputdata = list("Nv"=data$Nv,
 # parallelize using runjags
 message("Begin model run at ",Sys.time())
 # run model in parallel with 6 chains and cores
-output <- jags.parallel(model.file = 'NEEModel_v2.R',
+output <- jags.parallel(model.file = 'NEEModel_RTPVS_r2jags.R',
                             parameters.to.save = monitor_vars,
                             data = inputdata,
                             n.chains = 6, 
@@ -55,7 +55,7 @@ output = list("output.mcmc"=output.mcmc,
               "DIC" = DIC,
               "pD" = pD)
 # Save the results
-save(output, file=paste('NEE_output_AU-ASM_', Sys.Date(),'.Rdata', sep = ''))
+save(output, file=paste('NEE_output_RTPVS_AU-ASM_', Sys.Date(),'.Rdata', sep = ''))
 
 # Tidy up
 rm(list=ls())

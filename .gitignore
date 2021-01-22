@@ -12,6 +12,7 @@
 *.pptx
 *.pdf
 *.icloud
+*.zip
 *MCMCDiag*.jpg
 .DS_store
 results/
