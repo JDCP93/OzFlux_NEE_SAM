@@ -118,3 +118,16 @@ for(Site in Sites){
   ESenPlot = SensitivityPlot(Sites,c("Fsd","Precip","antSWC"))
   WeightPlot = WeightPlot(Sites,c("Fsd","Precip","antSWC"))
   
+  
+  
+  
+source("r2jags_analysis_RTPV.R")
+r2jags_analysis("AU-TTE")
+
+
+rm(list=ls())
+source("r2jags_analysis_AR1.R")
+Sites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
+for (Site in Sites){
+  r2jags_analysis_AR1(Site)
+}

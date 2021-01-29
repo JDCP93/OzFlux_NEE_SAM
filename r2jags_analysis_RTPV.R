@@ -1,4 +1,4 @@
-r2jags_analysis_AR1 <- function(Site){
+r2jags_analysis <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
@@ -23,11 +23,11 @@ r2jags_analysis_AR1 <- function(Site){
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("output/RTPVS",pattern = paste0("AR1_output_RTPVS_",Site))
+  File = list.files("output/RTPV/",pattern = Site)
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
-  load(paste0("output/RTPVS/",File[length(File)]))
-  AR1 = output
+  load(paste0("output/RTPV/",File[length(File)]))
+  
   # Source the necessary packages
   library(coda)
   library(ggplot2)
@@ -46,30 +46,35 @@ r2jags_analysis_AR1 <- function(Site){
   
   # List the "fundamental" parameters - e.g. those that are assigned priors and
   # are not a function of other parameters. Stochastic parameters? Maybe.
-  stochastic.params = c("b0","b1","sig.res","mu.res","deviance")
+  stochastic.params = c("phi0",
+                       "sig_y",
+                       sprintf("deltaXAP[%d]",seq(1:8)),
+                       sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)),
+                       sprintf("an[%d]",seq(1:16)),
+                       sprintf("ag[%d]",seq(1:16)))
 
   # Convert output to an mcmc object
   # Either take the object already saved as an mcmc object for the current 
   # workflows or, to maintain compatibility with older workflows, calculate it
   # from the rjags object
   if (class(output) == "list"){
-    AR1.mcmc = AR1$output.mcmc
+    output.mcmc = output$output.mcmc
   }else{
-    AR1.mcmc = as.mcmc.rjags(AR1)
+    output.mcmc = as.mcmc.rjags(output)
   }
   
   # Produce plots of each parameter to assess convergence.
   for (param in stochastic.params){
     # Output the variable
     print(param)
-    diagMCMC(AR1.mcmc,param,saveName = paste0(Site,"_AR1_",Sys.Date()))
+    diagMCMC(output.mcmc,param,saveName = paste0(Site,"_RTPV_",Sys.Date()))
     Sys.sleep(1)
     graphics.off()
   }
   
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
   # I think it's the shrink factor or something lol
-  Gelman = gelman.diag(AR1.mcmc,multivariate=FALSE)
+  Gelman = gelman.diag(output.mcmc,multivariate=FALSE)
   # Find how many, and which, parameters fall outside of the acceptable limits
   # which here is set to 1.1
   Gelman.Fail = Gelman$psrf[Gelman$psrf[,2]>1.1,]
@@ -78,7 +83,7 @@ r2jags_analysis_AR1 <- function(Site){
   Gelman.Fail = Gelman.Fail[complete.cases(Gelman.Fail),]
   
   # We find the effective sample size for each parameter
-  ESS.raw = effectiveSize(AR1.mcmc)
+  ESS.raw = effectiveSize(output.mcmc)
   # Where parameters are forced to 0, then the ESS is also 0. Therefore we exclude
   # these when considering the fit. In general, higher ESS is better, with 10,000+
   # being ideal
@@ -93,7 +98,7 @@ r2jags_analysis_AR1 <- function(Site){
   
   # We calculate the Geweke diagnostic - this should fall within the confidence 
   # bounds of -2 and 2. 
-  Geweke = geweke.diag(AR1.mcmc)
+  Geweke = geweke.diag(output.mcmc)
   # I think this is less important - or at least, it depends on the length of the
   # burn-in period
   # Count how many elements are outside the bounds
@@ -108,45 +113,24 @@ r2jags_analysis_AR1 <- function(Site){
   
   # Load the observations
   name = paste0(Site,"_Input")
-  load(paste0("inputs/RTPVS/",name,"_RTPVS.Rdata"))
+  load(paste0("inputs/RTPV/",name,"_RTPV.Rdata"))
   assign("obs",eval(as.name(name)))
   
   # Create dataframe of observed vs modelled with confidence intervals
 #  NEE_pred = output$BUGSoutput$median$NEE_pred
 #  NEE_pred_min = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",3]
 #  NEE_pred_max = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",7]
-  AR1.summary = summary(AR1.mcmc)
-  NEE.res_pred = AR1.summary$statistics[substr(rownames(AR1.summary$statistics),1,11)=="NEE.res_rep",1]
-  NEE.res_pred_min = AR1.summary$quantiles[substr(rownames(AR1.summary$quantiles),1,11)=="NEE.res_rep",1]
-  NEE.res_pred_max = AR1.summary$quantiles[substr(rownames(AR1.summary$quantiles),1,11)=="NEE.res_rep",5]
+  summary = summary(output.mcmc)
+  NEE_pred = summary$statistics[substr(rownames(summary$statistics),1,5)=="NEE_p",1]
+  NEE_pred_min = summary$quantiles[substr(rownames(summary$quantiles),1,5)=="NEE_p",1]
+  NEE_pred_max = summary$quantiles[substr(rownames(summary$quantiles),1,5)=="NEE_p",5]
   NEE_obs = obs$NEE[-(1:365)]
   
-  # Load in the output data 
-  # Look in folder "results" for the data
-  File = list.files("output/RTPVS/",pattern = paste0("NEE_output_RTPVS_",Site))
-  # Read the data into R - note that if multiple results are available for a 
-  # site, we take the most recent
-  load(paste0("output/RTPVS/",File[length(File)]))
-  SAM = output
-  # Either take the object already saved as an mcmc object for the current 
-  # workflows or, to maintain compatibility with older workflows, calculate it
-  # from the rjags object
-  if (class(output) == "list"){
-    SAM.mcmc = SAM$output.mcmc
-  }else{
-    SAM..mcmc = as.mcmc.rjags(SAM)
-  }
-  
-  # Extract predicted and observed NEE
-  SAM.summary = summary(SAM.mcmc)
-  NEE_pred = SAM.summary$statistics[substr(rownames(SAM.summary$statistics),1,8)=="NEE_pred",1]
-  NEE.res = NEE_pred - NEE_obs
-  
-  df = data.frame("Date"=obs$DailyData$TIMESTAMP[-(1:366)],
-                  "Pred"=NEE.res_pred,
-                  "Min"=NEE.res_pred_min,
-                  "Max"=NEE.res_pred_max,
-                  "Obs"=NEE.res)
+  df = data.frame("Date"=obs$DailyData$TIMESTAMP[-(1:365)],
+                  "Pred"=NEE_pred,
+                  "Min"=NEE_pred_min,
+                  "Max"=NEE_pred_max,
+                  "Obs"=NEE_obs)
   
   # Plot the daily data
   ObsVsNEE_daily = ggplot(df) +
@@ -236,15 +220,51 @@ r2jags_analysis_AR1 <- function(Site){
     theme_bw()
   
   # Calculate the r squared value for the SAM model
-  AR1.R2 = summary(lm(NEE.res_pred ~ NEE.res))$r.squared
+  SAM.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
+  
+  # Extract climate sensitivities
+  
+  # Define params
+  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:6)))
+  # Extract 2.5%, median and 97.5%
+  ESenMedian = summary$statistics[rownames(summary$statistics) %in% SensitivityCovariates,1]
+  ESenLow = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,1]
+  ESenHigh = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,5]
+  # Place in dataframe
+  ESen = data.frame(ESenLow,ESenMedian,ESenHigh)
+  rownames(ESen) = c("Tair",
+                     "Fsd",
+                     "VPD",
+                     "PPTshort",
+                     "PPTlong",
+                     "PPT")
+  
+  # Extract cumulative weights
+  # Define params
+  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:4,14),rep(1:14,each=4)),
+                      sprintf("cum_weightAP[%d]",seq(1:8)))
+  # Extract 2.5%, median and 97.5%
+  WeightsMedian = summary$statistics[rownames(summary$statistics) %in% CumWeightParams,1]
+  WeightsLow = summary$quantiles[rownames(summary$quantiles) %in% CumWeightParams,1]
+  WeightsHigh = summary$quantiles[rownames(summary$quantiles) %in% CumWeightParams,5]
+  # Place in dataframe
+  CumWeights = data.frame(WeightsLow,WeightsMedian,WeightsHigh)
+  # rownames(CumWeights) = c(rep("Tair",10),
+  #                    rep("Fsd",10),
+  #                    rep("VPD",10),
+  #                    rep("curSWC",10),
+  #                    rep("antSWC",10),
+  #                    rep("Precip",8))
   
   # Create a nice output and save it
   output = list("Gelman.Fail" = Gelman.Fail,
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
-                "AR1.R2" = AR1.R2,
-                "df" = df)
+                "SAM.R2" = SAM.R2,
+                "df" = df,
+                "ESen" = ESen,
+                "CumWeights" = CumWeights)
   
-  save(output,file = paste0("NEE_Analysis_AR1_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("NEE_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
 
