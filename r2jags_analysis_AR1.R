@@ -26,6 +26,7 @@ r2jags_analysis_AR1 <- function(Site){
   File = list.files("output/RTPVS",pattern = paste0("AR1_output_RTPVS_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
+  message("AR1 file is",File[length(File)])
   load(paste0("output/RTPVS/",File[length(File)]))
   AR1 = output
   # Source the necessary packages
@@ -126,6 +127,7 @@ r2jags_analysis_AR1 <- function(Site){
   File = list.files("output/RTPVS/",pattern = paste0("NEE_output_RTPVS_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
+  message("SAM file is",File[length(File)])
   load(paste0("output/RTPVS/",File[length(File)]))
   SAM = output
   # Either take the object already saved as an mcmc object for the current 
