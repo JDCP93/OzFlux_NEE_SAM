@@ -23,11 +23,11 @@ r2jags_analysis_AR1 <- function(Site){
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("output/RTPVS",pattern = paste0("AR1_output_RTPVS_",Site))
+  File = list.files("results/",pattern = paste0("AR1_output_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
   message("AR1 file is ",File[length(File)])
-  load(paste0("output/RTPVS/",File[length(File)]))
+  load(paste0("results/",File[length(File)]))
   AR1 = output
   rm(output)
   # Source the necessary packages
@@ -40,7 +40,6 @@ r2jags_analysis_AR1 <- function(Site){
   library(lubridate)
   library(magrittr)
   library(zoo)
-  source('DBDA2E-utilities.R')
   
   # ##################
   # Convergence checks
@@ -60,14 +59,8 @@ r2jags_analysis_AR1 <- function(Site){
     AR1.mcmc = as.mcmc.rjags(AR1)
   }
   rm(AR1)
-  # Produce plots of each parameter to assess convergence.
-  for (param in stochastic.params){
-    # Output the variable
-    print(param)
-    diagMCMC(AR1.mcmc,param,saveName = paste0(Site,"_AR1_",Sys.Date()))
-    Sys.sleep(1)
-    graphics.off()
-  }
+
+  
   
   message("Running Gelman diagnostics for ", Site)
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
@@ -112,7 +105,7 @@ r2jags_analysis_AR1 <- function(Site){
   
   # Load the observations
   name = paste0(Site,"_Input")
-  load(paste0("inputs/RTPVS/",name,"_RTPVS.Rdata"))
+  load(paste0(name,".Rdata"))
   assign("obs",eval(as.name(name)))
   
   # Create dataframe of observed vs modelled with confidence intervals
@@ -128,11 +121,11 @@ r2jags_analysis_AR1 <- function(Site){
   
   # Load in the output data 
   # Look in folder "results" for the data
-  File = list.files("output/RTPVS/",pattern = paste0("NEE_output_RTPVS_",Site))
+  File = list.files("results/",pattern = paste0("NEE_output_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
   message("SAM file is ",File[length(File)])
-  load(paste0("output/RTPVS/",File[length(File)]))
+  load(paste0("results/",File[length(File)]))
   SAM = output
   rm(output)
   # Either take the object already saved as an mcmc object for the current 
