@@ -23,10 +23,10 @@ r2jags_analysis <- function(Site){
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("results",pattern = Site)
+  File = list.files("output/RTPVS/",pattern = paste0("NEE_output_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
-  load(paste0("results/",File[length(File)]))
+  load(paste0("output/RTPVS/",File[length(File)]))
   
   # Source the necessary packages
   library(coda)
