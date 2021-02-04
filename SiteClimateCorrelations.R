@@ -23,7 +23,7 @@ for (Site in Sites){
   # Let the user know which site the function is looking at
   message("*** Analysing climate correlations for ",Site," ***")
   # Load the input and extract each climate variable
-  load(paste0("inputs/",Site,"_Input.Rdata"))
+  load(paste0("inputs/RTPVS/",Site,"_Input_RTPVS.Rdata"))
   Tair = eval(as.name(paste0(Site,"_Input")))$DailyData$Ta
   VPD = eval(as.name(paste0(Site,"_Input")))$DailyData$VPD
   SW = eval(as.name(paste0(Site,"_Input")))$DailyData$Fsd

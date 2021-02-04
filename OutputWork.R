@@ -119,10 +119,11 @@ for(Site in Sites){
   WeightPlot = WeightPlot(Sites,c("Fsd","Precip","antSWC"))
   
   
-  
-  
+Sites = c("AU-ASM","AU-How","AU-GWW")
 source("r2jags_analysis_RTPV.R")
-r2jags_analysis("AU-TTE")
+for (Site in Sites){
+  r2jags_analysis_RTPV(Site)
+}
 
 
 rm(list=ls())
