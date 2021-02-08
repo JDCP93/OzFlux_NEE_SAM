@@ -1,5 +1,5 @@
 
-NEE_kmean = function(Site){
+NEE_kmean_allPrecip = function(Site){
   
 # Load the required packages
 library(cluster)

@@ -22,8 +22,24 @@ Sites = c("AU-ASM"
           ,"AU-Wom"
 )
 
+Transects = c("NATT",
+              "SWAT",
+              "SWAT",
+              "NATT",
+              "NATT",
+              "SWAT",
+              "SWAT",
+              "NATT",
+              "NATT",
+              "NATT",
+              "SWAT",
+              "SWAT",
+              "SWAT"
+)
+
 # Initiliase metrics df
 metrics = data.frame("Site" = Sites,
+                     "Transect" = Transects,
                      "MDP" = 0,
                      "MMP" = 0,
                      "MYP" = 0,
@@ -50,6 +66,7 @@ metrics = data.frame("Site" = Sites,
                      "CVYS" = 0)
 
 R2 = data.frame("Site" = Sites,
+               "Transect" = Transects,
                 "R2.CUR" = 0,
                 "R2.SAM" = 0,
                 "R2.AR1" = 0,
@@ -85,10 +102,10 @@ for (Site in Sites){
   
   
   # Find the coefficient of variation for various values
-  metrics$MDP[metrics$Site==Site] = mean(DailyData$Precip)
+  metrics$MDP[metrics$Site==Site] = mean(DailyData$Precip,na.rm=TRUE)
   metrics$MMP[metrics$Site==Site] = mean(MonthlyData$Precip)
   metrics$MYP[metrics$Site==Site] = mean(YearlyData$Precip)
-  metrics$MDT[metrics$Site==Site] = mean(DailyData$Ta)
+  metrics$MDT[metrics$Site==Site] = mean(DailyData$Ta,na.rm=TRUE)
   metrics$MMT[metrics$Site==Site] = mean(MonthlyData$Ta)
   metrics$MYT[metrics$Site==Site] = mean(YearlyData$Ta)
   metrics$CVDP[metrics$Site==Site] = sd(DailyData$Precip,na.rm=TRUE)/mean(DailyData$Precip,na.rm=TRUE)
@@ -125,13 +142,219 @@ for (Site in Sites){
   R2$R2.AR1[R2$Site==Site] = output$AR1.R2
   load(paste0("alternate/RTPVS/results/NEE_output_kmean_RTPVS_",Site,".Rdata"))
   R2$R2.KMP[R2$Site==Site] = output$r.squared
-#  load(paste0("alternate/RTPVS/results/NEE_output_kmean_current_RTPVS_",Site,".Rdata"))
-#  R2$R2.KMC[R2$Site==Site] = output$r.squared
+  load(paste0("alternate/RTPVS/results/NEE_output_kmean_current_RTPVS_",Site,".Rdata"))
+  R2$R2.KMC[R2$Site==Site] = output$r.squared
+}
+
+Correlations = data.frame("Metric" = colnames(metrics[-(1:2)]),
+                          "AbsVal" = 0,
+                          "AbsP" = 0,
+                          "RelVal" = 0,
+                          "RelP" = 0)
+
+for (i in 3:ncol(metrics)){
+  metricR2 = cor.test(x = metrics[,i], 
+                      y = (R2$R2.SAM-R2$R2.CUR), 
+                      method = "spearman")$estimate
+  metricPvalue = cor.test(x = metrics[,i], 
+                          y = (R2$R2.SAM-R2$R2.CUR), 
+                          method = "spearman")$p.value
+  message("Absolute memory strength and ",
+          colnames(metrics)[i],
+          " are correlated with R2 value ",
+          round(metricR2,3),
+          " and p value ",
+          round(metricPvalue,3))
+  Correlations$AbsVal[i-2] = metricR2
+  Correlations$AbsP[i-2] = metricPvalue
+  
+  metricR2 = cor.test(x = metrics[,i],
+                      y = (R2$R2.SAM-R2$R2.CUR)/R2$R2.CUR,
+                      method = "spearman")$estimate
+  metricPvalue = cor.test(x = metrics[,i],
+                          y = (R2$R2.SAM-R2$R2.CUR)/R2$R2.CUR,
+                          method = "spearman")$p.value
+  message("Relative memory strength and ",
+          colnames(metrics)[i],
+          " are correlated with R2 value ",
+          round(metricR2,3),
+          " and p value ",
+          round(metricPvalue,3),"\n")
+  Correlations$RelVal[i-2] = metricR2
+  Correlations$RelP[i-2] = metricPvalue
 }
 
 
-for (i in 2:ncol(metrics)){
-  metricR2 = cor.test(metrics[,i], (R2$R2.SAM-R2$R2.CUR))$estimate
-  metricPvalue = cor.test(metrics[,i], (R2$R2.SAM-R2$R2.CUR))$p.value
-  message("Memory strength and ", colnames(metrics)[i], " are correlated with R2 value ", round(metricR2,3), " and p value ", round(metricPvalue,3))
-}
+
+# Plot the data!
+
+
+# Create the plot dataframe
+Site = rep(Sites,4)
+Site = factor(Site, levels = metrics[order(metrics$CVDT),1])
+Transect = rep(Transects,4)
+Model = rep(c("Current Environment (k-means)",
+              "Current Environment (SAM)",
+              "Environmental Memory (SAM)",
+              "Biological Memory (AR1)"),
+            each=length(Sites))
+Model = factor(Model,
+               levels=c("Biological Memory (AR1)",
+                        "Environmental Memory (SAM)",
+                        "Current Environment (SAM)",
+                        "Current Environment (k-means)"))
+
+Value = c(R2$R2.KMC,R2$R2.CUR-R2$R2.KMC,R2$R2.SAM-R2$R2.CUR,R2$R2.AR1-R2$R2.SAM)
+
+Fig = data.frame(Site,
+                 Transect,
+                 Model,
+                 Value)
+
+
+# Plot for every site based on coefficient of variation of daily temperature
+Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site)) +
+  geom_bar(position="stack",stat="identity") +
+  geom_bar(stat = "identity", color = "black",size = 1) +
+  annotate("text", 
+           x = Sites, 
+           y=0.875, 
+           label = paste0(round(metrics$CVDT,3))) +
+  annotate("text", 
+           x = Sites, 
+           y=1, 
+           label = paste0(round((R2$R2.SAM-R2$R2.CUR)/R2$R2.CUR,3)*100,"%")) +
+  coord_flip(ylim=c(0,1)) +
+  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
+  ylab(parse(text="R^2")) +
+  theme_bw() +
+  theme(legend.position = "bottom", 
+        text = element_text(size = 20),
+        legend.title = element_blank()) +
+  ggtitle("Model Performance, ordered by Daily Temperature Variance")
+
+Plot
+
+# Plot for just NATT based on mean daily temperature
+Fig$Site = factor(Fig$Site, levels = metrics[order(metrics$MDT),1])
+
+NATTPlot = ggplot(Fig[Fig$Transect=="NATT",],aes(fill=Model,y=Value,x=Site)) +
+  geom_bar(position="stack",stat="identity") +
+  geom_bar(stat = "identity", color = "black",size = 1) +
+  annotate("text", 
+           x = unique(Fig$Site[Fig$Transect=="NATT"]), 
+           y=0.875, 
+           label = paste0(round(metrics$MDT[metrics$Transect=="NATT"],1))) +
+  annotate("text", 
+           x = unique(Fig$Site[Fig$Transect=="NATT"]), 
+           y=1, 
+           label = paste0(round((R2$R2.SAM[R2$Transect=="NATT"]-R2$R2.CUR[R2$Transect=="NATT"])/R2$R2.CUR[R2$Transect=="NATT"],3)*100,"%")) +
+  coord_flip(ylim=c(0,1)) +
+  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
+  ylab(parse(text="R^2")) +
+  theme_bw() +
+  theme(legend.position = "bottom", 
+        text = element_text(size = 20),
+        legend.title = element_blank()) +
+  ggtitle("NATT Model Performance, ordered by Mean Daily Temperature")
+
+NATTPlot
+
+
+# Plot for just SWAT based on coefficient of variation of daily radiation
+Fig$Site = factor(Fig$Site, levels = metrics[order(metrics$CVDR),1])
+
+SWATPlot = ggplot(Fig[Fig$Transect=="SWAT",],aes(fill=Model,y=Value,x=Site)) +
+  geom_bar(position="stack",stat="identity") +
+  geom_bar(stat = "identity", color = "black",size = 1) +
+  annotate("text",
+           x = unique(Fig$Site[Fig$Transect=="SWAT"]), 
+           y=0.875, 
+           label = paste0(round(metrics$CVDR[metrics$Transect=="SWAT"],2))) +
+  annotate("text", 
+           x = unique(Fig$Site[Fig$Transect=="SWAT"]), 
+           y=1, 
+           label = paste0(round((R2$R2.SAM[R2$Transect=="SWAT"]-R2$R2.CUR[R2$Transect=="SWAT"])/R2$R2.CUR[R2$Transect=="SWAT"],3)*100,"%")) +
+  coord_flip(ylim=c(0,1)) +
+  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
+  ylab(parse(text="R^2")) +
+  theme_bw() +
+  theme(legend.position = "bottom", 
+        text = element_text(size = 20),
+        legend.title = element_blank()) +
+  ggtitle("SWAT Model Performance, ordered by Daily Radiation Variance")
+
+SWATPlot
+
+
+# Scatter plot the metrics vs memory to show the correlations
+
+Cor.df = cbind(metrics,R2[,-(1:2)])
+Cor.df$RelDif = (Cor.df$R2.SAM-Cor.df$R2.CUR)/Cor.df$R2.CUR
+
+# Calculate the linear trend line
+AllLine = lm(Cor.df$RelDif ~ Cor.df$CVDT)$coefficients
+CVDTNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$CVDT[Cor.df$Transect=="NATT"])$coefficients
+CVDTSWATLine =lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$CVDT[Cor.df$Transect=="SWAT"])$coefficients
+
+# Plot for all sites
+AllCorPlot = ggplot(Cor.df,aes(color = Transect,x=CVDT, y = RelDif)) +
+            geom_point(aes(),size = 3) +
+            scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
+                                  option="magma",
+                                  begin=0.2,
+                                  end=0.8) +
+            geom_line(aes(x = CVDT, y = AllLine[1] + AllLine[2]*CVDT),
+                      color = magma(1,1,0.5,0.5)) + 
+            geom_line(aes(x = CVDT, y = CVDTNATTLine[1] + CVDTNATTLine[2]*CVDT),
+                      color = magma(1,1,0.2,0.2),
+                      linetype="dashed") + 
+            geom_line(aes(x = CVDT, y = CVDTSWATLine[1] + CVDTSWATLine[2]*CVDT),
+                      color = magma(1,1,0.8,0.8),
+                      linetype="dashed") + 
+            theme_bw() +
+            ylab("Relative Improvement from Ecological Memory") +
+            xlab("Coefficient of Variation of Daily Temperature") +
+            theme(text = element_text(size = 20)) 
+
+AllCorPlot
+
+# Plot for NATT sites
+NATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$MDT[Cor.df$Transect=="NATT"])$coefficients
+
+NATTCorPlot = ggplot(Cor.df[Cor.df$Transect=="NATT",],aes(x=MDT, y = RelDif)) +
+  geom_point(aes(),size = 3,color = magma(1,1,0.2,0.2),) +
+  scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
+                        option="magma",
+                        begin=0.2,
+                        end=0.8) +
+  geom_line(aes(x = MDT, y = NATTLine[1] + NATTLine[2]*MDT),
+            color = magma(1,1,0.2,0.2),
+            linetype="dashed") + 
+  theme_bw() +
+  ylab("Relative Improvement from Ecological Memory") +
+  xlab("Mean Daily Temperature") +
+  theme(text = element_text(size = 20)) 
+
+NATTCorPlot
+
+# Plot for SWAT sites
+SWATLine = lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$CVDR[Cor.df$Transect=="SWAT"])$coefficients
+
+SWATCorPlot = ggplot(Cor.df[Cor.df$Transect=="SWAT",],aes(x=CVDR, y = RelDif)) +
+  geom_point(aes(),size = 3,color = magma(1,1,0.8,0.8),) +
+  scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
+                        option="magma",
+                        begin=0.2,
+                        end=0.8) +
+  geom_line(aes(x = CVDR, y = SWATLine[1] + SWATLine[2]*CVDR),
+            color = magma(1,1,0.8,0.8),
+            linetype="dashed") + 
+  theme_bw() +
+  ylab("Relative Improvement from Ecological Memory") +
+  xlab("Coefficient of Variation of Daily Radiation") +
+  theme(text = element_text(size = 20)) +
+  ggtitle(label = paste0("SWAT Memory Improvement"),
+          subtitle=paste0("Spearman's ", expression(\u03C1), " = -0.82, p-value = 0.034"))
+
+SWATCorPlot

@@ -1,4 +1,4 @@
-WeightPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Precip","SWC")){
+WeightPlot_RTPVS = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Precip","SWC")){
   
   # Source packages needed
   library(lubridate)
@@ -7,9 +7,9 @@ WeightPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Preci
   library(coda)
   
   # Run the analysis of the model outputs if they don't exist
-  source("r2jags_analysis.R")
+  source("r2jags_analysis_RTPVS.R")
   for (Site in Sites){
-    if (file.exists(paste0("NEE_Analysis_",Site,".Rdata"))){
+    if (file.exists(paste0("analysis/RTPVS/NEE_Analysis_RTPVS_",Site,".Rdata"))){
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
@@ -24,12 +24,12 @@ WeightPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Preci
   
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
-    load(paste0("NEE_Analysis_",Site,".Rdata"))
+    load(paste0("analysis/RTPVS/NEE_Analysis_RTPVS_",Site,".Rdata"))
     assign(Site,output)
     rm(output)
     
     # We also load the daily data to calculate MAP
-    load(paste0(Site,"_Input.Rdata"))
+    load(paste0("inputs/RTPVS/",Site,"_Input_RTPVS.Rdata"))
     Input = eval(as.name(paste0(Site,"_Input")))
     DailyData = Input$DailyData
     DailyData$year = year(DailyData$TIMESTAMP)
@@ -42,7 +42,7 @@ WeightPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Preci
   }
   
   # Let's load in the prior information
-  load("results/NEE_output_AU-Prior_2020-11-03.Rdata")
+  load("output/RTPVS/NEE_output_RTPVS_AU-Prior_2020-11-03.Rdata")
   output = summary(output$output.mcmc)
   assign("Prior",output)
   rm(output)

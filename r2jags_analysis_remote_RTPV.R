@@ -1,4 +1,4 @@
-r2jags_analysis <- function(Site){
+r2jags_analysis_RTPV <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
@@ -23,10 +23,10 @@ r2jags_analysis <- function(Site){
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("output/RTPVS/",pattern = paste0("NEE_output_RTPVS_",Site))
+  File = list.files("output/RTPV/",pattern = Site)
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
-  load(paste0("output/RTPVS/",File[length(File)]))
+  load(paste0("output/RTPV/",File[length(File)]))
   
   # Source the necessary packages
   library(coda)
@@ -38,7 +38,6 @@ r2jags_analysis <- function(Site){
   library(lubridate)
   library(magrittr)
   library(zoo)
-  source('DBDA2E-utilities.R')
   
   # ##################
   # Convergence checks
@@ -49,9 +48,9 @@ r2jags_analysis <- function(Site){
   stochastic.params = c("phi0",
                        "sig_y",
                        sprintf("deltaXAP[%d]",seq(1:8)),
-                       sprintf("deltaXA[%d,%d]",rep(1:5,10),rep(1:10,each=5)),
-                       sprintf("an[%d]",seq(1:22)),
-                       sprintf("ag[%d]",seq(1:22)))
+                       sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)),
+                       sprintf("an[%d]",seq(1:16)),
+                       sprintf("ag[%d]",seq(1:16)))
 
   # Convert output to an mcmc object
   # Either take the object already saved as an mcmc object for the current 
@@ -63,14 +62,7 @@ r2jags_analysis <- function(Site){
     output.mcmc = as.mcmc.rjags(output)
   }
   
-  # Produce plots of each parameter to assess convergence.
-  for (param in stochastic.params){
-    # Output the variable
-    print(param)
-    diagMCMC(output.mcmc,param,saveName = paste0(Site,"_",Sys.Date()))
-    Sys.sleep(1)
-    graphics.off()
-  }
+  rm(output)
   
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
   # I think it's the shrink factor or something lol
@@ -113,7 +105,7 @@ r2jags_analysis <- function(Site){
   
   # Load the observations
   name = paste0(Site,"_Input")
-  load(paste0("inputs/RTPVS/",name,"_RTPVS.Rdata"))
+  load(paste0("inputs/RTPV/",name,"_RTPV.Rdata"))
   assign("obs",eval(as.name(name)))
   
   # Create dataframe of observed vs modelled with confidence intervals
@@ -225,7 +217,7 @@ r2jags_analysis <- function(Site){
   # Extract climate sensitivities
   
   # Define params
-  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:7)))
+  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:6)))
   # Extract 2.5%, median and 97.5%
   ESenMedian = summary$statistics[rownames(summary$statistics) %in% SensitivityCovariates,1]
   ESenLow = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,1]
@@ -235,14 +227,13 @@ r2jags_analysis <- function(Site){
   rownames(ESen) = c("Tair",
                      "Fsd",
                      "VPD",
-                     "curSWC",
-                     "antSWC",
-                     "Precip",
-                     "SWC")
+                     "PPTshort",
+                     "PPTlong",
+                     "PPT")
   
   # Extract cumulative weights
   # Define params
-  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:5,14),rep(1:14,each=5)),
+  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:4,14),rep(1:14,each=4)),
                       sprintf("cum_weightAP[%d]",seq(1:8)))
   # Extract 2.5%, median and 97.5%
   WeightsMedian = summary$statistics[rownames(summary$statistics) %in% CumWeightParams,1]
@@ -266,6 +257,6 @@ r2jags_analysis <- function(Site){
                 "ESen" = ESen,
                 "CumWeights" = CumWeights)
   
-  save(output,file = paste0("analysis/RTPVS/NEE_analysis_RTPVS_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("NEE_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
 
