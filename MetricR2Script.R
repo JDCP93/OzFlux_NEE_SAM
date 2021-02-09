@@ -5,6 +5,8 @@ rm(list=ls())
 # Load the required packages
 library(tidyverse)
 library(lubridate)
+library(viridis)
+library(ggpubr)
 
 # List all sites
 Sites = c("AU-ASM"
@@ -216,14 +218,14 @@ Fig = data.frame(Site,
 Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site)) +
   geom_bar(position="stack",stat="identity") +
   geom_bar(stat = "identity", color = "black",size = 1) +
-  annotate("text", 
-           x = Sites, 
-           y=0.875, 
-           label = paste0(round(metrics$CVDT,3))) +
-  annotate("text", 
-           x = Sites, 
-           y=1, 
-           label = paste0(round((R2$R2.SAM-R2$R2.CUR)/R2$R2.CUR,3)*100,"%")) +
+  #annotate("text", 
+  #         x = Sites, 
+  #         y=0.875, 
+  #         label = paste0(round(metrics$CVDT,3))) +
+  #annotate("text", 
+  #         x = Sites, 
+  #         y=1, 
+  #         label = paste0(round((R2$R2.SAM-R2$R2.CUR)/R2$R2.CUR,3)*100,"%")) +
   coord_flip(ylim=c(0,1)) +
   scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
   ylab(parse(text="R^2")) +
@@ -241,14 +243,14 @@ Fig$Site = factor(Fig$Site, levels = metrics[order(metrics$MDT),1])
 NATTPlot = ggplot(Fig[Fig$Transect=="NATT",],aes(fill=Model,y=Value,x=Site)) +
   geom_bar(position="stack",stat="identity") +
   geom_bar(stat = "identity", color = "black",size = 1) +
-  annotate("text", 
-           x = unique(Fig$Site[Fig$Transect=="NATT"]), 
-           y=0.875, 
-           label = paste0(round(metrics$MDT[metrics$Transect=="NATT"],1))) +
-  annotate("text", 
-           x = unique(Fig$Site[Fig$Transect=="NATT"]), 
-           y=1, 
-           label = paste0(round((R2$R2.SAM[R2$Transect=="NATT"]-R2$R2.CUR[R2$Transect=="NATT"])/R2$R2.CUR[R2$Transect=="NATT"],3)*100,"%")) +
+  # annotate("text", 
+  #          x = unique(Fig$Site[Fig$Transect=="NATT"]), 
+  #          y=0.875, 
+  #          label = paste0(round(metrics$MDT[metrics$Transect=="NATT"],1))) +
+  # annotate("text", 
+  #          x = unique(Fig$Site[Fig$Transect=="NATT"]), 
+  #          y=1, 
+  #          label = paste0(round((R2$R2.SAM[R2$Transect=="NATT"]-R2$R2.CUR[R2$Transect=="NATT"])/R2$R2.CUR[R2$Transect=="NATT"],3)*100,"%")) +
   coord_flip(ylim=c(0,1)) +
   scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
   ylab(parse(text="R^2")) +
@@ -267,14 +269,14 @@ Fig$Site = factor(Fig$Site, levels = metrics[order(metrics$CVDR),1])
 SWATPlot = ggplot(Fig[Fig$Transect=="SWAT",],aes(fill=Model,y=Value,x=Site)) +
   geom_bar(position="stack",stat="identity") +
   geom_bar(stat = "identity", color = "black",size = 1) +
-  annotate("text",
-           x = unique(Fig$Site[Fig$Transect=="SWAT"]), 
-           y=0.875, 
-           label = paste0(round(metrics$CVDR[metrics$Transect=="SWAT"],2))) +
-  annotate("text", 
-           x = unique(Fig$Site[Fig$Transect=="SWAT"]), 
-           y=1, 
-           label = paste0(round((R2$R2.SAM[R2$Transect=="SWAT"]-R2$R2.CUR[R2$Transect=="SWAT"])/R2$R2.CUR[R2$Transect=="SWAT"],3)*100,"%")) +
+  # annotate("text",
+  #          x = unique(Fig$Site[Fig$Transect=="SWAT"]), 
+  #          y=0.875, 
+  #          label = paste0(round(metrics$CVDR[metrics$Transect=="SWAT"],2))) +
+  # annotate("text", 
+  #          x = unique(Fig$Site[Fig$Transect=="SWAT"]), 
+  #          y=1, 
+  #          label = paste0(round((R2$R2.SAM[R2$Transect=="SWAT"]-R2$R2.CUR[R2$Transect=="SWAT"])/R2$R2.CUR[R2$Transect=="SWAT"],3)*100,"%")) +
   coord_flip(ylim=c(0,1)) +
   scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
   ylab(parse(text="R^2")) +
@@ -293,9 +295,13 @@ Cor.df = cbind(metrics,R2[,-(1:2)])
 Cor.df$RelDif = (Cor.df$R2.SAM-Cor.df$R2.CUR)/Cor.df$R2.CUR
 
 # Calculate the linear trend line
-AllLine = lm(Cor.df$RelDif ~ Cor.df$CVDT)$coefficients
+CVDTAllLine = lm(Cor.df$RelDif ~ Cor.df$CVDT)$coefficients
 CVDTNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$CVDT[Cor.df$Transect=="NATT"])$coefficients
 CVDTSWATLine =lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$CVDT[Cor.df$Transect=="SWAT"])$coefficients
+
+# Find the range of NATT and SWAT x values
+CVDTNATT = Cor.df$CVDT[Cor.df$Transect=="NATT"]
+CVDTSWAT = Cor.df$CVDT[Cor.df$Transect=="SWAT"]
 
 # Plot for all sites
 AllCorPlot = ggplot(Cor.df,aes(color = Transect,x=CVDT, y = RelDif)) +
@@ -304,57 +310,161 @@ AllCorPlot = ggplot(Cor.df,aes(color = Transect,x=CVDT, y = RelDif)) +
                                   option="magma",
                                   begin=0.2,
                                   end=0.8) +
-            geom_line(aes(x = CVDT, y = AllLine[1] + AllLine[2]*CVDT),
-                      color = magma(1,1,0.5,0.5)) + 
-            geom_line(aes(x = CVDT, y = CVDTNATTLine[1] + CVDTNATTLine[2]*CVDT),
+            geom_line(aes(x = CVDT, y = CVDTAllLine[1] + CVDTAllLine[2]*CVDT),
+                      color = magma(1,1,0.5,0.5),
+                      size = 1) + 
+            geom_line(aes(x = seq(min(CVDTNATT),
+                                  max(CVDTNATT),
+                                  length.out = nrow(Cor.df)), 
+                          y = CVDTNATTLine[1] + CVDTNATTLine[2]*seq(min(CVDTNATT),
+                                                                  max(CVDTNATT),
+                                                                  length.out = nrow(Cor.df))),
                       color = magma(1,1,0.2,0.2),
-                      linetype="dashed") + 
-            geom_line(aes(x = CVDT, y = CVDTSWATLine[1] + CVDTSWATLine[2]*CVDT),
+                      linetype = "dashed",
+                      size = 1) + 
+            geom_line(aes(x = seq(min(CVDTSWAT),
+                                  max(CVDTSWAT),
+                                  length.out = nrow(Cor.df)), 
+                          y = CVDTSWATLine[1] + CVDTSWATLine[2]*seq(min(CVDTSWAT),
+                                                                  max(CVDTSWAT),
+                                                                  length.out = nrow(Cor.df))),
                       color = magma(1,1,0.8,0.8),
-                      linetype="dashed") + 
+                      linetype = "dashed",
+                      size = 1) + 
             theme_bw() +
             ylab("Relative Improvement from Ecological Memory") +
             xlab("Coefficient of Variation of Daily Temperature") +
-            theme(text = element_text(size = 20)) 
+            theme(text = element_text(size = 20)) +
+            ggtitle(label = paste0("OzFlux Memory Improvement"),
+                    subtitle=expression(paste("Spearman's ",rho," = -0.64, p-value = 0.022")))
 
 AllCorPlot
 
 # Plot for NATT sites
-NATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$MDT[Cor.df$Transect=="NATT"])$coefficients
 
-NATTCorPlot = ggplot(Cor.df[Cor.df$Transect=="NATT",],aes(x=MDT, y = RelDif)) +
-  geom_point(aes(),size = 3,color = magma(1,1,0.2,0.2),) +
-  scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
-                        option="magma",
-                        begin=0.2,
-                        end=0.8) +
-  geom_line(aes(x = MDT, y = NATTLine[1] + NATTLine[2]*MDT),
-            color = magma(1,1,0.2,0.2),
-            linetype="dashed") + 
-  theme_bw() +
-  ylab("Relative Improvement from Ecological Memory") +
-  xlab("Mean Daily Temperature") +
-  theme(text = element_text(size = 20)) 
+# Estimate trendlines
+MDTAllLine = lm(Cor.df$RelDif ~ Cor.df$MDT)$coefficients
+MDTNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$MDT[Cor.df$Transect=="NATT"])$coefficients
+MDTSWATLine =lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$MDT[Cor.df$Transect=="SWAT"])$coefficients
+
+# Find the range of NATT and SWAT x values
+MDTNATT = Cor.df$MDT[Cor.df$Transect=="NATT"]
+MDTSWAT = Cor.df$MDT[Cor.df$Transect=="SWAT"]
+
+NATTCorPlot = ggplot(Cor.df,aes(color = Transect,x=MDT, y = RelDif)) +
+              geom_point(aes(),size = 3) +
+              scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
+                                    option="magma",
+                                    begin=0.2,
+                                    end=0.8) +
+              geom_line(aes(x = MDT, y = MDTAllLine[1] + MDTAllLine[2]*MDT),
+                        color = magma(1,1,0.5,0.5),
+                        linetype = "dashed",
+                        size = 1) + 
+              geom_line(aes(x = seq(min(MDTNATT),
+                                    max(MDTNATT),
+                                    length.out = nrow(Cor.df)), 
+                            y = MDTNATTLine[1] + MDTNATTLine[2]*seq(min(MDTNATT),
+                                                                      max(MDTNATT),
+                                                                      length.out = nrow(Cor.df))),
+                        color = magma(1,1,0.2,0.2),
+                        size = 1) + 
+              geom_line(aes(x = seq(min(MDTSWAT),
+                                    max(MDTSWAT),
+                                    length.out = nrow(Cor.df)), 
+                            y = MDTSWATLine[1] + MDTSWATLine[2]*seq(min(MDTSWAT),
+                                                                      max(MDTSWAT),
+                                                                      length.out = nrow(Cor.df))),
+                        color = magma(1,1,0.8,0.8),
+                        linetype = "dashed",
+                        size = 1) + 
+              theme_bw() +
+              ylab("Relative Improvement from Ecological Memory") +
+              xlab("Mean Daily Temperature") +
+              theme(text = element_text(size = 20)) +
+              ggtitle(label = paste0("NATT Memory Improvement"),
+                      subtitle=expression(paste("Spearman's ",rho," = 0.94, p-value = 0.017")))
 
 NATTCorPlot
 
 # Plot for SWAT sites
-SWATLine = lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$CVDR[Cor.df$Transect=="SWAT"])$coefficients
 
-SWATCorPlot = ggplot(Cor.df[Cor.df$Transect=="SWAT",],aes(x=CVDR, y = RelDif)) +
-  geom_point(aes(),size = 3,color = magma(1,1,0.8,0.8),) +
-  scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
-                        option="magma",
-                        begin=0.2,
-                        end=0.8) +
-  geom_line(aes(x = CVDR, y = SWATLine[1] + SWATLine[2]*CVDR),
-            color = magma(1,1,0.8,0.8),
-            linetype="dashed") + 
-  theme_bw() +
-  ylab("Relative Improvement from Ecological Memory") +
-  xlab("Coefficient of Variation of Daily Radiation") +
-  theme(text = element_text(size = 20)) +
-  ggtitle(label = paste0("SWAT Memory Improvement"),
-          subtitle=paste0("Spearman's ", expression(\u03C1), " = -0.82, p-value = 0.034"))
+# Estimate trendlines
+CVDRAllLine = lm(Cor.df$RelDif ~ Cor.df$CVDR)$coefficients
+CVDRNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$CVDR[Cor.df$Transect=="NATT"])$coefficients
+CVDRSWATLine = lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$CVDR[Cor.df$Transect=="SWAT"])$coefficients
+
+# Find the range of NATT and SWAT x values
+CVDRNATT = Cor.df$CVDR[Cor.df$Transect=="NATT"]
+CVDRSWAT = Cor.df$CVDR[Cor.df$Transect=="SWAT"]
+
+
+SWATCorPlot = ggplot(Cor.df,aes(color = Transect,x=CVDR, y = RelDif)) +
+              geom_point(aes(),size = 3) +
+              scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
+                                    option="magma",
+                                    begin=0.2,
+                                    end=0.8) +
+              geom_line(aes(x = CVDR, y = CVDRAllLine[1] + CVDRAllLine[2]*CVDR),
+                        color = magma(1,1,0.5,0.5),
+                        linetype = "dashed",
+                        size = 1) + 
+              geom_line(aes(x = seq(min(CVDRNATT),
+                                    max(CVDRNATT),
+                                    length.out = nrow(Cor.df)), 
+                            y = CVDRNATTLine[1] + CVDRNATTLine[2]*seq(min(CVDRNATT),
+                                                                      max(CVDRNATT),
+                                                                      length.out = nrow(Cor.df))),
+                        color = magma(1,1,0.2,0.2),
+                        linetype = "dashed",
+                        size = 1) + 
+              geom_line(aes(x = seq(min(CVDRSWAT),
+                                    max(CVDRSWAT),
+                                    length.out = nrow(Cor.df)), 
+                            y = CVDRSWATLine[1] + CVDRSWATLine[2]*seq(min(CVDRSWAT),
+                                                                      max(CVDRSWAT),
+                                                                      length.out = nrow(Cor.df))),
+                        color = magma(1,1,0.8,0.8),
+                        size = 1) + 
+              theme_bw() +
+              theme(legend.position="bottom") +
+              ylab("Relative Improvement from Ecological Memory") +
+              xlab("Coefficient of Variation of Daily Radiation") +
+              theme(text = element_text(size = 20)) +
+              ggtitle(label = paste0("SWAT Memory Improvement"),
+                      subtitle=expression(paste("Spearman's ",rho," = -0.82, p-value = 0.034")))
 
 SWATCorPlot
+
+# Write some text
+text = paste("Relationships between the relative memory improvement",
+             "i.e. (SAM r^2 - Current r^2)/Current r^2",
+             "and climate metrics for the NATT, the SWAT, and all sites",
+             "combined. Solid lines indicate significance at p = 0.05",
+             "levels, dashed lines indicate non-significance.",
+             "Subtitles provide correlation coefficients",
+             "for the significant relationships.", sep = "\n")
+text.p <- text_grob(text, face = "italic", size = 20, color = "black")
+
+get_legend<-function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
+legend = get_legend(SWATCorPlot)
+
+AllCorPlot = AllCorPlot + theme(legend.position="none")
+NATTCorPlot = NATTCorPlot + theme(legend.position="none")
+SWATCorPlot = SWATCorPlot + theme(legend.position="none")
+
+figure = grid.arrange(AllCorPlot, NATTCorPlot, SWATCorPlot, text.p, legend,
+                      layout_matrix = rbind(c(1,2), c(3,4),c(5,5)),
+                       ncol = 2, 
+                       nrow = 3,
+                      widths = c(2.7, 2.7), 
+                      heights = c(2.5, 2.5, 0.2))
+
+
+figure
