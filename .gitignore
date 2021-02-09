@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+*.rds
 *.nc
 *.Rdata
 *.csv
@@ -21,3 +22,5 @@ slides/
 tests/
 trash/
 inputs/
+wc10/
+wc0.5/

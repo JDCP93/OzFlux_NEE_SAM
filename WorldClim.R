@@ -1,9 +1,35 @@
+# Clean up
 rm(list=ls())
 
+## Download the package if necessary
+#devtools::install_github("kapitzas/WorldClimTiles")
+
+# Source library
 library(raster)
+library(WorldClimTiles)
+
+# #Code to download and merge worldclim data if necessary
+# r1 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=100)
+# r2 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=120)
+# r3 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=150)
+# r4 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=100)
+# r5 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=120)
+# r6 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=150)
+# 
+# r = raster::merge(r1,r2,r3,r4,r5,r6)
+# 
+# save(r,file="worldclim_biovar_0.5res.Rdata")
 
 
-r <- getData("worldclim",var="bio",res=10)
+# Otherwise we load the file that already exists
+ 
+load("worldclim_biovar_0.5res.Rdata")
+
+# # Use the WorldClimTiles package to merge the tiles
+# aus <- getData("GADM", country = "AUS", level = 0)
+# tilenames <- tile_name(aus)
+# tiles <- tile_get(tilenames, "bio")
+# r <- tile_merge(tiles)
 
 r <- r[[1:19]]
 names(r) <- c("AnnualMeanTemp",
@@ -34,7 +60,7 @@ coords <- data.frame(x=lons,y=lats)
 
 points <- SpatialPoints(coords, proj4string = r@crs)
 
-values <- extract(r,points)
+values <- raster::extract(r,points)
 
 df <- cbind.data.frame(coordinates(points),values)
 
@@ -63,46 +89,83 @@ Sites = c("AU-ASM",
           "AU-Whr",
           "AU-Wom")
 
-RelMem = c(0.095952,
-           0.092979,
-           0.178261,
-           0.158209,
-           0.247934,
-           0.197452,
-           0.209412,
-           0.167235,
-           0.164659,
-           0.078582,
-           0.153846,
-           0.066914,
-           0.092308)
+Transect = c("NATT",
+              "SWAT",
+              "SWAT",
+              "NATT",
+              "NATT",
+              "SWAT",
+              "SWAT",
+              "NATT",
+              "NATT",
+              "NATT",
+              "SWAT",
+              "SWAT",
+              "SWAT")
 
-AbsMem = c(0.064,
-           0.049,
-           0.041,
-           0.053,
-           0.09,
-           0.062,
-           0.089,
-           0.049,
-           0.082,
-           0.051,
-           0.036,
-           0.036,
-           0.048)
 
- df = cbind(Sites,AbsMem,RelMem,df)
+RelMem = c(0.09646399,
+           0.09307989,
+           0.17663594,
+           0.15703944,
+           0.24810158,
+           0.19673790,
+           0.20952859,
+           0.16505797,
+           0.16314338,
+           0.08339588,
+           0.15174571,
+           0.06636320,
+           0.09213355)
+
+AbsMem = c(0.06434558,
+           0.04902036,
+           0.04060867,
+           0.05268169,
+           0.09004726,
+           0.06178927,
+           0.08912096,
+           0.04843445,
+           0.08132378,
+           0.05408572,
+           0.03551165,
+           0.03570634,
+           0.04788454)
+
+df = cbind(Sites,Transect,AbsMem,RelMem,df)
  
  
 Corr = data.frame("Metric" = names(r),
                   "RelPVal" = 0,
                   "RelCorr" = 0,
                   "AbsPVal" = 0,
-                  "AbsCorr" = 0)
+                  "AbsCorr" = 0,
+                  "NATTRelPVal" = 0,
+                  "NATTRelCorr" = 0,
+                  "NATTAbsPVal" = 0,
+                  "NATTAbsCorr" = 0,
+                  "SWATRelPVal" = 0,
+                  "SWATRelCorr" = 0,
+                  "SWATAbsPVal" = 0,
+                  "SWATAbsCorr" = 0)
           
 for (i in 6:24){
   Corr$RelPVal[i-5] = cor.test(df[,i],RelMem,method = "pearson")$p.value
   Corr$RelCorr[i-5] = cor.test(df[,i],RelMem,method = "pearson")$estimate
   Corr$AbsPVal[i-5] = cor.test(df[,i],AbsMem,method = "pearson")$p.value
   Corr$AbsCorr[i-5] = cor.test(df[,i],AbsMem,method = "pearson")$estimate
+  
+  Corr$NATTRelPVal[i-5] = cor.test(df[df$Transect=="NATT",i],df$RelMem[df$Transect=="NATT"],method = "pearson")$p.value
+  Corr$NATTRelCorr[i-5] = cor.test(df[df$Transect=="NATT",i],df$RelMem[df$Transect=="NATT"],method = "pearson")$estimate
+  Corr$NATTAbsPVal[i-5] = cor.test(df[df$Transect=="NATT",i],df$AbsMem[df$Transect=="NATT"],method = "pearson")$p.value
+  Corr$NATTAbsCorr[i-5] = cor.test(df[df$Transect=="NATT",i],df$AbsMem[df$Transect=="NATT"],method = "pearson")$estimate
+  
+  Corr$SWATRelPVal[i-5] = cor.test(df[df$Transect=="SWAT",i],df$RelMem[df$Transect=="SWAT"],method = "pearson")$p.value
+  Corr$SWATRelCorr[i-5] = cor.test(df[df$Transect=="SWAT",i],df$RelMem[df$Transect=="SWAT"],method = "pearson")$estimate
+  Corr$SWATAbsPVal[i-5] = cor.test(df[df$Transect=="SWAT",i],df$AbsMem[df$Transect=="SWAT"],method = "pearson")$p.value
+  Corr$SWATAbsCorr[i-5] = cor.test(df[df$Transect=="SWAT",i],df$AbsMem[df$Transect=="SWAT"],method = "pearson")$estimate
 }
+
+WorldClimCorr = Corr
+
+save(WorldClimCorr,file = "worldclim_biovar_0.5res_RTPVS_correlations.Rdata")

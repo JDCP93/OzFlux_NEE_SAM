@@ -7,6 +7,7 @@ library(tidyverse)
 library(lubridate)
 library(viridis)
 library(ggpubr)
+library(gridExtra)
 
 # List all sites
 Sites = c("AU-ASM"
