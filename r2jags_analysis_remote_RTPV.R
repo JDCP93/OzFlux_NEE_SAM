@@ -64,6 +64,7 @@ r2jags_analysis_RTPV <- function(Site){
   
   rm(output)
   
+  message("Running Gelman Diagnostics for ",Site)
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
   # I think it's the shrink factor or something lol
   Gelman = gelman.diag(output.mcmc,multivariate=FALSE)
@@ -74,6 +75,7 @@ r2jags_analysis_RTPV <- function(Site){
   # value - we should exclude these
   Gelman.Fail = Gelman.Fail[complete.cases(Gelman.Fail),]
   
+  message("Running Effective Sample Size for ",Site)
   # We find the effective sample size for each parameter
   ESS.raw = effectiveSize(output.mcmc)
   # Where parameters are forced to 0, then the ESS is also 0. Therefore we exclude
@@ -87,7 +89,7 @@ r2jags_analysis_RTPV <- function(Site){
   ESS.Fail = ESS[ESS<10000] # & names(ESS) %in% stochastic.params]
   
   
-  
+  message("Running Geweke Diagnostics for ",Site)
   # We calculate the Geweke diagnostic - this should fall within the confidence 
   # bounds of -2 and 2. 
   Geweke = geweke.diag(output.mcmc)
@@ -103,6 +105,7 @@ r2jags_analysis_RTPV <- function(Site){
   # Model Performance
   # ##################
   
+  message("Running Model Performance for ",Site)
   # Load the observations
   name = paste0(Site,"_Input")
   load(paste0("inputs/RTPV/",name,"_RTPV.Rdata"))
@@ -213,6 +216,11 @@ r2jags_analysis_RTPV <- function(Site){
   
   # Calculate the r squared value for the SAM model
   SAM.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
+  Phi = summary$statistics["phi0",]
+  SAM.MBE = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
+  SAM.NME = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
+  SAM.SDD = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
+  SAM.CCO = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
   
   # Extract climate sensitivities
   
@@ -253,10 +261,14 @@ r2jags_analysis_RTPV <- function(Site){
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
                 "SAM.R2" = SAM.R2,
+                "SAM.MBE" = SAM.MBE,
+                "SAM.NME" = SAM.NME,
+                "SAM.SDD" = SAM.SDD,
+                "SAM.CCO" = SAM.CCO,
                 "df" = df,
                 "ESen" = ESen,
-                "CumWeights" = CumWeights)
-  
+                "CumWeights" = CumWeights,
+                "Phi0" = Phi)
   save(output,file = paste0("NEE_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
 
