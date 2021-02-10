@@ -234,12 +234,15 @@ Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site)) +
   theme(legend.position = "bottom", 
         text = element_text(size = 20),
         legend.title = element_blank()) +
-  ggtitle("Model Performance, ordered by Daily Temperature Variance")
+  ggtitle("Model Performance, ordered by Daily Temperature Variance Desc")
 
 Plot
 
+# Source worldclim correlations and climate metrics
+load("analysis/RTPVS/worldclim_biovar_0.5res_RTPVS_correlations.Rdata")
+
 # Plot for just NATT based on mean daily temperature
-Fig$Site = factor(Fig$Site, levels = metrics[order(metrics$MDT),1])
+Fig$Site = factor(Fig$Site, levels = WorldClim$Metrics[order(WorldClim$Metrics$PPTSeasonality),1])
 
 NATTPlot = ggplot(Fig[Fig$Transect=="NATT",],aes(fill=Model,y=Value,x=Site)) +
   geom_bar(position="stack",stat="identity") +
@@ -259,13 +262,13 @@ NATTPlot = ggplot(Fig[Fig$Transect=="NATT",],aes(fill=Model,y=Value,x=Site)) +
   theme(legend.position = "bottom", 
         text = element_text(size = 20),
         legend.title = element_blank()) +
-  ggtitle("NATT Model Performance, ordered by Mean Daily Temperature")
+  ggtitle("NATT Model Performance, ordered by PPT Seasonality Desc")
 
 NATTPlot
 
 
 # Plot for just SWAT based on coefficient of variation of daily radiation
-Fig$Site = factor(Fig$Site, levels = metrics[order(metrics$CVDR),1])
+Fig$Site = factor(Fig$Site, levels = WorldClim$Metrics[order(WorldClim$Metrics$AnnualMeanTemp),1])
 
 SWATPlot = ggplot(Fig[Fig$Transect=="SWAT",],aes(fill=Model,y=Value,x=Site)) +
   geom_bar(position="stack",stat="identity") +
@@ -285,7 +288,7 @@ SWATPlot = ggplot(Fig[Fig$Transect=="SWAT",],aes(fill=Model,y=Value,x=Site)) +
   theme(legend.position = "bottom", 
         text = element_text(size = 20),
         legend.title = element_blank()) +
-  ggtitle("SWAT Model Performance, ordered by Daily Radiation Variance")
+  ggtitle("SWAT Model Performance, ordered by Annual Mean Temperature Desc")
 
 SWATPlot
 
@@ -344,96 +347,96 @@ AllCorPlot
 # Plot for NATT sites
 
 # Estimate trendlines
-MDTAllLine = lm(Cor.df$RelDif ~ Cor.df$MDT)$coefficients
-MDTNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$MDT[Cor.df$Transect=="NATT"])$coefficients
-MDTSWATLine =lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$MDT[Cor.df$Transect=="SWAT"])$coefficients
+PPTSeaAllLine = lm(Cor.df$RelDif ~ WorldClim$Metrics$PPTSeasonality)$coefficients
+PPTSeaNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ WorldClim$Metrics$PPTSeasonality[WorldClim$Metrics$Transect=="NATT"])$coefficients
+PPTSeaSWATLine =lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ WorldClim$Metrics$PPTSeasonality[WorldClim$Metrics$Transect=="SWAT"])$coefficients
 
 # Find the range of NATT and SWAT x values
-MDTNATT = Cor.df$MDT[Cor.df$Transect=="NATT"]
-MDTSWAT = Cor.df$MDT[Cor.df$Transect=="SWAT"]
+PPTSeaNATT = WorldClim$Metrics$PPTSeasonality[Cor.df$Transect=="NATT"]
+PPTSeaSWAT = WorldClim$Metrics$PPTSeasonality[Cor.df$Transect=="SWAT"]
 
-NATTCorPlot = ggplot(Cor.df,aes(color = Transect,x=MDT, y = RelDif)) +
+NATTCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$PPTSeasonality, y = RelDif)) +
               geom_point(aes(),size = 3) +
               scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
                                     option="magma",
                                     begin=0.2,
                                     end=0.8) +
-              geom_line(aes(x = MDT, y = MDTAllLine[1] + MDTAllLine[2]*MDT),
+              geom_line(aes(x = WorldClim$Metrics$PPTSeasonality, y = PPTSeaAllLine[1] + PPTSeaAllLine[2]*WorldClim$Metrics$PPTSeasonality),
                         color = magma(1,1,0.5,0.5),
                         linetype = "dashed",
                         size = 1) + 
-              geom_line(aes(x = seq(min(MDTNATT),
-                                    max(MDTNATT),
+              geom_line(aes(x = seq(min(PPTSeaNATT),
+                                    max(PPTSeaNATT),
                                     length.out = nrow(Cor.df)), 
-                            y = MDTNATTLine[1] + MDTNATTLine[2]*seq(min(MDTNATT),
-                                                                      max(MDTNATT),
+                            y = PPTSeaNATTLine[1] + PPTSeaNATTLine[2]*seq(min(PPTSeaNATT),
+                                                                      max(PPTSeaNATT),
                                                                       length.out = nrow(Cor.df))),
                         color = magma(1,1,0.2,0.2),
                         size = 1) + 
-              geom_line(aes(x = seq(min(MDTSWAT),
-                                    max(MDTSWAT),
+              geom_line(aes(x = seq(min(PPTSeaSWAT),
+                                    max(PPTSeaSWAT),
                                     length.out = nrow(Cor.df)), 
-                            y = MDTSWATLine[1] + MDTSWATLine[2]*seq(min(MDTSWAT),
-                                                                      max(MDTSWAT),
+                            y = PPTSeaSWATLine[1] + PPTSeaSWATLine[2]*seq(min(PPTSeaSWAT),
+                                                                      max(PPTSeaSWAT),
                                                                       length.out = nrow(Cor.df))),
                         color = magma(1,1,0.8,0.8),
                         linetype = "dashed",
                         size = 1) + 
               theme_bw() +
               ylab("Relative Improvement from Ecological Memory") +
-              xlab("Mean Daily Temperature") +
+              xlab("Precipitation Seasonality (Coefficient of Variation)") +
               theme(text = element_text(size = 20)) +
               ggtitle(label = paste0("NATT Memory Improvement"),
-                      subtitle=expression(paste("Spearman's ",rho," = 0.94, p-value = 0.017")))
+                      subtitle=expression(paste("Pearson's r = 0.87, p-value = 0.025")))
 
 NATTCorPlot
 
 # Plot for SWAT sites
 
 # Estimate trendlines
-CVDRAllLine = lm(Cor.df$RelDif ~ Cor.df$CVDR)$coefficients
-CVDRNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$CVDR[Cor.df$Transect=="NATT"])$coefficients
-CVDRSWATLine = lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$CVDR[Cor.df$Transect=="SWAT"])$coefficients
+MATAllLine = lm(Cor.df$RelDif ~ WorldClim$Metrics$AnnualMeanTemp)$coefficients
+MATNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ WorldClim$Metrics$AnnualMeanTemp[WorldClim$Metrics$Transect=="NATT"])$coefficients
+MATSWATLine = lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ WorldClim$Metrics$AnnualMeanTemp[WorldClim$Metrics$Transect=="SWAT"])$coefficients
 
 # Find the range of NATT and SWAT x values
-CVDRNATT = Cor.df$CVDR[Cor.df$Transect=="NATT"]
-CVDRSWAT = Cor.df$CVDR[Cor.df$Transect=="SWAT"]
+MATNATT = WorldClim$Metrics$AnnualMeanTemp[Cor.df$Transect=="NATT"]
+MATSWAT = WorldClim$Metrics$AnnualMeanTemp[Cor.df$Transect=="SWAT"]
 
 
-SWATCorPlot = ggplot(Cor.df,aes(color = Transect,x=CVDR, y = RelDif)) +
+SWATCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$AnnualMeanTemp, y = RelDif)) +
               geom_point(aes(),size = 3) +
               scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
                                     option="magma",
                                     begin=0.2,
                                     end=0.8) +
-              geom_line(aes(x = CVDR, y = CVDRAllLine[1] + CVDRAllLine[2]*CVDR),
+              geom_line(aes(x = WorldClim$Metrics$AnnualMeanTemp, y = MATAllLine[1] + MATAllLine[2]*WorldClim$Metrics$AnnualMeanTemp),
                         color = magma(1,1,0.5,0.5),
                         linetype = "dashed",
                         size = 1) + 
-              geom_line(aes(x = seq(min(CVDRNATT),
-                                    max(CVDRNATT),
+              geom_line(aes(x = seq(min(MATNATT),
+                                    max(MATNATT),
                                     length.out = nrow(Cor.df)), 
-                            y = CVDRNATTLine[1] + CVDRNATTLine[2]*seq(min(CVDRNATT),
-                                                                      max(CVDRNATT),
+                            y = MATNATTLine[1] + MATNATTLine[2]*seq(min(MATNATT),
+                                                                      max(MATNATT),
                                                                       length.out = nrow(Cor.df))),
                         color = magma(1,1,0.2,0.2),
                         linetype = "dashed",
                         size = 1) + 
-              geom_line(aes(x = seq(min(CVDRSWAT),
-                                    max(CVDRSWAT),
+              geom_line(aes(x = seq(min(MATSWAT),
+                                    max(MATSWAT),
                                     length.out = nrow(Cor.df)), 
-                            y = CVDRSWATLine[1] + CVDRSWATLine[2]*seq(min(CVDRSWAT),
-                                                                      max(CVDRSWAT),
+                            y = MATSWATLine[1] + MATSWATLine[2]*seq(min(MATSWAT),
+                                                                      max(MATSWAT),
                                                                       length.out = nrow(Cor.df))),
                         color = magma(1,1,0.8,0.8),
                         size = 1) + 
               theme_bw() +
               theme(legend.position="bottom") +
               ylab("Relative Improvement from Ecological Memory") +
-              xlab("Coefficient of Variation of Daily Radiation") +
+              xlab("Annual Mean Temperature") +
               theme(text = element_text(size = 20)) +
               ggtitle(label = paste0("SWAT Memory Improvement"),
-                      subtitle=expression(paste("Spearman's ",rho," = -0.82, p-value = 0.034")))
+                      subtitle=expression(paste("Pearson's r = 0.84, p-value = 0.017")))
 
 SWATCorPlot
 

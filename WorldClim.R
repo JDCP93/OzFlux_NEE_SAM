@@ -23,7 +23,7 @@ library(WorldClimTiles)
 
 # Otherwise we load the file that already exists
  
-load("worldclim_biovar_0.5res.Rdata")
+load("analysis/RTPVS/worldclim_biovar_0.5res.Rdata")
 
 # # Use the WorldClimTiles package to merge the tiles
 # aus <- getData("GADM", country = "AUS", level = 0)
@@ -150,10 +150,10 @@ Corr = data.frame("Metric" = names(r),
                   "SWATAbsCorr" = 0)
           
 for (i in 6:24){
-  Corr$RelPVal[i-5] = cor.test(df[,i],RelMem,method = "pearson")$p.value
-  Corr$RelCorr[i-5] = cor.test(df[,i],RelMem,method = "pearson")$estimate
-  Corr$AbsPVal[i-5] = cor.test(df[,i],AbsMem,method = "pearson")$p.value
-  Corr$AbsCorr[i-5] = cor.test(df[,i],AbsMem,method = "pearson")$estimate
+  Corr$RelPVal[i-5] = cor.test(df[,i],RelMem,method = "spearman",exact = FALSE)$p.value
+  Corr$RelCorr[i-5] = cor.test(df[,i],RelMem,method = "spearman",exact = FALSE)$estimate
+  Corr$AbsPVal[i-5] = cor.test(df[,i],AbsMem,method = "spearman",exact = FALSE)$p.value
+  Corr$AbsCorr[i-5] = cor.test(df[,i],AbsMem,method = "spearman",exact = FALSE)$estimate
   
   Corr$NATTRelPVal[i-5] = cor.test(df[df$Transect=="NATT",i],df$RelMem[df$Transect=="NATT"],method = "pearson")$p.value
   Corr$NATTRelCorr[i-5] = cor.test(df[df$Transect=="NATT",i],df$RelMem[df$Transect=="NATT"],method = "pearson")$estimate
@@ -167,5 +167,8 @@ for (i in 6:24){
 }
 
 WorldClimCorr = Corr
+WorldClimMetrics = df
 
-save(WorldClimCorr,file = "worldclim_biovar_0.5res_RTPVS_correlations.Rdata")
+WorldClim = list("Corr" = WorldClimCorr,"Metrics" = WorldClimMetrics)
+
+save(WorldClim,file = "worldclim_biovar_0.5res_RTPVS_correlations.Rdata")

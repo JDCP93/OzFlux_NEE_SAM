@@ -1,4 +1,4 @@
-SensitivityPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Precip","SWC")){
+SensitivityPlot_RTPVS = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","Precip","SWC")){
 
   # Source packages needed
   library(lubridate)
@@ -6,9 +6,9 @@ SensitivityPlot = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC","
   library(dplyr)
   
 # Run the analysis of the model outputs if they don't exist
-source("r2jags_analysis.R")
+source("r2jags_analysis_RTPVS.R")
 for (Site in Sites){
-  if (file.exists(paste0("NEE_Analysis_",Site,".Rdata"))){
+  if (file.exists(paste0("analysis/RTPVS/NEE_Analysis_RTPVS_",Site,".Rdata"))){
     message("Analysis file already exists for ",Site,". Moving to next site...")
   } else {
     message("Conducting model output analysis for ",Site,". Please wait...")
@@ -23,13 +23,13 @@ MAP = data.frame("Site"=Sites,
 
 for (Site in Sites){
   # Collect the analysis outputs and name them with each site
-  load(paste0("NEE_Analysis_",Site,".Rdata"))
+  load(paste0("analysis/RTPVS/NEE_Analysis_RTPVS_",Site,".Rdata"))
   assign(Site,output)
   rm(output)
   
   
   # We also load the daily data to calculate MAP
-  load(paste0(Site,"_Input.Rdata"))
+  load(paste0("inputs/RTPVS/",Site,"_Input_RTPVS.Rdata"))
   Input = eval(as.name(paste0(Site,"_Input")))
   DailyData = Input$DailyData
   DailyData$year = year(DailyData$TIMESTAMP)
