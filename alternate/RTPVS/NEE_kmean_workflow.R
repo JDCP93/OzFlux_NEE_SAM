@@ -17,10 +17,12 @@ Sites = c("AU-ASM"
           ,"AU-Wom"
           )
 # Source the function
-source("alternate/RTPVS/NEE_kmean_function.R")
+source("alternate/RTPVS/NEE_kmean_function_allPrecip.R")
 source("alternate/RTPVS/NEE_kmean_function_current.R")
+source("alternate/RTPVS/NEE_kmean_function_currentNDVI.R")
 # Calculate the values
 for (Site in Sites){
-  NEE_current_kmean(Site)
+ # NEE_current_kmean(Site)
  # NEE_kmean(Site)
+  NEE_currentNDVI_kmean(Site)
 }
