@@ -56,9 +56,10 @@ ESen = ESen[ESen$Variable %in% Vars,]
 # Rename variables to nice names
 ESen$Variable[ESen$Variable == "Fsd"] = "Shortwave Radiation"
 ESen$Variable[ESen$Variable == "Tair"] = "Air Temperature"
-ESen$Variable[ESen$Variable == "antSWC"] = "Antecedent SWC"
+ESen$Variable[ESen$Variable == "antSWC"] = "Soil Moisture Content"
 ESen$Variable[ESen$Variable == "curSWC"] = "Current SWC"
 ESen$Variable[ESen$Variable == "SWC"] = "Antecedent + Current SWC"
+ESen$Variable[ESen$Variable == "Precip"] = "Precipitation"
 
 # Assign levels to Variable
 ESen$Variable = factor(ESen$Variable,levels = sort(unique(ESen$Variable)))

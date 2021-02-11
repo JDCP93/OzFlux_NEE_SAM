@@ -1,32 +1,26 @@
 rm(list=ls())
 
 # List all sites
-Sites = c(#"AU-ASM"
-          #,"AU-Cpr"
-          #,"AU-Cum"
-          #,"AU-DaS"
-          #,"AU-Dry"
-          #,"AU-Gin"
-          #,"AU-GWW"
-          #,"AU-How"
-          #,"AU-Stp"
-          #,"AU-TTE"
-          #,"AU-Tum"
-          #,"AU-Whr"
-          "AU-Wom"
+Sites = c("AU-ASM"
+          ,"AU-Cpr"
+          ,"AU-Cum"
+          ,"AU-DaS"
+          ,"AU-Dry"
+          ,"AU-Gin"
+          ,"AU-GWW"
+          ,"AU-How"
+          ,"AU-Stp"
+          ,"AU-TTE"
+          ,"AU-Tum"
+          ,"AU-Whr"
+          ,"AU-Wom"
          )
 
-# Source analysis function
-source("r2jags_analysis_current.R")
-
-for (Site in Sites){
-  r2jags_analysis_current(Site)
-}
 
 
-
-
-# Calculate mean air temperature
+#*******************************************************************************
+# Calculating mean air temperature
+#*******************************************************************************
 
 for (Site in Sites){
   load(paste0(Site,"_Input.Rdata"))
@@ -36,8 +30,12 @@ for (Site in Sites){
 }
 
 
-
+# Plot a histogram of air temperature
 hist(`AU-Wom_Input`$DailyData$Ta)
+
+#*******************************************************************************
+# Plotting average climate data at each site
+#*******************************************************************************
 
 for (Site in Sites){
   load(paste0(Site,"_Input.Rdata"))
@@ -58,12 +56,9 @@ plot(AvgMonthData$month,AvgMonthData$NEE,type='l',main=paste(Site,"NEE"))
 plot(AvgMonthData$month,AvgMonthData$Precip,type='l',main=paste(Site,"Precip"))
 }
 
-
-
-
-#**********************************
-## Identifying the parameters and chains that haven't converged
-#**********************************
+#*******************************************************************************
+# Identifying the parameters and chains that haven't converged
+#*******************************************************************************
 
 # For each chain
 for (i in 1:length(output.mcmc)){
@@ -92,32 +87,23 @@ for (i in 1:length(output.mcmc)){
 
 ## Use the below to remove the chains that haven't converged - change the value
 # output.mcmc = output.mcmc[1:6]
-
-Sites = c("AU-DaS","AU-Stp","AU-TTE")
-
-for(Site in Sites){
   
-  File = list.files("results",pattern = Site)
-  # Read the data into R - note that if multiple results are available for a 
-  # site, we take the most recent
-  load(paste0("results/",File[length(File)]))
-  
-  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:7)))
-  
-  Median = summary$statistics[rownames(summary$statistics) %in% SensitivityCovariates,1]
-  Low = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,1]
-  High = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,5]
-}
-  
+#*******************************************************************************
+# Plotting weights and sensitivities for RTPVS
+#*******************************************************************************
   
   rm(list=ls())
   
-  source("SensitivityPlot.R")
-  source("WeightPlot.R")
-  Sites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-Stp","AU-TTE","AU-Wom")
-  ESenPlot = SensitivityPlot(Sites,c("Fsd","Precip","antSWC"))
-  WeightPlot = WeightPlot(Sites,c("Fsd","Precip","antSWC"))
+  source("SensitivityPlot_RTPVS.R")
+  source("WeightPlot_RTPVS.R")
+  Sites = c("AU-Cum","AU-DaS","AU-Gin","AU-Stp","AU-Tum","AU-Whr")
+  ESenPlot = SensitivityPlot_RTPVS(Sites,c("Fsd","Precip","antSWC","Tair","VPD"))
+  WeightPlot = WeightPlot_RTPVS(Sites)#,c("Fsd","Precip","antSWC"))
   
+#*******************************************************************************
+# RTPV analysis
+#*******************************************************************************  
+
   
 Sites = c("AU-ASM","AU-How","AU-GWW")
 source("r2jags_analysis_RTPV.R")
@@ -125,6 +111,9 @@ for (Site in Sites){
   r2jags_analysis_RTPV(Site)
 }
 
+#*******************************************************************************
+# Conducting AR1 analysis
+#*******************************************************************************
 
 rm(list=ls())
 source("r2jags_analysis_AR1.R")
@@ -143,3 +132,100 @@ Sites = c(#"AU-ASM"
 for (Site in Sites){
   r2jags_analysis_AR1(Site)
 }
+
+
+#*******************************************************************************
+# Plotting RTPV SAM vs RTPVS SAM
+#*******************************************************************************
+
+
+rm(list=ls())
+# List sites
+Sites = c("AU-Cum"
+          ,"AU-DaS"
+          ,"AU-GWW"
+          ,"AU-How"
+          ,"AU-Stp"
+)
+
+Model = c("RTPVS","RTPV")
+
+RTPVS.R2 = c(0.271,0.388,0.514,0.342,0.58)
+RTPV.R2 = c(0.273,0.35,0.531,0.336,0.574)
+
+df = data.frame("Site" = rep(Sites,2),
+                "Model" = rep(Model,each=5),
+                "Value" = c(RTPVS.R2,RTPV.R2))
+
+plot = ggplot(df,aes(x = Site,y = Value, fill = Model)) +
+  geom_bar(stat='identity', position='dodge',color="black") +
+  coord_flip(ylim=c(0,1)) +
+  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE),
+                       begin=0.2,
+                       end=0.8) +
+  theme_bw()
+
+plot
+
+#*******************************************************************************
+# Plotting k-means vs SAM models
+#*******************************************************************************
+
+rm(list=ls())
+# List sites
+Sites = c("AU-ASM"
+          ,"AU-Cpr"
+          ,"AU-Cum"
+          ,"AU-DaS"
+          ,"AU-Dry"
+          ,"AU-Gin"
+          ,"AU-GWW"
+          ,"AU-How"
+          ,"AU-Stp"
+          ,"AU-TTE"
+          ,"AU-Tum"
+          ,"AU-Whr"
+          ,"AU-Wom"
+)
+
+Model = c("kmeanCur","kmeanPrecip","kmeanNDVI","SAMcur","SAMlag")
+
+R2 = data.frame("Site" = Sites,
+                "R2.KMP" = 0,
+                "R2.KMC" = 0,
+                "R2.KMN" = 0,
+                "R2.Cur" = 0,
+                "R2.SAM" = 0)
+
+# For each site
+for (Site in Sites){
+  # Collect the R2 values from the analysis scripts
+  message("Collating k-means R2 values for ",Site)
+  # Load the analysis results
+  load(paste0("alternate/RTPVS/results/NEE_output_kmean_RTPVS_",Site,".Rdata"))
+  R2$R2.KMP[R2$Site==Site] = output$r.squared
+  load(paste0("alternate/RTPVS/results/NEE_output_kmean_current_RTPVS_",Site,".Rdata"))
+  R2$R2.KMC[R2$Site==Site] = output$r.squared
+  load(paste0("alternate/RTPVS/results/NEE_output_kmean_currentNDVI_RTPVS_",Site,".Rdata"))
+  R2$R2.KMN[R2$Site==Site] = output$r.squared
+  load(paste0("analysis/RTPVS/NEE_current_Analysis_RTPVS_",Site,".Rdata"))
+  R2$R2.Cur = output$CUR.R2
+  load(paste0("analysis/RTPVS/NEE_Analysis_RTPVS_",Site,".Rdata"))
+  R2$R2.SAM = output$SAM.R2
+}
+
+
+
+df = data.frame("Site" = rep(Sites,5),
+                "Model" = rep(Model,each=13),
+                "Value" = c(R2$R2.KMC,R2$R2.KMP,R2$R2.KMN,R2$R2.Cur,R2$R2.SAM))
+
+plot = ggplot(df,aes(x = Site,y = Value, fill = Model)) +
+  geom_bar(stat='identity', position='dodge',color="black") +
+  coord_flip(ylim=c(0,1)) +
+  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE),
+                       begin=0.2,
+                       end=0.8) +
+  theme_bw()
+
+plot

@@ -9,21 +9,21 @@ library(raster)
 library(WorldClimTiles)
 
 # #Code to download and merge worldclim data if necessary
-# r1 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=100)
-# r2 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=120)
-# r3 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=150)
-# r4 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=100)
-# r5 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=120)
-# r6 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=150)
+r1 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=100)
+r2 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=120)
+r3 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=150)
+r4 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=100)
+r5 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=120)
+r6 <- getData("worldclim",var="bio",res=0.5,lat = -30,lon=150)
 # 
-# r = raster::merge(r1,r2,r3,r4,r5,r6)
+r = raster::merge(r1,r2,r3,r4,r5,r6)
 # 
-# save(r,file="worldclim_biovar_0.5res.Rdata")
+writeRaster(r,file="worldclim_biovar_0.5res.grd")
 
 
 # Otherwise we load the file that already exists
  
-load("analysis/RTPVS/worldclim_biovar_0.5res.Rdata")
+load("worldclim_biovar_0.5res.gri")
 
 # # Use the WorldClimTiles package to merge the tiles
 # aus <- getData("GADM", country = "AUS", level = 0)
@@ -70,10 +70,33 @@ df[,3:4] = df[,3:4]/10
 df[,5:6] = df[,5:6]/100
 df[,7:13] = df[,7:13]/10
 
-e = extent(110,155,-45, -10)
+e = extent(110,160,-45, -10)
 
-plot(r[[16]], ext = e)
-plot(points,add=T)
+# Plot some metrics for Australia and show the site locations
+
+MAT = raster::extract(r,e,layer=1,nl=1)/10
+plot(r[[1]]/10, ext = e, main =  "Annual Mean Temperature (degC)", xlab = "Longitude", ylab = "Latitude",
+     breaks = round(seq(floor(min(MAT,na.rm=TRUE)),ceiling(max(MAT,na.rm=TRUE)),length.out=20),0), col = viridis(19))
+plot(points,add=T,cex=1,col="red",pch = 19)
+plot(points,add=T,cex=1,col="red")
+
+TAR = values(r[[7]])/10
+plot(r[[7]]/10, ext = e, main =  "Temperature Annual Range (degC)", xlab = "Longitude", ylab = "Latitude",
+     breaks = round(seq(floor(min(TAR,na.rm=TRUE)),ceiling(max(TAR,na.rm=TRUE)),length.out=20),0), col = viridis(19))
+plot(points,add=T,cex=1,col="red",pch = 19)
+plot(points,add=T,cex=1,col="red")
+
+MAP = raster::extract(r,e,layer=12,nl=1)
+plot(r[[12]], ext = e, main =  "Annual Mean Precipitation (mm)", xlab = "Longitude", ylab = "Latitude",
+     breaks = round(seq(floor(min(MAP,na.rm=TRUE)),ceiling(max(MAP,na.rm=TRUE)),length.out=20),0), col = viridis(19,direction=-1))
+plot(points,add=T,cex=1,col="red",pch = 19)
+plot(points,add=T,cex=1,col="red")
+
+PS = values(r[[15]])
+plot(r[[15]], ext = e, main =  "Precipitation Seasonality (%)", xlab = "Longitude", ylab = "Latitude",
+     breaks = round(seq(floor(min(PS,na.rm=TRUE)),ceiling(max(PS,na.rm=TRUE)),length.out=20),0), col = viridis(19))
+plot(points,add=T,cex=1,col="red",pch = 19)
+plot(points,add=T,cex=1,col="red")
 
 Sites = c("AU-ASM",
           "AU-Cpr",
