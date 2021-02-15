@@ -108,6 +108,7 @@ WeightPlot_RTPVS = function(Sites,Vars = c("Tair","Fsd","VPD","curSWC","antSWC",
   CumWeights$Variable[CumWeights$Variable == "Tair"] = "Air Temperature"
   CumWeights$Variable[CumWeights$Variable == "antSWC"] = "Antecedent SWC"
   CumWeights$Variable[CumWeights$Variable == "SWC"] = "Antecedent + Current SWC"
+  CumWeights$Variable[CumWeights$Variable == "Precip"] = "Precipitation"
   
   # Assign levels to Variable
   CumWeights$Variable = factor(CumWeights$Variable,levels = sort(unique(CumWeights$Variable)))

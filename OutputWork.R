@@ -96,9 +96,12 @@ for (i in 1:length(output.mcmc)){
   
   source("SensitivityPlot_RTPVS.R")
   source("WeightPlot_RTPVS.R")
-  Sites = c("AU-Cum","AU-DaS","AU-Gin","AU-Stp","AU-Tum","AU-Whr")
-  ESenPlot = SensitivityPlot_RTPVS(Sites,c("Fsd","Precip","antSWC","Tair","VPD"))
-  WeightPlot = WeightPlot_RTPVS(Sites)#,c("Fsd","Precip","antSWC"))
+  Sites = c("AU-ASM","AU-Cum","AU-Cpr","AU-DaS","AU-Dry","AU-Gin","AU-GWW","AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
+  ESenPlot = SensitivityPlot_RTPVS(Sites,c("Precip"))
+  WeightPlot = WeightPlot_RTPVS(Sites,c("Precip"))
+  
+  ESenPlot
+  WeightPlot
   
 #*******************************************************************************
 # RTPV analysis
