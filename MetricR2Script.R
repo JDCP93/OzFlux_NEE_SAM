@@ -26,18 +26,18 @@ Sites = c("AU-ASM"
 )
 
 Transects = c("NATT",
-              "SWAT",
-              "SWAT",
+              "SAWS",
+              "SAWS",
               "NATT",
               "NATT",
-              "SWAT",
-              "SWAT",
+              "SAWS",
+              "SAWS",
               "NATT",
               "NATT",
               "NATT",
-              "SWAT",
-              "SWAT",
-              "SWAT"
+              "SAWS",
+              "SAWS",
+              "SAWS"
 )
 
 # Initiliase metrics df
@@ -267,20 +267,20 @@ NATTPlot = ggplot(Fig[Fig$Transect=="NATT",],aes(fill=Model,y=Value,x=Site)) +
 NATTPlot
 
 
-# Plot for just SWAT based on coefficient of variation of daily radiation
+# Plot for just SAWS based on coefficient of variation of daily radiation
 Fig$Site = factor(Fig$Site, levels = WorldClim$Metrics[order(WorldClim$Metrics$AnnualMeanTemp),1])
 
-SWATPlot = ggplot(Fig[Fig$Transect=="SWAT",],aes(fill=Model,y=Value,x=Site)) +
+SAWSPlot = ggplot(Fig[Fig$Transect=="SAWS",],aes(fill=Model,y=Value,x=Site)) +
   geom_bar(position="stack",stat="identity") +
   geom_bar(stat = "identity", color = "black",size = 1) +
   # annotate("text",
-  #          x = unique(Fig$Site[Fig$Transect=="SWAT"]), 
+  #          x = unique(Fig$Site[Fig$Transect=="SAWS"]), 
   #          y=0.875, 
-  #          label = paste0(round(metrics$CVDR[metrics$Transect=="SWAT"],2))) +
+  #          label = paste0(round(metrics$CVDR[metrics$Transect=="SAWS"],2))) +
   # annotate("text", 
-  #          x = unique(Fig$Site[Fig$Transect=="SWAT"]), 
+  #          x = unique(Fig$Site[Fig$Transect=="SAWS"]), 
   #          y=1, 
-  #          label = paste0(round((R2$R2.SAM[R2$Transect=="SWAT"]-R2$R2.CUR[R2$Transect=="SWAT"])/R2$R2.CUR[R2$Transect=="SWAT"],3)*100,"%")) +
+  #          label = paste0(round((R2$R2.SAM[R2$Transect=="SAWS"]-R2$R2.CUR[R2$Transect=="SAWS"])/R2$R2.CUR[R2$Transect=="SAWS"],3)*100,"%")) +
   coord_flip(ylim=c(0,1)) +
   scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
   ylab(parse(text="R^2")) +
@@ -288,9 +288,9 @@ SWATPlot = ggplot(Fig[Fig$Transect=="SWAT",],aes(fill=Model,y=Value,x=Site)) +
   theme(legend.position = "bottom", 
         text = element_text(size = 20),
         legend.title = element_blank()) +
-  ggtitle("SWAT Model Performance, ordered by Annual Mean Temperature Desc")
+  ggtitle("SAWS Model Performance, ordered by Annual Mean Temperature Desc")
 
-SWATPlot
+SAWSPlot
 
 
 # Scatter plot the metrics vs memory to show the correlations
@@ -301,11 +301,11 @@ Cor.df$RelDif = (Cor.df$R2.SAM-Cor.df$R2.CUR)/Cor.df$R2.CUR
 # Calculate the linear trend line
 CVDTAllLine = lm(Cor.df$RelDif ~ Cor.df$CVDT)$coefficients
 CVDTNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ Cor.df$CVDT[Cor.df$Transect=="NATT"])$coefficients
-CVDTSWATLine =lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ Cor.df$CVDT[Cor.df$Transect=="SWAT"])$coefficients
+CVDTSAWSLine =lm(Cor.df$RelDif[Cor.df$Transect=="SAWS"] ~ Cor.df$CVDT[Cor.df$Transect=="SAWS"])$coefficients
 
-# Find the range of NATT and SWAT x values
+# Find the range of NATT and SAWS x values
 CVDTNATT = Cor.df$CVDT[Cor.df$Transect=="NATT"]
-CVDTSWAT = Cor.df$CVDT[Cor.df$Transect=="SWAT"]
+CVDTSAWS = Cor.df$CVDT[Cor.df$Transect=="SAWS"]
 
 # Plot for all sites
 AllCorPlot = ggplot(Cor.df,aes(color = Transect,x=CVDT, y = RelDif)) +
@@ -326,11 +326,11 @@ AllCorPlot = ggplot(Cor.df,aes(color = Transect,x=CVDT, y = RelDif)) +
                       color = magma(1,1,0.2,0.2),
                       linetype = "dashed",
                       size = 1) + 
-            geom_line(aes(x = seq(min(CVDTSWAT),
-                                  max(CVDTSWAT),
+            geom_line(aes(x = seq(min(CVDTSAWS),
+                                  max(CVDTSAWS),
                                   length.out = nrow(Cor.df)), 
-                          y = CVDTSWATLine[1] + CVDTSWATLine[2]*seq(min(CVDTSWAT),
-                                                                  max(CVDTSWAT),
+                          y = CVDTSAWSLine[1] + CVDTSAWSLine[2]*seq(min(CVDTSAWS),
+                                                                  max(CVDTSAWS),
                                                                   length.out = nrow(Cor.df))),
                       color = magma(1,1,0.8,0.8),
                       linetype = "dashed",
@@ -349,11 +349,11 @@ AllCorPlot
 # Estimate trendlines
 PPTSeaAllLine = lm(Cor.df$RelDif ~ WorldClim$Metrics$PPTSeasonality)$coefficients
 PPTSeaNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ WorldClim$Metrics$PPTSeasonality[WorldClim$Metrics$Transect=="NATT"])$coefficients
-PPTSeaSWATLine =lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ WorldClim$Metrics$PPTSeasonality[WorldClim$Metrics$Transect=="SWAT"])$coefficients
+PPTSeaSAWSLine =lm(Cor.df$RelDif[Cor.df$Transect=="SAWS"] ~ WorldClim$Metrics$PPTSeasonality[WorldClim$Metrics$Transect=="SAWS"])$coefficients
 
-# Find the range of NATT and SWAT x values
+# Find the range of NATT and SAWS x values
 PPTSeaNATT = WorldClim$Metrics$PPTSeasonality[Cor.df$Transect=="NATT"]
-PPTSeaSWAT = WorldClim$Metrics$PPTSeasonality[Cor.df$Transect=="SWAT"]
+PPTSeaSAWS = WorldClim$Metrics$PPTSeasonality[Cor.df$Transect=="SAWS"]
 
 NATTCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$PPTSeasonality, y = RelDif)) +
               geom_point(aes(),size = 3) +
@@ -373,11 +373,11 @@ NATTCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$PPTSeasonal
                                                                       length.out = nrow(Cor.df))),
                         color = magma(1,1,0.2,0.2),
                         size = 1) + 
-              geom_line(aes(x = seq(min(PPTSeaSWAT),
-                                    max(PPTSeaSWAT),
+              geom_line(aes(x = seq(min(PPTSeaSAWS),
+                                    max(PPTSeaSAWS),
                                     length.out = nrow(Cor.df)), 
-                            y = PPTSeaSWATLine[1] + PPTSeaSWATLine[2]*seq(min(PPTSeaSWAT),
-                                                                      max(PPTSeaSWAT),
+                            y = PPTSeaSAWSLine[1] + PPTSeaSAWSLine[2]*seq(min(PPTSeaSAWS),
+                                                                      max(PPTSeaSAWS),
                                                                       length.out = nrow(Cor.df))),
                         color = magma(1,1,0.8,0.8),
                         linetype = "dashed",
@@ -391,19 +391,19 @@ NATTCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$PPTSeasonal
 
 NATTCorPlot
 
-# Plot for SWAT sites
+# Plot for SAWS sites
 
 # Estimate trendlines
 MATAllLine = lm(Cor.df$RelDif ~ WorldClim$Metrics$AnnualMeanTemp)$coefficients
 MATNATTLine = lm(Cor.df$RelDif[Cor.df$Transect=="NATT"] ~ WorldClim$Metrics$AnnualMeanTemp[WorldClim$Metrics$Transect=="NATT"])$coefficients
-MATSWATLine = lm(Cor.df$RelDif[Cor.df$Transect=="SWAT"] ~ WorldClim$Metrics$AnnualMeanTemp[WorldClim$Metrics$Transect=="SWAT"])$coefficients
+MATSAWSLine = lm(Cor.df$RelDif[Cor.df$Transect=="SAWS"] ~ WorldClim$Metrics$AnnualMeanTemp[WorldClim$Metrics$Transect=="SAWS"])$coefficients
 
-# Find the range of NATT and SWAT x values
+# Find the range of NATT and SAWS x values
 MATNATT = WorldClim$Metrics$AnnualMeanTemp[Cor.df$Transect=="NATT"]
-MATSWAT = WorldClim$Metrics$AnnualMeanTemp[Cor.df$Transect=="SWAT"]
+MATSAWS = WorldClim$Metrics$AnnualMeanTemp[Cor.df$Transect=="SAWS"]
 
 
-SWATCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$AnnualMeanTemp, y = RelDif)) +
+SAWSCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$AnnualMeanTemp, y = RelDif)) +
               geom_point(aes(),size = 3) +
               scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
                                     option="magma",
@@ -422,11 +422,11 @@ SWATCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$AnnualMeanT
                         color = magma(1,1,0.2,0.2),
                         linetype = "dashed",
                         size = 1) + 
-              geom_line(aes(x = seq(min(MATSWAT),
-                                    max(MATSWAT),
+              geom_line(aes(x = seq(min(MATSAWS),
+                                    max(MATSAWS),
                                     length.out = nrow(Cor.df)), 
-                            y = MATSWATLine[1] + MATSWATLine[2]*seq(min(MATSWAT),
-                                                                      max(MATSWAT),
+                            y = MATSAWSLine[1] + MATSAWSLine[2]*seq(min(MATSAWS),
+                                                                      max(MATSAWS),
                                                                       length.out = nrow(Cor.df))),
                         color = magma(1,1,0.8,0.8),
                         size = 1) + 
@@ -435,15 +435,15 @@ SWATCorPlot = ggplot(Cor.df,aes(color = Transect,x=WorldClim$Metrics$AnnualMeanT
               ylab("Relative Improvement from Ecological Memory") +
               xlab("Annual Mean Temperature") +
               theme(text = element_text(size = 20)) +
-              ggtitle(label = paste0("SWAT Memory Improvement"),
+              ggtitle(label = paste0("SAWS Memory Improvement"),
                       subtitle=expression(paste("Pearson's r = 0.84, p-value = 0.017")))
 
-SWATCorPlot
+SAWSCorPlot
 
 # Write some text
 text = paste("Relationships between the relative memory improvement",
              "i.e. (SAM r^2 - Current r^2)/Current r^2",
-             "and climate metrics for the NATT, the SWAT, and all sites",
+             "and climate metrics for the NATT, the SAWS, and all sites",
              "combined. Solid lines indicate significance at p = 0.05",
              "levels, dashed lines indicate non-significance.",
              "Subtitles provide correlation coefficients",
@@ -457,13 +457,13 @@ get_legend<-function(myggplot){
   return(legend)
 }
 
-legend = get_legend(SWATCorPlot)
+legend = get_legend(SAWSCorPlot)
 
 AllCorPlot = AllCorPlot + theme(legend.position="none")
 NATTCorPlot = NATTCorPlot + theme(legend.position="none")
-SWATCorPlot = SWATCorPlot + theme(legend.position="none")
+SAWSCorPlot = SAWSCorPlot + theme(legend.position="none")
 
-figure = grid.arrange(AllCorPlot, NATTCorPlot, SWATCorPlot, text.p, legend,
+figure = grid.arrange(AllCorPlot, NATTCorPlot, SAWSCorPlot, text.p, legend,
                       layout_matrix = rbind(c(1,2), c(3,4),c(5,5)),
                        ncol = 2, 
                        nrow = 3,

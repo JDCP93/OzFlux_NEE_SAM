@@ -59,7 +59,7 @@ plot(AvgMonthData$month,AvgMonthData$Precip,type='l',main=paste(Site,"Precip"))
 #*******************************************************************************
 # Identifying the parameters and chains that haven't converged
 #*******************************************************************************
-
+library(coda)
 # For each chain
 for (i in 1:length(output.mcmc)){
   # Summarise the chain
@@ -108,7 +108,7 @@ for (i in 1:length(output.mcmc)){
 #*******************************************************************************  
 
   
-Sites = c("AU-ASM","AU-How","AU-GWW")
+Sites = c("AU-Gin","AU-Whr","AU-Wom")
 source("r2jags_analysis_RTPV.R")
 for (Site in Sites){
   r2jags_analysis_RTPV(Site)
@@ -191,6 +191,21 @@ Sites = c("AU-ASM"
           ,"AU-Wom"
 )
 
+Transects = c("NATT",
+              "SAWS",
+              "SAWS",
+              "NATT",
+              "NATT",
+              "SAWS",
+              "SAWS",
+              "NATT",
+              "NATT",
+              "NATT",
+              "SAWS",
+              "SAWS",
+              "SAWS"
+)
+
 Model = c("kmeanCur","kmeanPrecip","kmeanNDVI","SAMcur","SAMlag")
 
 R2 = data.frame("Site" = Sites,
@@ -217,8 +232,14 @@ for (Site in Sites){
   R2$R2.SAM = output$SAM.R2
 }
 
+# Significance tests between transects
 
+t.test(R2$R2.KMC[R2$Transect=="NATT"],R2$R2.KMC[R2$Transect=="SAWS"],alternative = "less")
+t.test(R2$R2.CUR[R2$Transect=="NATT"],R2$R2.CUR[R2$Transect=="SAWS"])
+t.test(R2$R2.SAM[R2$Transect=="NATT"],R2$R2.SAM[R2$Transect=="SAWS"])
+t.test((R2$R2.SAM[R2$Transect=="NATT"]-R2$R2.CUR[R2$Transect=="NATT"])/R2$R2.CUR[R2$Transect=="NATT"],(R2$R2.SAM[R2$Transect=="SAWS"]-R2$R2.CUR[R2$Transect=="SAWS"])/R2$R2.CUR[R2$Transect=="SAWS"])
 
+# Plotting
 df = data.frame("Site" = rep(Sites,5),
                 "Model" = rep(Model,each=13),
                 "Value" = c(R2$R2.KMC,R2$R2.KMP,R2$R2.KMN,R2$R2.Cur,R2$R2.SAM))
