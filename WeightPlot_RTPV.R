@@ -43,7 +43,7 @@ WeightPlot_RTPVS = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlon
   }
   
   # Let's load in the prior information
-  load("output/RTPV/NEE_output_RTPV_Prior_2021-02-17.Rdata")
+  load("output/RTPV/NEE_output_RTPV_Prior_2021-02-20.Rdata")
   output = summary(output$output.mcmc)
   assign("Prior",output)
   rm(output)

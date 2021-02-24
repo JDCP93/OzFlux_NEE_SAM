@@ -26,6 +26,7 @@ r2jags_analysis_RTPV <- function(Site){
   File = list.files("output/RTPV/",pattern = Site)
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
+  message("File is ",File[length(File)])
   load(paste0("output/RTPV/",File[length(File)]))
   
   # Source the necessary packages

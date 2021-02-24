@@ -39,8 +39,8 @@ message("Begin model run at ",Sys.time())
 
 # For some reason, jags.parallel errors "subscript out of bounds" when trying
 # to calculate a prior. As such, we use jags.model plus coda.samples.
-jags = jags.model("NEEModel_RTPV_r2jags.R", data=inputdata, n.chains=3, n.adapt=1000) 
-output = coda.samples(jags, n.iter=10000, n.burnin=1000, thin=100,
+jags = jags.model("NEEModel_RTPV_r2jags.R", data=inputdata, n.chains=6, n.adapt=100000) 
+output = coda.samples(jags, n.iter=1000000, n.burnin=100000, thin=1000,
                       variable.names=monitor_vars)
 
 
