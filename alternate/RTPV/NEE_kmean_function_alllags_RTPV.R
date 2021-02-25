@@ -107,7 +107,7 @@ climate = scale(climate[-(1:365),])
 NEE = input$NEE[-(1:365)]
 
 # Calculate indices to find recommended number of clusters
-cluster = NbClust(climate, min.nc = 2, max.nc = 5, method = "kmeans")
+cluster = NbClust(climate, min.nc = 2, max.nc = 50, method = "kmeans")
 k = getmode(cluster$Best.nc)
 
 # Find the cluster allocations for recommended number of clusters
