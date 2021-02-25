@@ -1,4 +1,4 @@
-WeightPlot_RTPVS = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT")){
+WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT")){
   
   # Source packages needed
   library(lubridate)
@@ -13,7 +13,7 @@ WeightPlot_RTPVS = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlon
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
-      r2jags_analysis(Site)
+      r2jags_analysis_RTPV(Site)
     }
   }
   message("Plotting weights for sites...")
