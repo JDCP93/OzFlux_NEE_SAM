@@ -151,16 +151,3 @@ output[["runtime"]] = runtime
 save(output,file = paste0("alternate/RTPV/results/NEE_output_kmean_alllags_RTPV_",Site,".Rdata"))
 
 }
-
-
-# # Initiliase cluster dataframe
-# df = data.frame("nCluster" = 1:50,
-#                 "withinss" = rep(NA,50))
-# 
-# # Perform k-clustering for 5n clusters up to 50 and compare within ss
-# for (i in 1:50){
-#   df[i,2] = kmeans(climate,i,iter.max = 25, nstart = 25)$tot.withinss
-# }
-# # Plot to find elbow point
-# plot(df[,1],df[,2])
-
