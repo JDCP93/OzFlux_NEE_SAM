@@ -44,10 +44,10 @@ output = list()
 for (i in 1:k){
   climate_cluster = climate[kmean.output$cluster==i,]
   NEE_cluster = NEE[kmean.output$cluster==i]
-  lin.mod = lm(NEE_cluster ~ climate_cluster)
+  lin.mod = lm(NEE_cluster ~ climate_cluster, na.action = na.exclude)
   r.squared = summary(lin.mod)$r.squared
   # Place the k-means fitted NEE into the data frame
-  compare$NEE_mod[kmean.output$cluster==i] = lin.mod$fitted.values
+  compare$NEE_mod[kmean.output$cluster==i] = fitted(lin.mod)
   # Assign and output the cluster info
   name = paste0("cluster_",i)
   assign(name,list("climate" = climate_cluster,
