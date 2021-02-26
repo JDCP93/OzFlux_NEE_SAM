@@ -60,6 +60,13 @@ plot(AvgMonthData$month,AvgMonthData$Precip,type='l',main=paste(Site,"Precip"))
 # Identifying the parameters and chains that haven't converged
 #*******************************************************************************
 library(coda)
+
+stochastic.params = c("phi0",
+                      "sig_y",
+                      sprintf("deltaXAP[%d]",seq(1:8)),
+                      sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)),
+                      sprintf("an[%d]",seq(1:16)),
+                      sprintf("ag[%d]",seq(1:16)))
 # For each chain
 for (i in 1:length(output.mcmc)){
   # Summarise the chain
