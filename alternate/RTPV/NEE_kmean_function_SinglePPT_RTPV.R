@@ -38,7 +38,7 @@ PPTLagName = c("14-20",
                "270-365")
 
 if (PPTLag %in% c(2,3,4,5,6,7,8)){
-  message("Performing k-means clustering with precip ",PPTLagDef[PPTLag-1]," at ",Site)
+  message("Performing k-means clustering with precip ",PPTLagDef[PPTLag-1]," for ",Site," at ",Sys.time())
 } else {
   stop("PPTLag must be an integer between 2 and 8 inclusive! Try again!")
 }

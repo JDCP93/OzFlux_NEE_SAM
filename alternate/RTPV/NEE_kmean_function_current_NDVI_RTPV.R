@@ -1,5 +1,5 @@
 
-NEE_allPPT_kmean_RTPV = function(Site){
+NEE_current_NDVI_kmean_RTPV = function(Site){
   
 # Load the required packages
 library(cluster)
@@ -13,26 +13,18 @@ getmode <- function(v) {
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
-message("Performing k-means clustering with all precip lags for ",Site," at ",Sys.time())
+message("Performing k-means clustering with NDVI and current climate for ",Site, " at ", Sys.time())
 # Load the input file and extract required data
 load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
 # Combine climate data and precip data
-climate = cbind(input$clim,input$ppt_multiscale)
+climate = cbind(input$clim,input$NDVI)
 colnames(climate) = c("Ta",
                       "Fsd",
                       "VPD",
                       "PPT",
-                      "PPT0",
-                      "PPT_14_20",
-                      "PPT_21_29",
-                      "PPT_30_59",
-                      "PPT_60_119",
-                      "PPT_120_179",
-                      "PPT_180_269",
-                      "PPT_270_365")
-# Remove PPT intercept
-climate = climate[,-c(5)]
+                      "NDVI")
+
 # Remove first year, which has no PPT data and scale
 climate = scale(climate[-(1:365),])
 NEE = input$NEE[-(1:365)]
@@ -76,6 +68,6 @@ for (i in 1:k){
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_mod))$r.squared
 output[["series"]] = compare
 
-save(output,file = paste0("alternate/RTPV/results/NEE_output_kmean_allPPT_RTPV_",Site,".Rdata"))
+save(output,file = paste0("alternate/RTPV/results/NEE_output_kmean_NDVI_RTPV_",Site,".Rdata"))
 
 }

@@ -105,7 +105,6 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
   CumWeights$Variable[CumWeights$Variable == "Fsd"] = "Shortwave Radiation"
   CumWeights$Variable[CumWeights$Variable == "Tair"] = "Air Temperature"
   CumWeights$Variable[CumWeights$Variable == "PPTshort"] = "Short-term Precipitation"
-  CumWeights$Variable[CumWeights$Variable == "SWC"] = "Antecedent + Current SWC"
   CumWeights$Variable[CumWeights$Variable == "PPTlong"] = "Long-term Precipitation"
   
   # Assign levels to Variable

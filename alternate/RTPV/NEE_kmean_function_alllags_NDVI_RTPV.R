@@ -1,5 +1,5 @@
 
-NEE_alllags_kmean_RTPV = function(Site){
+NEE_alllags_NDVI_kmean_RTPV = function(Site){
   
 # Load the required packages
 library(cluster)
@@ -15,7 +15,7 @@ getmode <- function(v) {
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
-message("Performing k-means clustering with all lags for ",Site," at ",Sys.time())
+message("Performing k-means clustering with NDVI and all lags for ",Site," at ",Sys.time())
 # Load the input file and extract required data
 load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
@@ -35,6 +35,7 @@ climate = cbind(input$clim,
                 rbind(matrix(NA,11,4),input$clim[-((climend-10):climend),]),
                 rbind(matrix(NA,12,4),input$clim[-((climend-11):climend),]),
                 rbind(matrix(NA,13,4),input$clim[-((climend-12):climend),]),
+                input$NDVI,
                 input$ppt_multiscale)
 colnames(climate) = c("Ta",
                       "Fsd",
@@ -92,6 +93,7 @@ colnames(climate) = c("Ta",
                       "Fsd_13",
                       "VPD_13",
                       "PPT_13",
+                      "NDVI",
                       "PPT0",
                       "PPT_14_20",
                       "PPT_21_29",
@@ -101,7 +103,7 @@ colnames(climate) = c("Ta",
                       "PPT_180_269",
                       "PPT_270_365")
 # Remove PPT intercept
-climate = climate[,-c(57)]
+climate = climate[,-c(58)]
 # Remove first year, which has no PPT data and scale
 climate = scale(climate[-(1:365),])
 NEE = input$NEE[-(1:365)]
@@ -148,6 +150,6 @@ output[["series"]] = compare
 
 runtime = Sys.time()-starttime
 output[["runtime"]] = runtime
-save(output,file = paste0("alternate/RTPV/results/NEE_output_kmean_alllags_RTPV_",Site,".Rdata"))
+save(output,file = paste0("alternate/RTPV/results/NEE_output_kmean_alllags_NDVI_RTPV_",Site,".Rdata"))
 
 }
