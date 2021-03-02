@@ -113,18 +113,18 @@ Sites = c("AU-ASM",
           "AU-Wom")
 
 Transect = c("NATT",
-              "SWAT",
-              "SWAT",
+              "SAWS",
+              "SAWS",
               "NATT",
               "NATT",
-              "SWAT",
-              "SWAT",
+              "SAWS",
+              "SAWS",
               "NATT",
               "NATT",
               "NATT",
-              "SWAT",
-              "SWAT",
-              "SWAT")
+              "SAWS",
+              "SAWS",
+              "SAWS")
 
 
 RelMem = c(0.09646399,
@@ -167,10 +167,10 @@ Corr = data.frame("Metric" = names(r),
                   "NATTRelCorr" = 0,
                   "NATTAbsPVal" = 0,
                   "NATTAbsCorr" = 0,
-                  "SWATRelPVal" = 0,
-                  "SWATRelCorr" = 0,
-                  "SWATAbsPVal" = 0,
-                  "SWATAbsCorr" = 0)
+                  "SAWSRelPVal" = 0,
+                  "SAWSRelCorr" = 0,
+                  "SAWSAbsPVal" = 0,
+                  "SAWSAbsCorr" = 0)
           
 for (i in 6:24){
   Corr$RelPVal[i-5] = cor.test(df[,i],RelMem,method = "spearman",exact = FALSE)$p.value
@@ -183,10 +183,10 @@ for (i in 6:24){
   Corr$NATTAbsPVal[i-5] = cor.test(df[df$Transect=="NATT",i],df$AbsMem[df$Transect=="NATT"],method = "pearson")$p.value
   Corr$NATTAbsCorr[i-5] = cor.test(df[df$Transect=="NATT",i],df$AbsMem[df$Transect=="NATT"],method = "pearson")$estimate
   
-  Corr$SWATRelPVal[i-5] = cor.test(df[df$Transect=="SWAT",i],df$RelMem[df$Transect=="SWAT"],method = "pearson")$p.value
-  Corr$SWATRelCorr[i-5] = cor.test(df[df$Transect=="SWAT",i],df$RelMem[df$Transect=="SWAT"],method = "pearson")$estimate
-  Corr$SWATAbsPVal[i-5] = cor.test(df[df$Transect=="SWAT",i],df$AbsMem[df$Transect=="SWAT"],method = "pearson")$p.value
-  Corr$SWATAbsCorr[i-5] = cor.test(df[df$Transect=="SWAT",i],df$AbsMem[df$Transect=="SWAT"],method = "pearson")$estimate
+  Corr$SAWSRelPVal[i-5] = cor.test(df[df$Transect=="SAWS",i],df$RelMem[df$Transect=="SAWS"],method = "pearson")$p.value
+  Corr$SAWSRelCorr[i-5] = cor.test(df[df$Transect=="SAWS",i],df$RelMem[df$Transect=="SAWS"],method = "pearson")$estimate
+  Corr$SAWSAbsPVal[i-5] = cor.test(df[df$Transect=="SAWS",i],df$AbsMem[df$Transect=="SAWS"],method = "pearson")$p.value
+  Corr$SAWSAbsCorr[i-5] = cor.test(df[df$Transect=="SAWS",i],df$AbsMem[df$Transect=="SAWS"],method = "pearson")$estimate
 }
 
 WorldClimCorr = Corr
