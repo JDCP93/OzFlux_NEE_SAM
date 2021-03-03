@@ -16,6 +16,7 @@
 *.zip
 *.grd
 *.gri
+*.tif
 *MCMCDiag*.jpg
 .DS_store
 results/

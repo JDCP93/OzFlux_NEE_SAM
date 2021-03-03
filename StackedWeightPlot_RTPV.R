@@ -1,4 +1,26 @@
-StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT")){
+StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT"),Metric= "AnnualPPT"){
+  
+  # Sort must be one of the following metrics available in the world clim data:
+  # "AnnualMeanTemp"   
+  # "MeanDiurnalRange" 
+  # "Isothermality"    
+  # "TempSeasonality" 
+  # "MaxTempHotMon"    
+  # "MinTempColdMon"   
+  # "TempAnnualRange"  
+  # "MeanTempWetQtr"   
+  # "MeanTempDryQtr"   
+  # "MeanTempHotQtr"   
+  # "MeanTempColdQtr"  
+  # "AnnualPPT"       
+  # "PPTWetMon"       
+  # "PPTDryMon"        
+  # "PPTSeasonality"   
+  # "PPTWetQtr"        
+  # "PPTDryQtr"        
+  # "PPTHotQtr"        
+  # "PPTColdQtr"      
+  
   
   # Source packages needed
   library(lubridate)
@@ -18,28 +40,12 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
   }
   message("Plotting weights for sites...")
   
-  # Initialise MAP dataframe
-  MAP = data.frame("Site"=Sites,
-                   "MAP"=rep(NA,length(Sites)))
-  
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
     File = list.files("analysis/RTPV/",pattern = paste0("analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",File))
     assign(Site,output)
     rm(output)
-    
-    # We also load the daily data to calculate MAP
-    load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
-    Input = eval(as.name(paste0(Site,"_Input")))
-    DailyData = Input$DailyData
-    DailyData$year = year(DailyData$TIMESTAMP)
-    
-    YearlyData <- DailyData %>%
-      group_by(year) %>%               # group by the year column
-      summarise(Precip=sum(Precip,na.rm=TRUE))
-    
-    MAP$MAP[MAP$Site==Site] = mean(YearlyData$Precip)
   }
   
 
@@ -99,9 +105,27 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
   # Assign levels to Variable
   CumWeights$Variable = factor(CumWeights$Variable,levels = sort(unique(CumWeights$Variable)))
   
-  # Order sites by MAP
-  MAP = MAP[order(MAP$MAP,decreasing = TRUE),]
-  CumWeights$Site = factor(CumWeights$Site,levels=MAP$Site)
+  # Summarise the weights
+  WeightSummary <- CumWeights %>%
+                    group_by(Site,Variable) %>%
+                    summarise(Median=median(Med,na.rm=TRUE),
+                              Range = nth(Med,13)-min(Med),
+                              Intercept = min(Med),
+                              IQR = IQR(Med))
+                  
+  # Order sites by chosen variable
+  load("SiteMetrics_worldclim_0.5res.Rdata")
+  metric = WorldClimMetrics[,c("Sites",Metric)]
+  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2])
+  CumWeights$Site = paste0(CumWeights$Site," - ",rep(metric[,2],each = nrow(CumWeights)/length(Sites)))
+  CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
+  
+  # Let's try and get a correlation between cumulative weights and metric
+  MedCorr = cor.test(WeightSummary$Median,WorldClimMetrics[,Metric])$estimate
+  RangeCorr = cor.test(WeightSummary$Range,WorldClimMetrics[,Metric])$estimate
+  InterceptCorr = cor.test(WeightSummary$Intercept,WorldClimMetrics[,Metric])$estimate
+  IQRCorr = cor.test(WeightSummary$IQR,WorldClimMetrics[,Metric])$estimate
+  nIQRCorr = cor.test((WeightSummary$IQR/WeightSummary$Median),WorldClimMetrics[,Metric])$estimate
   
   # Plot the sensitivity covariates
   library(ggplot2)
@@ -128,6 +152,12 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
     theme_bw() +
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +
-    guides(color = guide_legend(title = "MAP desc"))
+    guides(color = guide_legend(title = Metric)) +
+    ggtitle(round(sum(c(abs(MedCorr),abs(RangeCorr),abs(InterceptCorr),abs(IQRCorr),abs(nIQRCorr)),na.rm=TRUE),2),
+            subtitle = paste0("Md = ",round(MedCorr,2),
+                              ", Rg = ", round(RangeCorr,2),
+                             ", In = ",round(InterceptCorr,2),
+                             ", QR = ",round(IQRCorr,2),
+                              ", nQR = ", round(nIQRCorr,2)))
 }
 

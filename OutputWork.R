@@ -260,3 +260,69 @@ plot = ggplot(df,aes(x = Site,y = Value, fill = Model)) +
   theme_bw()
 
 plot
+
+
+
+
+#*******************************************************************************
+# Plotting stacked weights
+#*******************************************************************************
+
+
+rm(list=ls())
+# List sites
+Sites = c("AU-ASM"
+          ,"AU-Cpr"
+          ,"AU-Cum"
+          ,"AU-DaS"
+          ,"AU-Dry"
+          ,"AU-Gin"
+          ,"AU-GWW"
+          ,"AU-How"
+          ,"AU-Stp"
+          ,"AU-TTE"
+          ,"AU-Tum"
+          ,"AU-Whr"
+          ,"AU-Wom"
+)
+
+
+source("StackedWeightPlot_RTPV.R")
+
+
+# Metrics = c("AnnualMeanTemp",
+# "MeanDiurnalRange",
+# "Isothermality",
+# "TempSeasonality",
+# "MaxTempHotMon",
+# "MinTempColdMon",
+# "TempAnnualRange",
+# "MeanTempWetQtr",
+# "MeanTempDryQtr",
+# "MeanTempHotQtr",
+# "MeanTempColdQtr",
+# "AnnualPPT",
+# "PPTWetMon",
+# "PPTDryMon",
+# "PPTSeasonality",
+# "PPTWetQtr",
+# "PPTDryQtr",
+# "PPTHotQtr",
+# "PPTColdQtr")
+
+# for (Metric in Metrics){
+TairStacked = StackedWeightPlot_RTPV(Sites,Vars = "Tair",Metric = "PPTSeasonality")
+plot(TairStacked)
+Sys.sleep(3)
+PPTLongStacked = StackedWeightPlot_RTPV(Sites,Vars = "PPTlong",Metric = "AnnualPPT")
+plot(PPTLongStacked)
+Sys.sleep(3)
+VPDStacked = StackedWeightPlot_RTPV(Sites,Vars = "VPD",Metric = "MeanDiurnalRange")
+plot(VPDStacked)
+Sys.sleep(3)
+RadStacked = StackedWeightPlot_RTPV(Sites,Vars = "Fsd",Metric = "MeanDiurnalRange")
+plot(RadStacked)
+Sys.sleep(3)
+
+# }
+
