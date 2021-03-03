@@ -39,9 +39,9 @@ OzFluxProcess_noSWC = function(Site){
   library(ncdf4)
   # Load in the OzFlux data we need:
   # Look in folder "Site_raw_data" for the data
-  File = list.files("Site_data_v2",pattern = Site)
+  File = list.files("Site_data",pattern = Site)
   # Read the data into R 
-  NCDF = nc_open(paste0("Site_data_v2/",File))
+  NCDF = nc_open(paste0("Site_data/",File))
   # Change timestamps into dates
   TIMESTAMP = ncvar_get(NCDF,"time")
   # Convert time into datetimes
