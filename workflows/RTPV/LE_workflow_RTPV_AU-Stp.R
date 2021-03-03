@@ -17,7 +17,7 @@ monitor_vars <- c("an", "ag", "phi0", "deltaXA", "weightA", "weightAP", "deltaXA
 
 # Load the site inputs
 load('./inputs/RTPV/LE/AU-Stp_input_LE_RTPV.Rdata') 
-data = `AU-Stp_Input`
+data = `AU-Stp_input`
 inputdata = list("Nv"=data$Nv,
                  "Ns"=data$Ns,
                  "Nlag"=data$Nlag,
