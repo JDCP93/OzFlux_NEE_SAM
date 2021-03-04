@@ -23,11 +23,11 @@ r2jags_analysis_current_RTPV <- function(Site){
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("output/RTPV/",pattern = paste0("current_output_RTPV_",Site))
+  File = list.files("output/RTPV/",pattern = paste0("NEE_current_output_RTPV_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
   message("File is ",File[length(File)])
-  load(paste0("output/RTPV//",File[length(File)]))
+  load(paste0("output/RTPV/",File[length(File)]))
   
   # Source the necessary packages
   library(coda)
@@ -39,7 +39,7 @@ r2jags_analysis_current_RTPV <- function(Site){
   library(lubridate)
   library(magrittr)
   library(zoo)
-  source('DBDA2E-utilities.R')
+  source('functions/DBDA2E-utilities.R')
   
   # ##################
   # Convergence checks
@@ -236,10 +236,9 @@ r2jags_analysis_current_RTPV <- function(Site){
   rownames(ESen) = c("Tair",
                      "Fsd",
                      "VPD",
-                     "curSWC",
-                     "antSWC",
-                     "Precip",
-                     "SWC")
+                     "PPTshort",
+                     "PPTlong",
+                     "Precip")
   
   # Extract cumulative weights
   # Define params
