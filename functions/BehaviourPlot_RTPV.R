@@ -57,3 +57,6 @@ state.df = data.frame("State" = rep(c("Growing","Dormant"), each = 16),
                       "Low" = c(agLow,anLow),
                       "Med" = c(agMedian,anMedian),
                       "High" = c(agHigh,anHigh))
+
+state.df["Significant"] = "No"
+state.df[(sign(state.df$Low*state.df$High)==1),"Significant"] = "Yes"
