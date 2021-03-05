@@ -1,4 +1,4 @@
-r2jags_analysis_AR1 <- function(Site){
+NEE_analysis_AR1 <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 

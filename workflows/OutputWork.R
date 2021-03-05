@@ -101,8 +101,8 @@ for (i in 1:length(output.mcmc)){
   
   rm(list=ls())
   
-  source("SensitivityPlot_RTPVS.R")
-  source("WeightPlot_RTPVS.R")
+  source("functions/SensitivityPlot_RTPVS.R")
+  source("functions/WeightPlot_RTPVS.R")
   Sites = c("AU-ASM","AU-Cum","AU-Cpr","AU-DaS","AU-Dry","AU-Gin","AU-GWW","AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
   ESenPlot = SensitivityPlot_RTPVS(Sites,c("Precip"))
   WeightPlot = WeightPlot_RTPVS(Sites,c("Precip"))
@@ -116,9 +116,9 @@ for (i in 1:length(output.mcmc)){
 
   
 Sites = c("AU-Gin","AU-Whr","AU-Wom")
-source("r2jags_analysis_RTPV.R")
+source("functions/NEE_analysis_function_RTPV.R")
 for (Site in Sites){
-  r2jags_analysis_RTPV(Site)
+  NEE_analysis_RTPV(Site)
 }
 
 #*******************************************************************************
@@ -126,7 +126,7 @@ for (Site in Sites){
 #*******************************************************************************
 
 rm(list=ls())
-source("r2jags_analysis_AR1.R")
+source("functions/NEE_analysis_function_AR1_RTPVS.R")
 Sites = c(#"AU-ASM"
           #,"AU-Cpr"
           #,"AU-Cum"
@@ -140,7 +140,7 @@ Sites = c(#"AU-ASM"
           ,"AU-Whr"
           ,"AU-Wom")
 for (Site in Sites){
-  r2jags_analysis_AR1(Site)
+  NEE_analysis_AR1(Site)
 }
 
 
@@ -287,7 +287,7 @@ Sites = c("AU-ASM"
 )
 
 
-source("StackedWeightPlot_RTPV.R")
+source("functions/StackedWeightPlot_RTPV.R")
 
 
 # Metrics = c("AnnualMeanTemp",
@@ -326,3 +326,7 @@ Sys.sleep(3)
 
 # }
 
+
+
+source("functions/NEE_analysis_function_current_RTPV.R")
+NEE_analysis_current_RTPV("AU-TTE")

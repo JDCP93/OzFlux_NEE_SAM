@@ -1,4 +1,4 @@
-NEE_analysis_RTPV <- function(Site){
+NEE_analysis_current_RTPV <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
@@ -19,11 +19,11 @@ NEE_analysis_RTPV <- function(Site){
   # ##################
   
   # Let the user know which site the function is looking at
-  message("*** Analysing R2jags output for ",Site," ***")
+  message("*** Analysing current R2jags output for ",Site," ***")
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("output/RTPV/",pattern = Site)
+  File = list.files("output/RTPV/",pattern = paste0("NEE_current_output_RTPV_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
   message("File is ",File[length(File)])
@@ -39,7 +39,7 @@ NEE_analysis_RTPV <- function(Site){
   library(lubridate)
   library(magrittr)
   library(zoo)
-  source('DBDA2E-utilities.R')
+  source('functions/DBDA2E-utilities.R')
   
   # ##################
   # Convergence checks
@@ -48,11 +48,11 @@ NEE_analysis_RTPV <- function(Site){
   # List the "fundamental" parameters - e.g. those that are assigned priors and
   # are not a function of other parameters. Stochastic parameters? Maybe.
   stochastic.params = c("phi0",
-                       "sig_y",
-                       sprintf("deltaXAP[%d]",seq(1:8)),
-                       sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)),
-                       sprintf("an[%d]",seq(1:16)),
-                       sprintf("ag[%d]",seq(1:16)))
+                        "sig_y",
+                        sprintf("deltaXAP[%d]",seq(1:8)),
+                        sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)),
+                        sprintf("an[%d]",seq(1:16)),
+                        sprintf("ag[%d]",seq(1:16)))
 
   # Convert output to an mcmc object
   # Either take the object already saved as an mcmc object for the current 
@@ -64,15 +64,6 @@ NEE_analysis_RTPV <- function(Site){
     output.mcmc = as.mcmc.rjags(output)
   }
   rm(output)
-  
-  # Produce plots of each parameter to assess convergence.
-  for (param in stochastic.params){
-    # Output the variable
-    print(param)
-    diagMCMC(output.mcmc,param,saveName = paste0(Site,"_RTPV_",Sys.Date()))
-    Sys.sleep(1)
-    graphics.off()
-  }
   
   message("Running Gelman Diagnostics for ",Site)
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
@@ -98,7 +89,6 @@ NEE_analysis_RTPV <- function(Site){
   # See which parameters are way below 10,000 ESS
   ESS.Fail = ESS[ESS<10000] # & names(ESS) %in% stochastic.params]
   
-  
   message("Running Geweke Diagnostics for ",Site)
   # We calculate the Geweke diagnostic - this should fall within the confidence 
   # bounds of -2 and 2. 
@@ -114,8 +104,8 @@ NEE_analysis_RTPV <- function(Site){
   # ##################
   # Model Performance
   # ##################
-  
   message("Running Model Performance for ",Site)
+  
   # Load the observations
   name = paste0(Site,"_Input")
   load(paste0("inputs/RTPV/",name,"_RTPV.Rdata"))
@@ -225,17 +215,12 @@ NEE_analysis_RTPV <- function(Site){
     theme_bw()
   
   # Calculate the r squared value for the SAM model
-  SAM.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
-  Phi = summary$statistics["phi0",]
-  SAM.MBE = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
-  SAM.NME = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
-  SAM.SDD = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
-  SAM.CCO = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
+  CUR.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
   
   # Extract climate sensitivities
   
   # Define params
-  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:6)))
+  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:7)))
   # Extract 2.5%, median and 97.5%
   ESenMedian = summary$statistics[rownames(summary$statistics) %in% SensitivityCovariates,1]
   ESenLow = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,1]
@@ -247,11 +232,11 @@ NEE_analysis_RTPV <- function(Site){
                      "VPD",
                      "PPTshort",
                      "PPTlong",
-                     "PPT")
+                     "Precip")
   
   # Extract cumulative weights
   # Define params
-  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:4,14),rep(1:14,each=4)),
+  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:5,14),rep(1:14,each=5)),
                       sprintf("cum_weightAP[%d]",seq(1:8)))
   # Extract 2.5%, median and 97.5%
   WeightsMedian = summary$statistics[rownames(summary$statistics) %in% CumWeightParams,1]
@@ -270,16 +255,11 @@ NEE_analysis_RTPV <- function(Site){
   output = list("Gelman.Fail" = Gelman.Fail,
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
-                "SAM.R2" = SAM.R2,
-                "SAM.MBE" = SAM.MBE,
-                "SAM.NME" = SAM.NME,
-                "SAM.SDD" = SAM.SDD,
-                "SAM.CCO" = SAM.CCO,
+                "CUR.R2" = CUR.R2,
                 "df" = df,
                 "ESen" = ESen,
-                "CumWeights" = CumWeights,
-                "Phi0" = Phi)
+                "CumWeights" = CumWeights)
   
-  save(output,file = paste0("NEE_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("NEE_current_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
 

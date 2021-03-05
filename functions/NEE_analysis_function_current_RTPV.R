@@ -1,4 +1,4 @@
-r2jags_analysis_current_RTPV <- function(Site){
+NEE_analysis_current_RTPV <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
@@ -63,6 +63,7 @@ r2jags_analysis_current_RTPV <- function(Site){
   }else{
     output.mcmc = as.mcmc.rjags(output)
   }
+  rm(output)
   
   # Produce plots of each parameter to assess convergence.
   for (param in stochastic.params){
@@ -73,6 +74,7 @@ r2jags_analysis_current_RTPV <- function(Site){
     graphics.off()
   }
   
+  message("Running Gelman Diagnostics for ",Site)
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
   # I think it's the shrink factor or something lol
   Gelman = gelman.diag(output.mcmc,multivariate=FALSE)
@@ -83,6 +85,7 @@ r2jags_analysis_current_RTPV <- function(Site){
   # value - we should exclude these
   Gelman.Fail = Gelman.Fail[complete.cases(Gelman.Fail),]
   
+  message("Running Effective Sample Size for ",Site)
   # We find the effective sample size for each parameter
   ESS.raw = effectiveSize(output.mcmc)
   # Where parameters are forced to 0, then the ESS is also 0. Therefore we exclude
@@ -95,8 +98,7 @@ r2jags_analysis_current_RTPV <- function(Site){
   # See which parameters are way below 10,000 ESS
   ESS.Fail = ESS[ESS<10000] # & names(ESS) %in% stochastic.params]
   
-  
-  
+  message("Running Geweke Diagnostics for ",Site)
   # We calculate the Geweke diagnostic - this should fall within the confidence 
   # bounds of -2 and 2. 
   Geweke = geweke.diag(output.mcmc)
@@ -111,6 +113,7 @@ r2jags_analysis_current_RTPV <- function(Site){
   # ##################
   # Model Performance
   # ##################
+  message("Running Model Performance for ",Site)
   
   # Load the observations
   name = paste0(Site,"_Input")
