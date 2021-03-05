@@ -327,6 +327,30 @@ Sys.sleep(3)
 # }
 
 
+#*******************************************************************************
+# Plotting an vs ag behaviour
+#*******************************************************************************
+rm(list=ls())
+# List all sites
+Sites = c("AU-ASM"
+          ,"AU-Cpr"
+          ,"AU-Cum"
+          ,"AU-DaS"
+          ,"AU-Dry"
+          ,"AU-Gin"
+          ,"AU-GWW"
+          ,"AU-How"
+          ,"AU-Stp"
+          ,"AU-TTE"
+          ,"AU-Tum"
+          ,"AU-Whr"
+          ,"AU-Wom")
 
-source("functions/NEE_analysis_function_current_RTPV.R")
-NEE_analysis_current_RTPV("AU-TTE")
+source("functions/BehaviourPlot_RTPV.R")
+
+df = data.frame()
+
+for (Site in Sites){
+  output = Behaviour_RTPV(Site)
+  df = rbind(df,output$df)
+}
