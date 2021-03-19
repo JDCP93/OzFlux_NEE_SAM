@@ -49,10 +49,11 @@ NEE_analysis_current_RTPV <- function(Site){
   # are not a function of other parameters. Stochastic parameters? Maybe.
   stochastic.params = c("phi0",
                         "sig_y",
-                        sprintf("deltaXAP[%d]",seq(1:8)),
-                        sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)),
                         sprintf("an[%d]",seq(1:16)),
-                        sprintf("ag[%d]",seq(1:16)))
+                        sprintf("ag[%d]",seq(1:16)),
+                        sprintf("deltaXAP[%d]",seq(1:8)),
+                        sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4))
+                        )
 
   # Convert output to an mcmc object
   # Either take the object already saved as an mcmc object for the current 

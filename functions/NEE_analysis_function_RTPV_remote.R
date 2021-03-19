@@ -1,4 +1,4 @@
-r2jags_analysis_RTPV <- function(Site){
+NEE_analysis_RTPV <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
@@ -23,9 +23,10 @@ r2jags_analysis_RTPV <- function(Site){
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("output/RTPV/",pattern = Site)
+  File = list.files("output/RTPV/",pattern = paste0("NEE_output_RTPV_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
+  message("File is ",File[length(File)])
   load(paste0("output/RTPV/",File[length(File)]))
   
   # Source the necessary packages
@@ -269,6 +270,7 @@ r2jags_analysis_RTPV <- function(Site){
                 "ESen" = ESen,
                 "CumWeights" = CumWeights,
                 "Phi0" = Phi)
+  
   save(output,file = paste0("NEE_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
 

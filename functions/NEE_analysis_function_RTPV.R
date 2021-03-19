@@ -23,7 +23,7 @@ NEE_analysis_RTPV <- function(Site){
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("output/RTPV/",pattern = paste0("NEE_output_RTPV",Site))
+  File = list.files("output/RTPV/",pattern = paste0("NEE_output_RTPV_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
   message("File is ",File[length(File)])
@@ -39,7 +39,7 @@ NEE_analysis_RTPV <- function(Site){
   library(lubridate)
   library(magrittr)
   library(zoo)
-  source('DBDA2E-utilities.R')
+  source('functions/DBDA2E-utilities.R')
   
   # ##################
   # Convergence checks
@@ -49,10 +49,10 @@ NEE_analysis_RTPV <- function(Site){
   # are not a function of other parameters. Stochastic parameters? Maybe.
   stochastic.params = c("phi0",
                        "sig_y",
-                       sprintf("deltaXAP[%d]",seq(1:8)),
-                       sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)),
                        sprintf("an[%d]",seq(1:16)),
-                       sprintf("ag[%d]",seq(1:16)))
+                       sprintf("ag[%d]",seq(1:16)),
+                       sprintf("deltaXAP[%d]",seq(1:8)),
+                       sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)))
 
   # Convert output to an mcmc object
   # Either take the object already saved as an mcmc object for the current 
