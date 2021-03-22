@@ -41,8 +41,8 @@ output <- jags.parallel(model.file = 'LEModel_RTPV_r2jags.R',
                             parameters.to.save = monitor_vars,
                             data = inputdata,
                             n.chains = 6, 
-                            n.burnin = 100000, 
-                            n.iter = 500000,
+                            n.burnin = 500000, 
+                            n.iter = 1000000,
                             jags.module = c('glm','dic'),
                             n.thin = 50)
 
