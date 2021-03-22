@@ -35,6 +35,8 @@ if (class(output) == "list"){
 }
 rm(output)
 
+output.mcmc = as.mcmc.list(output.mcmc)
+
 message("Extracting observed NEE at ",Sys.time())
 # Extract predicted and observed NEE
 summary = summary(output.mcmc)
