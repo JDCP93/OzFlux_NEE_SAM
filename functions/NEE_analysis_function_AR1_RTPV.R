@@ -40,6 +40,7 @@ NEE_analysis_AR1_RTPV <- function(Site){
   library(lubridate)
   library(magrittr)
   library(zoo)
+  source('functions/DBDA2E-utilities.R')
   
   # ##################
   # Convergence checks
@@ -60,7 +61,14 @@ NEE_analysis_AR1_RTPV <- function(Site){
   }
   rm(AR1)
 
-  
+  # Produce plots of each parameter to assess convergence.
+  for (param in stochastic.params){
+    # Output the variable
+    print(param)
+    diagMCMC(AR1.mcmc,param,saveName = paste0(Site,"_AR1_",Sys.Date()))
+    Sys.sleep(1)
+    graphics.off()
+  }
   
   message("Running Gelman diagnostics for ", Site)
   # We find the Gelman diagnostic (it has a proper name but I'm a hack)
@@ -134,7 +142,7 @@ NEE_analysis_AR1_RTPV <- function(Site){
   if (class(SAM) == "list"){
     SAM.mcmc = SAM$output.mcmc
   }else{
-    SAM..mcmc = as.mcmc.rjags(SAM)
+    SAM.mcmc = as.mcmc.rjags(SAM)
   }
   rm(SAM)
   
