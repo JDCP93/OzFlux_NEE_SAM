@@ -1,4 +1,4 @@
-Behaviour_RTPV = function(Site){
+NEE_Behaviour_RTPV = function(Site){
 
   
   # Let the user know which site the function is looking at
