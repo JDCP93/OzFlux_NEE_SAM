@@ -203,7 +203,7 @@ for (Site in Sites){
     plot.df$R2[plot.df$Site == Site & plot.df$Lag == "AllLags" & plot.df$NDVI == "Veg"] = output$r.squared
   }
   
-  file = list.files("analysis/RTPV/",pattern = Site)
+  file = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
   load(paste0("analysis/RTPV/",file))
   plot.df$R2[plot.df$Site == Site & plot.df$Lag == "SAM" & plot.df$NDVI == "Veg"] = output$SAM.R2
   

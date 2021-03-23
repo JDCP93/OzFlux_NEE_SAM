@@ -42,7 +42,7 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
   
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
-    File = list.files("analysis/RTPV/",pattern = paste0("analysis_RTPV_",Site))
+    File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",File))
     assign(Site,output)
     rm(output)

@@ -216,26 +216,29 @@ Transects = c("NATT",
 Model = c("kmeanCur","kmeanPrecip","kmeanNDVI","SAMcur","SAMlag")
 
 R2 = data.frame("Site" = Sites,
-                "R2.KMP" = 0,
+                #"R2.KMP" = 0,
                 "R2.KMC" = 0,
                 "R2.KMN" = 0,
                 "R2.Cur" = 0,
-                "R2.SAM" = 0)
+                "R2.SAM" = 0,
+                "R2.AR1" = 0)
 
 # For each site
 for (Site in Sites){
   # Collect the R2 values from the analysis scripts
   message("Collating k-means R2 values for ",Site)
   # Load the analysis results
-  load(paste0("alternate/RTPVS/results/NEE_output_kmean_RTPVS_",Site,".Rdata"))
-  R2$R2.KMP[R2$Site==Site] = output$r.squared
-  load(paste0("alternate/RTPVS/results/NEE_output_kmean_current_RTPVS_",Site,".Rdata"))
+  #load(paste0("alternate/RTPV/results/NEE_output_kmean_RTPV_",Site,".Rdata"))
+  #R2$R2.KMP[R2$Site==Site] = output$r.squared
+  load(paste0("alternate/RTPV/results/NEE_output_kmean_current_RTPV_",Site,".Rdata"))
   R2$R2.KMC[R2$Site==Site] = output$r.squared
-  load(paste0("alternate/RTPVS/results/NEE_output_kmean_currentNDVI_RTPVS_",Site,".Rdata"))
+  load(paste0("alternate/RTPV/results/NEE_output_kmean_currentNDVI_RTPV_",Site,".Rdata"))
   R2$R2.KMN[R2$Site==Site] = output$r.squared
-  load(paste0("analysis/RTPVS/NEE_current_Analysis_RTPVS_",Site,".Rdata"))
+  load(paste0("analysis/RTPV/NEE_current_analysis_RTPV_",Site,".Rdata"))
   R2$R2.Cur = output$CUR.R2
-  load(paste0("analysis/RTPVS/NEE_Analysis_RTPVS_",Site,".Rdata"))
+  load(paste0("analysis/RTPV/NEE_analysis_RTPV_",Site,".Rdata"))
+  R2$R2.SAM = output$SAM.R2
+  load(paste0("analysis/RTPV/NEE_AR1_analysis_RTPV_",Site,".Rdata"))
   R2$R2.SAM = output$SAM.R2
 }
 
