@@ -1,5 +1,5 @@
 
-NEE_singlePPT_kmean_RTPV = function(Site,k,PPTLag = 2){
+NEE_singlePPT_NDVI_variable_kmean_RTPV = function(Site,PPTLag = 2){
   
 # Function to run k-means clustering for each of the individual PPT lags
 # Inputs:
@@ -38,24 +38,36 @@ PPTLagName = c("14-20",
                "270-365")
 
 if (PPTLag %in% c(2,3,4,5,6,7,8)){
-  message("Performing k-means clustering with precip ",PPTLagDef[PPTLag-1]," for ",Site," at ",Sys.time())
+  message("Performing k-means clustering with NDVI and precip ",PPTLagDef[PPTLag-1]," for ",Site," at ",Sys.time())
 } else {
   stop("PPTLag must be an integer between 2 and 8 inclusive! Try again!")
 }
+
+# Define a function to find the mode so we can identify the best number of clusters
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
 
 # Load the input file and extract required data
 load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
 # Combine climate data and precip data
-climate = cbind(input$clim,input$ppt_multiscale[,PPTLag])
+climate = cbind(input$clim,input$NDVI,input$ppt_multiscale[,PPTLag])
 colnames(climate) = c("Ta",
                       "Fsd",
                       "VPD",
                       "PPT",
+                      "NDVI",
                       "PPT_lag")
 # Remove first year, which has no PPT data and scale
 climate = scale(climate[-(1:365),])
 NEE = input$NEE[-(1:365)]
+
+# Calculate indices to find recommended number of clusters
+cluster = NbClust(data = climate, min.nc = 2, max.nc = 25, method = "kmeans")
+k = getmode(cluster$Best.nc)
 
 # Find the cluster allocations for recommended number of clusters
 kmean.output = kmeans(climate,k,iter.max = 25, nstart = 25)
@@ -92,6 +104,6 @@ for (i in 1:k){
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_mod))$r.squared
 output[["series"]] = compare
 
-save(output,file = paste0("alternate/RTPV/results/NEE_output_",k,"cluster_kmean_PPT",PPTLagName[PPTLag-1],"_RTPV_",Site,".Rdata"))
+save(output,file = paste0("alternate/RTPV/results/NEE_output_kmean_PPT",PPTLagName[PPTLag-1],"_NDVI_RTPV_",Site,".Rdata"))
 
 }

@@ -1,61 +1,45 @@
 
-NEE_singlePPT_kmean_RTPV = function(Site,k,PPTLag = 2){
-  
-# Function to run k-means clustering for each of the individual PPT lags
-# Inputs:
-#       Site = OzFlux Site Code
-#       PPTLag = integer between 2 and 8
-#                   2 = Lag of 14 to 20 days
-#                   3 = Lag of 21 to 29 days
-#                   4 = Lag of 30 to 59 days
-#                   5 = Lag of 60 to 119 days
-#                   6 = Lag of 120 to 179 days
-#                   7 = Lag of 180 to 269 days
-#                   8 = Lag of 270 to 365 days
+NEE_allPPT_variable_kmean_RTPV = function(Site){
   
 # Load the required packages
 library(cluster)
 library(tidyverse)
 library(factoextra)
 library(NbClust)
-  
-# Check that PPTLag is correct
-PPTLagDef = c("lag of 14 to 20 days",
-              "lag of 21 to 29 days",
-              "lag of 30 to 59 days",
-              "lag of 60 to 119 days",
-              "lag of 120 to 179 days",
-              "lag of 180 to 269 days",
-              "lag of 270 to 365 days")
 
-# Check that PPTLag is correct
-PPTLagName = c("14-20",
-               "21-29",
-               "30-59",
-               "60-119",
-               "120-179",
-               "180-269",
-               "270-365")
-
-if (PPTLag %in% c(2,3,4,5,6,7,8)){
-  message("Performing k-means clustering with precip ",PPTLagDef[PPTLag-1]," for ",Site," at ",Sys.time())
-} else {
-  stop("PPTLag must be an integer between 2 and 8 inclusive! Try again!")
+# Define a function to find the mode so we can identify the best number of clusters
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
+message("Performing k-means clustering with all precip lags for ",Site," at ",Sys.time())
 # Load the input file and extract required data
 load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
 # Combine climate data and precip data
-climate = cbind(input$clim,input$ppt_multiscale[,PPTLag])
+climate = cbind(input$clim,input$ppt_multiscale)
 colnames(climate) = c("Ta",
                       "Fsd",
                       "VPD",
                       "PPT",
-                      "PPT_lag")
+                      "PPT0",
+                      "PPT_14_20",
+                      "PPT_21_29",
+                      "PPT_30_59",
+                      "PPT_60_119",
+                      "PPT_120_179",
+                      "PPT_180_269",
+                      "PPT_270_365")
+# Remove PPT intercept
+climate = climate[,-c(5)]
 # Remove first year, which has no PPT data and scale
 climate = scale(climate[-(1:365),])
 NEE = input$NEE[-(1:365)]
+
+# Calculate indices to find recommended number of clusters
+cluster = NbClust(climate, min.nc = 2, max.nc = 25, method = "kmeans")
+k = getmode(cluster$Best.nc)
 
 # Find the cluster allocations for recommended number of clusters
 kmean.output = kmeans(climate,k,iter.max = 25, nstart = 25)
@@ -92,6 +76,6 @@ for (i in 1:k){
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_mod))$r.squared
 output[["series"]] = compare
 
-save(output,file = paste0("alternate/RTPV/results/NEE_output_",k,"cluster_kmean_PPT",PPTLagName[PPTLag-1],"_RTPV_",Site,".Rdata"))
+save(output,file = paste0("alternate/RTPV/results/NEE_output_kmean_allPPT_RTPV_",Site,".Rdata"))
 
 }
