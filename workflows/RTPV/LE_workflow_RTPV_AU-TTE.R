@@ -41,10 +41,10 @@ output <- jags.parallel(model.file = 'LEModel_RTPV_r2jags.R',
                             parameters.to.save = monitor_vars,
                             data = inputdata,
                             n.chains = 6, 
-                            n.burnin = 500000, 
-                            n.iter = 1000000,
+                            n.burnin = 1000000, 
+                            n.iter = 2000000,
                             jags.module = c('glm','dic'),
-                            n.thin = 50)
+                            n.thin = 100)
 
 message("Save model output at ",Sys.time())
 # Transform output into mcmc object to save space
