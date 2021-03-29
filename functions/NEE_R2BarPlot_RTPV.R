@@ -1,8 +1,4 @@
-
-# Make sure everything is clean
-rm(list=ls())
-
-NEE_R2BarPlot_RTPV = function(Sites,Transects,Metric,Clusters){
+NEE_R2BarPlot_RTPV = function(Sites,Transects,Metric,Clusters = 0){
 
 
 # Load the required packages
@@ -39,19 +35,20 @@ for (Site in Sites){
   File = list.files("analysis/RTPV/",pattern = paste0("NEE_AR1_analysis_RTPV_",Site))
   load(paste0("analysis/RTPV/",File))
   R2$R2.AR1[R2$Site==Site] = output$AR1.R2
-  
+  if (Clusters > 0){
   load(paste0("alternate/RTPV/results/NEE_output_",Clusters,"cluster_kmean_current_NDVI_RTPV_",Site,".Rdata"))
   R2$R2.KMN[R2$Site==Site] = output$r.squared
   
   load(paste0("alternate/RTPV/results/NEE_output_",Clusters,"cluster_kmean_current_RTPV_",Site,".Rdata"))
   R2$R2.KMC[R2$Site==Site] = output$r.squared
+  } else {
+    R2$R2.KMN = 0
+    R2$R2.KMC = 0
+  }
 }
 
 # Source worldclim correlations and climate metrics
 load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
-WorldClimMetrics = WorldClimMetrics[-13,]
-
-
 
 # Plot the data!
 # Create the plot dataframe
@@ -94,6 +91,10 @@ for(site in Sites){
   Fig$Value[Fig$Site==site][1:4] = rev(diff(rev(Fig$Value[Fig$Site==site])))
 }
 
+if (Clusters == 0){
+  Fig = Fig[!(Fig$Model %in% c("Current Environment (k-means with no NDVI)",
+                              "Current Environment (k-means with NDVI)")),]
+}
 
 # Plot for every site based on coefficient of variation of daily temperature
 Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site,group = ValueFactor)) +
@@ -112,41 +113,3 @@ Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site,group = ValueFactor)) +
 Plot
 
 }
-
-
-# List all sites
-Sites = c("AU-ASM"
-          ,"AU-Cpr"
-          ,"AU-Cum"
-          ,"AU-DaS"
-          ,"AU-Dry"
-          ,"AU-Gin"
-          ,"AU-GWW"
-          ,"AU-How"
-          ,"AU-Stp"
-          ,"AU-TTE"
-          ,"AU-Tum"
-          ,"AU-Whr"
-          # ,"AU-Wom"
-)
-
-Transects = c("NATT",
-              "SAWS",
-              "SAWS",
-              "NATT",
-              "NATT",
-              "SAWS",
-              "SAWS",
-              "NATT",
-              "NATT",
-              "NATT",
-              "SAWS",
-              "SAWS"
-              # "SAWS"
-)
-
-Metric = "PPTSeasonality"
-
-Plot = NEE_R2BarPlot_RTPV(Sites,Transects,Metric)
-
-Plot

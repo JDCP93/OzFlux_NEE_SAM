@@ -357,3 +357,48 @@ for (Site in Sites){
   output = Behaviour_RTPV(Site)
   df = rbind(df,output$df)
 }
+
+#*******************************************************************************
+# Bar plot!
+#*******************************************************************************
+
+
+rm(list=ls())
+
+# List all sites
+Sites = c("AU-ASM"   #1
+          ,"AU-Cpr"  #2
+          ,"AU-Cum"  #3
+          ,"AU-DaS"  #4
+          ,"AU-Dry"  #5
+          ,"AU-Gin"  #6
+          ,"AU-GWW"  #7
+          ,"AU-How"  #8
+          ,"AU-Stp"  #9
+          ,"AU-TTE"  #10
+          ,"AU-Tum"  #11
+          ,"AU-Whr"  #12
+          ,"AU-Wom") #13
+
+source("functions/NEE_R2BarPlot_RTPV.R")
+
+Transects = c("NATT",
+              "SAWS",
+              "SAWS",
+              "NATT",
+              "NATT",
+              "SAWS",
+              "SAWS",
+              "NATT",
+              "NATT",
+              "NATT",
+              "SAWS",
+              "SAWS",
+              "SAWS"
+)
+
+Metric = "AnnualPPT"
+
+Plot = NEE_R2BarPlot_RTPV(Sites,Transects,Metric, Clusters = 0)
+
+Plot

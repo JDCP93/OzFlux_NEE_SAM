@@ -52,7 +52,7 @@ source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_alllags_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
 
-k = 8
+k = 2
 # Calculate the values for the variable functions
 for (Site in Sites){
   NEE_current_kmean_RTPV(Site,k)
