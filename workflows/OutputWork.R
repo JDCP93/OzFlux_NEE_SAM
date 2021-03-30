@@ -273,61 +273,91 @@ plot
 
 
 rm(list=ls())
+dev.off()
 # List sites
 Sites = c("AU-ASM"
-          ,"AU-Cpr"
-          ,"AU-Cum"
-          ,"AU-DaS"
-          ,"AU-Dry"
-          ,"AU-Gin"
-          ,"AU-GWW"
-          ,"AU-How"
-          ,"AU-Stp"
-          ,"AU-TTE"
-          ,"AU-Tum"
-          ,"AU-Whr"
-          ,"AU-Wom"
+         ,"AU-Cpr"
+         ,"AU-Cum"
+         ,"AU-DaS"
+         ,"AU-Dry"
+         ,"AU-Gin"
+         ,"AU-GWW"
+         ,"AU-How"
+         ,"AU-Stp"
+         ,"AU-TTE"
+         ,"AU-Tum"
+         ,"AU-Whr"
+         ,"AU-Wom"
+)
+
+NATT = c("AU-ASM"
+        ,"AU-DaS"
+        ,"AU-Dry"
+        ,"AU-How"
+        ,"AU-Stp"
+        ,"AU-TTE"
+)
+
+SAWS = c("AU-Cpr"
+        ,"AU-Cum"
+        ,"AU-Gin"
+        ,"AU-GWW"
+        ,"AU-Tum"
+        ,"AU-Whr"
+        ,"AU-Wom"
 )
 
 
-source("functions/StackedWeightPlot_RTPV.R")
+source("functions/NEE_StackedWeightPlot_RTPV.R")
 
 
-# Metrics = c("AnnualMeanTemp",
-# "MeanDiurnalRange",
-# "Isothermality",
-# "TempSeasonality",
-# "MaxTempHotMon",
-# "MinTempColdMon",
-# "TempAnnualRange",
-# "MeanTempWetQtr",
-# "MeanTempDryQtr",
-# "MeanTempHotQtr",
-# "MeanTempColdQtr",
-# "AnnualPPT",
-# "PPTWetMon",
-# "PPTDryMon",
-# "PPTSeasonality",
-# "PPTWetQtr",
-# "PPTDryQtr",
-# "PPTHotQtr",
-# "PPTColdQtr")
+Metrics = c("AnnualMeanTemp",
+"MeanDiurnalRange",
+"Isothermality",
+"TempSeasonality",
+"MaxTempHotMon",
+"MinTempColdMon",
+"TempAnnualRange",
+"MeanTempWetQtr",
+"MeanTempDryQtr",
+"MeanTempHotQtr",
+"MeanTempColdQtr",
+"AnnualPPT",
+"PPTWetMon",
+"PPTDryMon",
+"PPTSeasonality",
+"PPTWetQtr",
+"PPTDryQtr",
+"PPTHotQtr",
+"PPTColdQtr")
 
-# for (Metric in Metrics){
-TairStacked = StackedWeightPlot_RTPV(Sites,Vars = "Tair",Metric = "PPTSeasonality")
+for (Metric in Metrics){
+# TairStacked = StackedWeightPlot_RTPV(Sites,Var = "Tair",Metric = "PPTSeasonality")
+TairStacked = StackedWeightPlot_RTPV(SAWS,Var = "Tair",Metric = Metric)
+
+# PPTLongStacked = StackedWeightPlot_RTPV(Sites,Var = "PPTlong",Metric = "AnnualPPT")
+# PPTLongStacked = StackedWeightPlot_RTPV(NATT,Var = "PPTlong",Metric = Metric)
+
+# VPDStacked = StackedWeightPlot_RTPV(Sites,Var = "VPD",Metric = "MeanDiurnalRange")
+# VPDStacked = StackedWeightPlot_RTPV(Sites,Var = "VPD",Metric = Metric)
+
+# RadStacked = StackedWeightPlot_RTPV(Sites,Var = "Fsd",Metric = "MeanDiurnalRange")
+# RadStacked = StackedWeightPlot_RTPV(Sites,Var = "Fsd",Metric = Metric)
+
+# PPTShortStacked = StackedWeightPlot_RTPV(Sites,Var = "PPTshort",Metric = "PPTDryQtr")
+# PPTShortStacked = StackedWeightPlot_RTPV(Sites,Var = "PPTshort",Metric = Metric)
+
 plot(TairStacked)
 Sys.sleep(3)
-PPTLongStacked = StackedWeightPlot_RTPV(Sites,Vars = "PPTlong",Metric = "AnnualPPT")
-plot(PPTLongStacked)
-Sys.sleep(3)
-VPDStacked = StackedWeightPlot_RTPV(Sites,Vars = "VPD",Metric = "MeanDiurnalRange")
-plot(VPDStacked)
-Sys.sleep(3)
-RadStacked = StackedWeightPlot_RTPV(Sites,Vars = "Fsd",Metric = "MeanDiurnalRange")
-plot(RadStacked)
-Sys.sleep(3)
-
-# }
+# plot(PPTLongStacked)
+# Sys.sleep(3)
+# plot(VPDStacked)
+# Sys.sleep(3)
+# plot(RadStacked)
+# Sys.sleep(3)
+# plot(PPTShortStacked)
+# Sys.sleep(3)
+}
 
 
 #*******************************************************************************

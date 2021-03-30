@@ -1,4 +1,4 @@
-StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT"),Metric= "AnnualPPT"){
+StackedWeightPlot_RTPV = function(Sites,Var,Metric= "AnnualPPT"){
   
   # Sort must be one of the following metrics available in the world clim data:
   # "AnnualMeanTemp"   
@@ -21,7 +21,7 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
   # "PPTHotQtr"        
   # "PPTColdQtr"      
   
-  
+  message("Stacking weights for ", Var," and ",Metric)
   # Source packages needed
   library(lubridate)
   library(magrittr)
@@ -29,26 +29,27 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
   library(coda)
   
   # Run the analysis of the model outputs if they don't exist
-  source("r2jags_analysis_RTPV.R")
+  source("functions/NEE_analysis_function_RTPV.R")
   for (Site in Sites){
-    if (length(list.files("analysis/RTPV/",pattern = paste0("analysis_RTPV_",Site))) != 0){
+    if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))) != 0){
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
       r2jags_analysis_RTPV(Site)
     }
   }
-  message("Plotting weights for sites...")
+
   
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
     File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
+    message("Loading analysis output for ",Site," where file is ",File)
     load(paste0("analysis/RTPV/",File))
     assign(Site,output)
     rm(output)
   }
   
-
+  message("Plotting weights for sites...")
   # Do some shit with it
   CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:4,14),rep(1:14,each=4)),
                       sprintf("cum_weightAP[%d]",seq(1:8)))
@@ -94,7 +95,7 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
   CumWeights$Variable[substr(CumWeights$Variable,11,12)=="AP"] = "PPTlong"
   
   # Limit the dataframe to the variables requested
-  CumWeights = CumWeights[CumWeights$Variable %in% Vars,]
+  CumWeights = CumWeights[CumWeights$Variable == Var,]
   
   # Rename variables to nice names
   CumWeights$Variable[CumWeights$Variable == "Fsd"] = "Shortwave Radiation"
@@ -105,28 +106,36 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
   # Assign levels to Variable
   CumWeights$Variable = factor(CumWeights$Variable,levels = sort(unique(CumWeights$Variable)))
   
+  # Assign vector length
+  if (Var == "PPTlong"){
+    veclen = 8
+  } else {
+    veclen = 14
+  }
+  
   # Summarise the weights
   WeightSummary <- CumWeights %>%
                     group_by(Site,Variable) %>%
                     summarise(Median=median(Med,na.rm=TRUE),
-                              Range = nth(Med,13)-min(Med),
+                              Range = nth(Med,veclen-1)-min(Med),
                               Intercept = min(Med),
-                              IQR = IQR(Med))
+                              IQR = IQR(Med),
+                              Lag50 = min(Lag[Med>0.5])-min(Med[Med>0.5]))
                   
   # Order sites by chosen variable
-  load("SiteMetrics_worldclim_0.5res.Rdata")
-  metric = WorldClimMetrics[,c("Sites",Metric)]
+  load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
+  metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
   SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2])
   CumWeights$Site = paste0(CumWeights$Site," - ",rep(metric[,2],each = nrow(CumWeights)/length(Sites)))
   CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
   
   # Let's try and get a correlation between cumulative weights and metric
-  MedCorr = cor.test(WeightSummary$Median,WorldClimMetrics[,Metric])$estimate
-  RangeCorr = cor.test(WeightSummary$Range,WorldClimMetrics[,Metric])$estimate
-  InterceptCorr = cor.test(WeightSummary$Intercept,WorldClimMetrics[,Metric])$estimate
-  IQRCorr = cor.test(WeightSummary$IQR,WorldClimMetrics[,Metric])$estimate
-  nIQRCorr = cor.test((WeightSummary$IQR/WeightSummary$Median),WorldClimMetrics[,Metric])$estimate
-  
+  MedCorr = cor.test(WeightSummary$Median,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+  RangeCorr = cor.test(WeightSummary$Range,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+  InterceptCorr = cor.test(WeightSummary$Intercept,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+  IQRCorr = cor.test(WeightSummary$IQR,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+  Lag50Corr = cor.test(WeightSummary$Lag50,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+
   # Plot the sensitivity covariates
   library(ggplot2)
   library(viridisLite)
@@ -142,6 +151,7 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
                size = 3) +
     facet_grid(.~Variable,
                scales = "free_x") +
+    coord_cartesian(ylim = c(0,1)) +
     ylab("Cumulative Weight") +
     xlab("Days into Past") +
     scale_color_viridis_d(name="",
@@ -153,11 +163,17 @@ StackedWeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +
     guides(color = guide_legend(title = Metric)) +
-    ggtitle(round(sum(c(abs(MedCorr),abs(RangeCorr),abs(InterceptCorr),abs(IQRCorr),abs(nIQRCorr)),na.rm=TRUE),2),
+    ggtitle(round(sum(c(abs(MedCorr),
+                        abs(RangeCorr),
+                        abs(InterceptCorr),
+                        abs(IQRCorr),
+                        abs(Lag50Corr)),
+                      na.rm=TRUE),
+                  2),
             subtitle = paste0("Md = ",round(MedCorr,2),
                               ", Rg = ", round(RangeCorr,2),
                              ", In = ",round(InterceptCorr,2),
                              ", QR = ",round(IQRCorr,2),
-                              ", nQR = ", round(nIQRCorr,2)))
+                              ", L50 = ", round(Lag50Corr,2)))
 }
 
