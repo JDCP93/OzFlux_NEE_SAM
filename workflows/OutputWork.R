@@ -379,12 +379,12 @@ Sites = c("AU-ASM"
           ,"AU-Whr"
           ,"AU-Wom")
 
-source("functions/BehaviourPlot_RTPV.R")
+source("functions/NEE_BehaviourPlot_RTPV.R")
 
 df = data.frame()
 
 for (Site in Sites){
-  output = Behaviour_RTPV(Site)
+  output = NEE_Behaviour_RTPV(Site)
   df = rbind(df,output$df)
 }
 

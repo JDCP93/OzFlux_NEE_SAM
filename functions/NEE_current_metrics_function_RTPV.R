@@ -1,4 +1,4 @@
-metrics_RTPV <- function(Site){
+NEE_current_metrics_RTPV <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
@@ -22,10 +22,11 @@ metrics_RTPV <- function(Site){
   message("*** Analysing R2jags output for ",Site," ***")
   # 
   # Load in the output data we are analysing
-  # Look in folder "results" for the data
-  File = list.files("output/RTPV/",pattern = Site)
+  # Look in folder "output" for the data
+  File = list.files("output/RTPV/",pattern = paste0("NEE_current_output_RTPV_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
+  message("File is ",File[length(File)])
   load(paste0("output/RTPV/",File[length(File)]))
   
   # Source the necessary packages
@@ -48,6 +49,8 @@ metrics_RTPV <- function(Site){
   }else{
     output.mcmc = as.mcmc.rjags(output)
   }
+  # Make sure we can analyse this as an mcmc list
+  output.mcmc = as.mcmc.list(output.mcmc)
   rm(output)
   
   # ##################
@@ -67,21 +70,21 @@ metrics_RTPV <- function(Site){
   NEE_obs = obs$NEE[-(1:365)]
   
   # Calculate metrics for the SAM model
-  SAM.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
+  CUR.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
   Phi = summary$statistics["phi0",]
-  SAM.MBE = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
-  SAM.NME = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
-  SAM.SDD = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
-  SAM.CCO = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
+  CUR.MBE = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
+  CUR.NME = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
+  CUR.SDD = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
+  CUR.CCO = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
   
   # Create a nice output and save it
-  output = list("SAM.R2" = SAM.R2,
-                "SAM.MBE" = SAM.MBE,
-                "SAM.NME" = SAM.NME,
-                "SAM.SDD" = SAM.SDD,
-                "SAM.CCO" = SAM.CCO,
+  output = list("CUR.R2" = CUR.R2,
+                "CUR.MBE" = CUR.MBE,
+                "CUR.NME" = CUR.NME,
+                "CUR.SDD" = CUR.SDD,
+                "CUR.CCO" = CUR.CCO,
                 "Phi0" = Phi)
   
-  save(output,file = paste0("NEE_metrics_RTPV_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("NEE_current_metrics_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
 

@@ -101,21 +101,11 @@ Flux_StackedWeightPlot_RTPV = function(Sites,Vars){
                   color = Flux),
               size = 2,
               alpha = 0.5) +
-    geom_point(aes(x = Lag,
-                  y = Med,
-                  color = Flux),
-               size = 3,
-               alpha = 0.5) +
     facet_grid(Site~Variable,
                scales = "free_x") +
     coord_cartesian(ylim = c(0,1)) +
     ylab("Cumulative Weight") +
     xlab("Days into Past") +
-    #scale_color_viridis_d(name="",
-    #                      #option="magma",
-    #                      begin=0,
-    #                      end=0.6,
-    #                      direction = 1) +
     theme_bw() +
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +

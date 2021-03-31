@@ -32,6 +32,7 @@ NEE_Behaviour_RTPV = function(Site){
   }else{
     output.mcmc = as.mcmc.rjags(output)
   }
+  output.mcmc = as.mcmc.list(output.mcmc)
   # tidy
   rm(output)
   # summarise
