@@ -115,10 +115,10 @@ for (i in 1:length(output.mcmc)){
 #*******************************************************************************  
 
   
-Sites = c("AU-Gin","AU-Whr","AU-Wom")
-source("functions/NEE_analysis_function_RTPV.R")
+Sites = c("AU-Cpr","AU-Stp")
+source("functions/LE_analysis_function_RTPV.R")
 for (Site in Sites){
-  NEE_analysis_RTPV(Site)
+  LE_analysis_RTPV(Site)
 }
 
 #*******************************************************************************
