@@ -106,7 +106,7 @@ NEE = input$NEE[-(1:365)]
 kmean.output = kmeans(climate,k,iter.max = 25, nstart = 25)
 
 # Initialise the comparison dataframe
-compare = data.frame("NEE_obs" = NEE,"NEE_mod" = 0)
+compare = data.frame("NEE_obs" = NEE,"NEE_pred" = 0)
 
 output = list()
 
@@ -116,7 +116,7 @@ for (i in 1:k){
   lin.mod = lm(NEE_cluster ~ climate_cluster,na.action = na.exclude)
   r.squared = summary(lin.mod)$r.squared
   # Place the k-means fitted NEE into the data frame
-  compare$NEE_mod[kmean.output$cluster==i] = fitted(lin.mod)
+  compare$NEE_pred[kmean.output$cluster==i] = fitted(lin.mod)
   # Assign and output the cluster info
   name = paste0("cluster_",i)
   assign(name,list("climate" = climate_cluster,
@@ -134,7 +134,11 @@ for (i in 1:k){
               "r.squared"))
 }
 
-output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_mod))$r.squared
+output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_pred))$r.squared
+output[["MBE"]] = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
+output[["NME"]] = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
+output[["SDD"]] = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
+output[["CCO"]] = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
 output[["series"]] = compare
 
 
