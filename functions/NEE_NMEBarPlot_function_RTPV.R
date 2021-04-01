@@ -1,4 +1,4 @@
-NEE_R2BarPlot_RTPV = function(Sites,Transects,Metric,Clusters = 0){
+NEE_NMEBarPlot_RTPV = function(Sites,Transects,Metric,Clusters = 0){
 
 
 # Load the required packages
@@ -8,42 +8,42 @@ library(viridis)
 library(ggpubr)
 library(gridExtra)
 
-# Initiliase R2 data frame
-R2 = data.frame("Site" = Sites,
+# Initiliase NME data frame
+NME = data.frame("Site" = Sites,
                 "Transect" = Transects,
-                "R2.CUR" = 0,
-                "R2.SAM" = 0,
-                "R2.AR1" = 0,
-                "R2.KMN" = 0,
-                "R2.KMC" = 0)
+                "NME.CUR" = 0,
+                "NME.SAM" = 0,
+                "NME.AR1" = 0,
+                "NME.KMN" = 0,
+                "NME.KMC" = 0)
 
 # For each site
 for (Site in Sites){
 
-  # Collect the R2 values from the analysis scripts
-  message("Collating R2 values for ",Site)
+  # Collect the NME values from the analysis scripts
+  message("Collating NME values for ",Site)
   
   # Load the analysis results
-  File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
-  load(paste0("analysis/RTPV/",File))
-  R2$R2.SAM[R2$Site==Site] = output$SAM.R2
+  File = list.files("analysis/RTPV/metrics/",pattern = paste0("NEE_metrics_RTPV_",Site))
+  load(paste0("analysis/RTPV/metrics/",File))
+  NME$NME.SAM[NME$Site==Site] = output$SAM.NME
   
-  File = list.files("analysis/RTPV/",pattern = paste0("NEE_current_analysis_RTPV_",Site))
-  load(paste0("analysis/RTPV/",File))
-  R2$R2.CUR[R2$Site==Site] = output$CUR.R2
+  File = list.files("analysis/RTPV/metrics/",pattern = paste0("NEE_current_metrics_RTPV_",Site))
+  load(paste0("analysis/RTPV/metrics/",File))
+  NME$NME.CUR[NME$Site==Site] = output$CUR.NME
   
-  File = list.files("analysis/RTPV/",pattern = paste0("NEE_AR1_analysis_RTPV_",Site))
-  load(paste0("analysis/RTPV/",File))
-  R2$R2.AR1[R2$Site==Site] = output$AR1.R2
+  File = list.files("analysis/RTPV/metrics/",pattern = paste0("NEE_AR1_metrics_RTPV_",Site))
+  load(paste0("analysis/RTPV/metrics/",File))
+  NME$NME.AR1[NME$Site==Site] = output$AR1.NME
   if (Clusters > 0){
   load(paste0("alternate/RTPV/results/NEE_output_",Clusters,"cluster_kmean_current_NDVI_RTPV_",Site,".Rdata"))
-  R2$R2.KMN[R2$Site==Site] = output$r.squared
+  NME$NME.KMN[NME$Site==Site] = output$NME
   
   load(paste0("alternate/RTPV/results/NEE_output_",Clusters,"cluster_kmean_current_RTPV_",Site,".Rdata"))
-  R2$R2.KMC[R2$Site==Site] = output$r.squared
+  NME$NME.KMC[NME$Site==Site] = output$NME
   } else {
-    R2$R2.KMN = 0
-    R2$R2.KMC = 0
+    NME$NME.KMN = 0
+    NME$NME.KMC = 0
   }
 }
 
@@ -71,11 +71,11 @@ Model = factor(Model,
                         "Current Environment (k-means with NDVI)",
                         "Current Environment (k-means with no NDVI)"))
 
-Value = c(R2$R2.KMC,
-          R2$R2.KMN,
-          R2$R2.CUR,
-          R2$R2.SAM,
-          R2$R2.AR1)
+Value = c(NME$NME.KMC,
+          NME$NME.KMN,
+          NME$NME.CUR,
+          NME$NME.SAM,
+          NME$NME.AR1)
 
 Fig = data.frame(Site,
                  Transect,
@@ -103,7 +103,7 @@ Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site,group = ValueFactor)) +
   geom_bar(stat = "identity", color = "black",size = 1) +
   coord_flip(ylim=c(0,1)) +
   scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
-  ylab(parse(text="R^2")) +
+  ylab(parse(text="NME")) +
   theme_bw() +
   theme(legend.position = "bottom", 
         text = element_text(size = 20),
