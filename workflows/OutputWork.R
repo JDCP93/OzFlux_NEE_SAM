@@ -432,3 +432,7 @@ Metric = "AnnualPPT"
 Plot = NEE_R2BarPlot_RTPV(Sites,Transects,Metric, Clusters = 0)
 
 Plot
+
+
+source("functions/NEE_MetricsPlot_function_RTPV.R")
+Plot = NEE_MetricsPlot_function_RTPV(Sites)

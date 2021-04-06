@@ -64,6 +64,8 @@ NEE_analysis_current_RTPV <- function(Site){
   }else{
     output.mcmc = as.mcmc.rjags(output)
   }
+  # Make sure we can analyse this as an mcmc list
+  output.mcmc = as.mcmc.list(output.mcmc)
   rm(output)
   
   # Produce plots of each parameter to assess convergence.
@@ -226,6 +228,15 @@ NEE_analysis_current_RTPV <- function(Site){
   
   # Calculate the r squared value for the SAM model
   CUR.R2 = summary(lm(NEE_pred ~ NEE_obs))$r.squared
+  Phi = summary$statistics["phi0",]
+  # Mean Bias Error
+  CUR.MBE = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
+  # Normalised Mean Error
+  CUR.NME = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
+  # Standard Deviation Difference
+  CUR.SDD = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
+  # Correlation Coefficient
+  CUR.CCO = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
   
   # Extract climate sensitivities
   
@@ -266,9 +277,17 @@ NEE_analysis_current_RTPV <- function(Site){
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
                 "CUR.R2" = CUR.R2,
+                "CUR.MBE" = CUR.MBE,
+                "CUR.NME" = CUR.NME,
+                "CUR.SDD" = CUR.SDD,
+                "CUR.CCO" = CUR.CCO,
                 "df" = df,
                 "ESen" = ESen,
-                "CumWeights" = CumWeights)
+                "CumWeights" = CumWeights,
+                "Phi0" = Phi,
+                "ObsVsNEEDaily" = ObsVsNEE_daily,
+                "ObsVsNEEMonthly" = ObsVsNEE_monthly,
+                "ObsVsNEE_ma" = ObsVsNEE_ma)
   
   save(output,file = paste0("NEE_current_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }

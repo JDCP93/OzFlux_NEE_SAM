@@ -63,6 +63,8 @@ NEE_analysis_RTPV <- function(Site){
   }else{
     output.mcmc = as.mcmc.rjags(output)
   }
+  # Make sure we can analyse this as an mcmc list
+  output.mcmc = as.mcmc.list(output.mcmc)
   rm(output)
   
   # Produce plots of each parameter to assess convergence.
@@ -122,9 +124,6 @@ NEE_analysis_RTPV <- function(Site){
   assign("obs",eval(as.name(name)))
   
   # Create dataframe of observed vs modelled with confidence intervals
-#  NEE_pred = output$BUGSoutput$median$NEE_pred
-#  NEE_pred_min = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",3]
-#  NEE_pred_max = output$BUGSoutput$summary[substr(rownames(output$BUGSoutput$summary),1,3)=="NEE",7]
   summary = summary(output.mcmc)
   NEE_pred = summary$statistics[substr(rownames(summary$statistics),1,5)=="NEE_p",1]
   NEE_pred_min = summary$quantiles[substr(rownames(summary$quantiles),1,5)=="NEE_p",1]
@@ -278,7 +277,10 @@ NEE_analysis_RTPV <- function(Site){
                 "df" = df,
                 "ESen" = ESen,
                 "CumWeights" = CumWeights,
-                "Phi0" = Phi)
+                "Phi0" = Phi,
+                "ObsVsNEEDaily" = ObsVsNEE_daily,
+                "ObsVsNEEMonthly" = ObsVsNEE_monthly,
+                "ObsVsNEE_ma" = ObsVsNEE_ma)
   
   save(output,file = paste0("NEE_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }

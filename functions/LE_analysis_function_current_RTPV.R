@@ -1,4 +1,4 @@
-LE_analysis_RTPV <- function(Site){
+LE_analysis_current_RTPV <- function(Site){
   
   # A function to take the output from a R2jags model run for an OzFlux site and
   # turn it into something useful and interesting and possibly, hopefully, 
@@ -19,11 +19,11 @@ LE_analysis_RTPV <- function(Site){
   # ##################
   
   # Let the user know which site the function is looking at
-  message("*** Analysing R2jags output for ",Site," ***")
+  message("*** Analysing current R2jags output for ",Site," ***")
   # 
   # Load in the output data we are analysing
   # Look in folder "results" for the data
-  File = list.files("output/RTPV/",pattern = paste0("LE_output_RTPV_",Site))
+  File = list.files("output/RTPV/",pattern = paste0("LE_current_output_RTPV_",Site))
   # Read the data into R - note that if multiple results are available for a 
   # site, we take the most recent
   message("File is ",File[length(File)])
@@ -48,11 +48,12 @@ LE_analysis_RTPV <- function(Site){
   # List the "fundamental" parameters - e.g. those that are assigned priors and
   # are not a function of other parameters. Stochastic parameters? Maybe.
   stochastic.params = c("phi0",
-                       "sig_y",
-                       sprintf("an[%d]",seq(1:16)),
-                       sprintf("ag[%d]",seq(1:16)),
-                       sprintf("deltaXAP[%d]",seq(1:8)),
-                       sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4)))
+                        "sig_y",
+                        sprintf("an[%d]",seq(1:16)),
+                        sprintf("ag[%d]",seq(1:16)),
+                        sprintf("deltaXAP[%d]",seq(1:8)),
+                        sprintf("deltaXA[%d,%d]",rep(1:4,10),rep(1:10,each=4))
+                        )
 
   # Convert output to an mcmc object
   # Either take the object already saved as an mcmc object for the current 
@@ -71,7 +72,7 @@ LE_analysis_RTPV <- function(Site){
   for (param in stochastic.params){
     # Output the variable
     print(param)
-    diagMCMC(output.mcmc,param,saveName = paste0("LE_",Site,"_RTPV_",Sys.Date()))
+    diagMCMC(output.mcmc,param,saveName = paste0("LE_",Site,"_current_",Sys.Date()))
     Sys.sleep(1)
     graphics.off()
   }
@@ -100,7 +101,6 @@ LE_analysis_RTPV <- function(Site){
   # See which parameters are way below 10,000 ESS
   ESS.Fail = ESS[ESS<10000] # & names(ESS) %in% stochastic.params]
   
-  
   message("Running Geweke Diagnostics for ",Site)
   # We calculate the Geweke diagnostic - this should fall within the confidence 
   # bounds of -2 and 2. 
@@ -116,8 +116,8 @@ LE_analysis_RTPV <- function(Site){
   # ##################
   # Model Performance
   # ##################
-  
   message("Running Model Performance for ",Site)
+  
   # Load the observations
   name = paste0(Site,"_input")
   load(paste0("inputs/RTPV/LE/",name,"_LE_RTPV.Rdata"))
@@ -224,21 +224,20 @@ LE_analysis_RTPV <- function(Site){
     theme_bw()
   
   # Calculate the r squared value for the SAM model
-  SAM.R2 = summary(lm(LE_pred ~ LE_obs))$r.squared
+  CUR.R2 = summary(lm(LE_pred ~ LE_obs))$r.squared
   Phi = summary$statistics["phi0",]
   # Mean Bias Error
-  SAM.MBE = sum(LE_pred-LE_obs,na.rm=TRUE)/length(LE_pred)
+  CUR.MBE = sum(LE_pred-LE_obs,na.rm=TRUE)/length(LE_pred)
   # Normalised Mean Error
-  SAM.NME = sum(abs(LE_pred-LE_obs),na.rm=TRUE)/sum(abs(mean(LE_obs,na.rm=TRUE)-LE_obs),na.rm=TRUE)
+  CUR.NME = sum(abs(LE_pred-LE_obs),na.rm=TRUE)/sum(abs(mean(LE_obs,na.rm=TRUE)-LE_obs),na.rm=TRUE)
   # Standard Deviation Difference
-  SAM.SDD = abs(1-sd(LE_pred,na.rm=TRUE)/sd(LE_obs,na.rm=TRUE))
+  CUR.SDD = abs(1-sd(LE_pred,na.rm=TRUE)/sd(LE_obs,na.rm=TRUE))
   # Correlation Coefficient
-  SAM.CCO = cor(LE_pred,LE_obs,use = "complete.obs", method = "pearson")
-  
+  CUR.CCO = cor(LE_pred,LE_obs,use = "complete.obs", method = "pearson")
   # Extract climate sensitivities
   
   # Define params
-  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:6)))
+  SensitivityCovariates = c(sprintf("ESen[%d]",seq(1:7)))
   # Extract 2.5%, median and 97.5%
   ESenMedian = summary$statistics[rownames(summary$statistics) %in% SensitivityCovariates,1]
   ESenLow = summary$quantiles[rownames(summary$quantiles) %in% SensitivityCovariates,1]
@@ -250,11 +249,11 @@ LE_analysis_RTPV <- function(Site){
                      "VPD",
                      "PPTshort",
                      "PPTlong",
-                     "PPT")
+                     "Precip")
   
   # Extract cumulative weights
   # Define params
-  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:4,14),rep(1:14,each=4)),
+  CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:5,14),rep(1:14,each=5)),
                       sprintf("cum_weightAP[%d]",seq(1:8)))
   # Extract 2.5%, median and 97.5%
   WeightsMedian = summary$statistics[rownames(summary$statistics) %in% CumWeightParams,1]
@@ -264,22 +263,20 @@ LE_analysis_RTPV <- function(Site){
   CumWeights = data.frame(WeightsLow,WeightsMedian,WeightsHigh)
   
   # Create a nice output and save it
+  # Create a nice output and save it
   output = list("Gelman.Fail" = Gelman.Fail,
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
-                "SAM.R2" = SAM.R2,
-                "SAM.MBE" = SAM.MBE,
-                "SAM.NME" = SAM.NME,
-                "SAM.SDD" = SAM.SDD,
-                "SAM.CCO" = SAM.CCO,
+                "CUR.R2" = CUR.R2,
+                "CUR.MBE" = CUR.MBE,
+                "CUR.NME" = CUR.NME,
+                "CUR.SDD" = CUR.SDD,
+                "CUR.CCO" = CUR.CCO,
                 "df" = df,
                 "ESen" = ESen,
                 "CumWeights" = CumWeights,
-                "Phi0" = Phi,
-                "ObsVsNEEDaily" = ObsVsNEE_daily,
-                "ObsVsNEEMonthly" = ObsVsNEE_monthly,
-                "ObsVsNEE_ma" = ObsVsNEE_ma)
+                "Phi0" = Phi)
   
-  save(output,file = paste0("LE_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("LE_current_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
 

@@ -62,6 +62,8 @@ LE_analysis_RTPV <- function(Site){
   }else{
     output.mcmc = as.mcmc.rjags(output)
   }
+  # Make sure we can analyse this as an mcmc list
+  output.mcmc = as.mcmc.list(output.mcmc)
   rm(output)
   
   message("Running Gelman Diagnostics for ",Site)
@@ -263,7 +265,10 @@ LE_analysis_RTPV <- function(Site){
                 "df" = df,
                 "ESen" = ESen,
                 "CumWeights" = CumWeights,
-                "Phi0" = Phi)
+                "Phi0" = Phi,
+                "ObsVsNEEDaily" = ObsVsNEE_daily,
+                "ObsVsNEEMonthly" = ObsVsNEE_monthly,
+                "ObsVsNEE_ma" = ObsVsNEE_ma)
   
   save(output,file = paste0("LE_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
