@@ -24,7 +24,8 @@ Flux_TimeSeries_RTPV = function(Site){
         geom_path(aes(x=Time,y=Value,color=Variable)) +
         scale_color_manual(values = c("green","red","royalblue","darkgreen")) +
     facet_grid(Variable~.,scales = "free_y") +
-    theme_bw()
+    theme_bw() +
+    ggtitle(paste0("Time Series of Flux, Rain and NDVI at ",Site))
 
   Plot
 }

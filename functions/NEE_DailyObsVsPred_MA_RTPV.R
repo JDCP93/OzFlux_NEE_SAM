@@ -149,7 +149,7 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
                               legend, 
                               ncol = 1, 
                               layout_matrix=lay,
-                              top=paste0("Daily Mean NEE (Moving Average, k = ",k,")"))
+                           top=paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site))
   } else {
     # Make layout matrix
     lay <- rbind(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4)
@@ -161,7 +161,7 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
                            legend, 
                            ncol = 1, 
                            layout_matrix=lay,
-                           top=paste0("Daily Mean NEE (Moving Average, k = ",k,")"))
+                           top=paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site))
   }
   
 }

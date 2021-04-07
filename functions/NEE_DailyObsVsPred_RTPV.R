@@ -130,7 +130,7 @@ NEE_DailyObsVsPred_RTPV = function(Site,plotAR1=F){
                            legend, 
                            ncol = 1, 
                            layout_matrix=lay,
-                           top="Daily Mean NEE")
+                           top=paste0("Daily Mean NEE for ",Site))
   } else {
     # Make layout matrix
     lay <- rbind(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4)
@@ -142,7 +142,7 @@ NEE_DailyObsVsPred_RTPV = function(Site,plotAR1=F){
                            legend, 
                            ncol = 1, 
                            layout_matrix=lay,
-                           top="Daily Mean NEE")
+                           top=paste0("Daily Mean NEE for ",Site))
   }
   
   
