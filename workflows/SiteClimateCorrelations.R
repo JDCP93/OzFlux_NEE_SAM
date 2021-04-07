@@ -28,7 +28,7 @@ for (Site in Sites){
   VPD = eval(as.name(paste0(Site,"_Input")))$DailyData$VPD
   SW = eval(as.name(paste0(Site,"_Input")))$DailyData$Fsd
   PPT = eval(as.name(paste0(Site,"_Input")))$DailyData$Precip
-  
+
   # FInd the correlation between the climate variables
   TxV = cor.test(Tair,VPD)
   TxS = cor.test(Tair,SW)
@@ -36,33 +36,33 @@ for (Site in Sites){
   VxS = cor.test(SW,VPD)
   VxP = cor.test(PPT,VPD)
   SxP = cor.test(PPT,SW)
-  
+
   # Put these into a dataframe
   df = data.frame("Correlations" = rep(0,6),
                   "r.value" = rep(0,6),
                   "p.value" = rep(0,6))
-  
+
   df$Correlations = c("TxV",
                       "TxS",
                       "TxP",
                       "VxS",
                       "VxP",
                       "SxP")
-  
+
   df$r.value = c(TxV$estimate,
                  TxS$estimate,
                  TxP$estimate,
                  VxS$estimate,
                  VxP$estimate,
                  SxP$estimate)
-  
+
   df$p.value = c(TxV$p.value,
                  TxS$p.value,
                  TxP$p.value,
                  VxS$p.value,
                  VxP$p.value,
                  SxP$p.value)
-  
+
   # Output the data with a site-dependent name
   name = paste0(Site,"_cor")
   assign(name,df)
@@ -76,7 +76,7 @@ df = data.frame("Site" = rep(Sites,each=6),
                                       "TxP",
                                       "VxS",
                                       "VxP",
-                                      "SxP"), by = length(Sites)))
+                                      "SxP"), times = length(Sites)))
 
 for(Site in Sites){
   df$r.value[df$Site == Site] = eval(as.name(paste0(Site,"_cor")))$r.value

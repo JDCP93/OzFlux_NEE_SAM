@@ -28,46 +28,46 @@ df = data.frame("Site" = Sites,
 
 plot.df = data.frame("Site" = rep(Sites, each = 4),
                      "Flux" = factor(rep(c("NEE",
-                                          "LE"), 
-                                        by = 2*length(Sites)),
+                                          "LE"),
+                                        times = 2*length(Sites)),
                                     levels = c("NEE",
                                                "LE")),
                      "Model" = rep(c("Current",
                                      "SAM"),
                                    each = 2,
-                                   by = length(Sites)),
+                                   times = length(Sites)),
                      "R2" = NA)
 
 for (Site in Sites){
-  
+
   if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))) > 0){
     file = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",file))
     plot.df$R2[plot.df$Site == Site & plot.df$Flux == "NEE" & plot.df$Model == "SAM"] = output$SAM.R2
     df$NEE_SAM[df$Site == Site] = output$SAM.R2
   }
-  
+
   if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_current_analysis_RTPV_",Site))) > 0){
     file = list.files("analysis/RTPV/",pattern = paste0("NEE_current_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",file))
     plot.df$R2[plot.df$Site == Site & plot.df$Flux == "NEE" & plot.df$Model == "Current"] = output$CUR.R2
     df$NEE_Current[df$Site == Site] = output$CUR.R2
   }
- 
+
   if (length(list.files("analysis/RTPV/",pattern = paste0("LE_analysis_RTPV_",Site))) > 0){
     file = list.files("analysis/RTPV/",pattern = paste0("LE_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",file))
     plot.df$R2[plot.df$Site == Site & plot.df$Flux == "LE" & plot.df$Model == "SAM"] = output$SAM.R2
     df$LE_SAM[df$Site == Site] = output$SAM.R2
   }
-  
+
   if (length(list.files("analysis/RTPV/",pattern = paste0("LE_current_analysis_RTPV_",Site))) > 0){
     file = list.files("analysis/RTPV/",pattern = paste0("LE_current_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",file))
     plot.df$R2[plot.df$Site == Site & plot.df$Flux == "LE" & plot.df$Model == "Current"] = output$CUR.R2
     df$LE_Current[df$Site == Site] = output$CUR.R2
   }
-  
+
 }
 
 
@@ -83,4 +83,4 @@ Plot = ggplot(plot.df) +
   coord_cartesian(ylim = c(0,1)) +
   ggtitle("NEE and LE model performance")
 
-Plot        
+Plot

@@ -266,9 +266,9 @@ LE_analysis_current_RTPV <- function(Site){
                 "ESen" = ESen,
                 "CumWeights" = CumWeights,
                 "Phi0" = Phi,
-                "ObsVsNEEDaily" = ObsVsNEE_daily,
-                "ObsVsNEEMonthly" = ObsVsNEE_monthly,
-                "ObsVsNEE_ma" = ObsVsNEE_ma)
+                "ObsVsLEDaily" = ObsVsLE_daily,
+                "ObsVsLEMonthly" = ObsVsLE_monthly,
+                "ObsVsLE_ma" = ObsVsLE_ma)
   
   save(output,file = paste0("LE_current_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }

@@ -2,21 +2,21 @@ NEE_MetricsPlot_function_RTPV = function(Sites){
 
 
 df = data.frame("Site" = rep(Sites,each = 15),
-                "Model" = rep(c("CUR","SAM","AR1"),each = 5, by = length(Sites)),
-                "Metric" = rep(c("R2","MBE","NME","SDD","CCO"), by = 3*length(Sites)),
+                "Model" = rep(c("CUR","SAM","AR1"),each = 5, times = length(Sites)),
+                "Metric" = rep(c("R2","MBE","NME","SDD","CCO"), times = 3*length(Sites)),
                 "Value" = NA)
 
 
 for (Site in Sites){
-  
+
   File = list.files("analysis/RTPV/metrics/",pattern = paste0("NEE_current_metrics_RTPV_",Site))
   load(paste0("analysis/RTPV/metrics/",File))
   df$Value[df$Site == Site & df$Model == "CUR"] = unlist(output[c(1:5)])
-  
+
   File = list.files("analysis/RTPV/metrics/",pattern = paste0("NEE_metrics_RTPV_",Site))
   load(paste0("analysis/RTPV/metrics/",File))
   df$Value[df$Site == Site & df$Model == "SAM"] = unlist(output[c(1:5)])
-  
+
   File = list.files("analysis/RTPV/metrics/",pattern = paste0("NEE_AR1_metrics_RTPV_",Site))
   load(paste0("analysis/RTPV/metrics/",File))
   df$Value[df$Site == Site & df$Model == "AR1"] = unlist(output[c(1:5)])
