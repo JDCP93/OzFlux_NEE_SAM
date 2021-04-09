@@ -274,10 +274,7 @@ NEE_analysis_current_RTPV <- function(Site){
                 "df" = df,
                 "ESen" = ESen,
                 "CumWeights" = CumWeights,
-                "Phi0" = Phi,
-                "ObsVsNEEDaily" = ObsVsNEE_daily,
-                "ObsVsNEEMonthly" = ObsVsNEE_monthly,
-                "ObsVsNEE_ma" = ObsVsNEE_ma)
+                "Phi0" = Phi)
   
   save(output,file = paste0("NEE_current_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }

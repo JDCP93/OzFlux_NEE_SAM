@@ -254,10 +254,7 @@ NEE_analysis_AR1_RTPV <- function(Site){
                 "ESS.Fail" = ESS.Fail,
                 "Geweke.Fail" = Geweke.Fail,
                 "AR1.R2" = AR1.R2,
-                "df" = df,
-                "ObsVsNEEDaily" = ObsVsNEE_daily,
-                "ObsVsNEEMonthly" = ObsVsNEE_monthly,
-                "ObsVsNEE_ma" = ObsVsNEE_ma)
+                "df" = df)
   
   save(output,file = paste0("NEE_analysis_AR1_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
