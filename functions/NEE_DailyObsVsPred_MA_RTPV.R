@@ -3,6 +3,7 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
   library(gridExtra)
   library(cowplot)
   library(ggplot2)
+  library(zoo)
   
   # Load the analysed model outputs
   File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
