@@ -1,4 +1,4 @@
-WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT")){
+WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong"),Metric = "AnnualPPT"){
   
   # Source packages needed
   library(lubridate)
@@ -7,9 +7,9 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
   library(coda)
   
   # Run the analysis of the model outputs if they don't exist
-  source("r2jags_analysis_RTPV.R")
+  source("functions/NEE_analysis_function_RTPV.R")
   for (Site in Sites){
-    if (length(list.files("analysis/RTPV/",pattern = paste0("analysis_RTPV_",Site))) != 0){
+    if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))) != 0){
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
@@ -18,28 +18,12 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
   }
   message("Plotting weights for sites...")
   
-  # Initialise MAP dataframe
-  MAP = data.frame("Site"=Sites,
-                   "MAP"=rep(NA,length(Sites)))
-  
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
-    File = list.files("analysis/RTPV/",pattern = paste0("analysis_RTPV_",Site))
+    File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",File))
     assign(Site,output)
     rm(output)
-    
-    # We also load the daily data to calculate MAP
-    load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
-    Input = eval(as.name(paste0(Site,"_Input")))
-    DailyData = Input$DailyData
-    DailyData$year = year(DailyData$TIMESTAMP)
-    
-    YearlyData <- DailyData %>%
-      group_by(year) %>%               # group by the year column
-      summarise(Precip=sum(Precip,na.rm=TRUE))
-    
-    MAP$MAP[MAP$Site==Site] = mean(YearlyData$Precip)
   }
   
   # Let's load in the prior information
@@ -65,7 +49,6 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
                     "PriLow" = rep(PriLow,length(Sites)),
                     "PriMed" = rep(PriMed,length(Sites)),
                     "PriHigh" = rep(PriHigh,length(Sites)))
-                              
   
   # Assign lags
   CumWeights$Lag[substr(CumWeights$Variable,15,18)=="1]"] = 0
@@ -108,11 +91,24 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
   CumWeights$Variable[CumWeights$Variable == "PPTlong"] = "Long-term Precipitation"
   
   # Assign levels to Variable
-  CumWeights$Variable = factor(CumWeights$Variable,levels = sort(unique(CumWeights$Variable)))
+  levels = c("Shortwave Radiation",
+             "Air Temperature",
+             "VPD",
+             "Short-term Precipitation",
+             "Long-term Precipitation",
+             "All Precipitation")
+  CumWeights$Variable = factor(CumWeights$Variable,levels)
   
-  # Order sites by MAP
-  MAP = MAP[order(MAP$MAP,decreasing = TRUE),]
-  CumWeights$Site = factor(CumWeights$Site,levels=MAP$Site)
+  # Order sites by chosen metric
+  load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
+  metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
+  colnames(metric) = c("Sites","Metric")
+  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2])
+  CumWeights$Site = paste0(CumWeights$Site,
+                           " - ",
+                           rep(metric[unique(match(CumWeights$Site,metric$Sites)),2],
+                               each = nrow(CumWeights)/length(Sites)))
+  CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
   
   # Check whether the climate variable is significant - does the CI contain 0?
  # ?????? ESen$Significant = sign(ESen$Low*ESen$High)==1
@@ -152,5 +148,6 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
     theme_bw() +
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +
-    guides(color = "none")
+    guides(color = "none") +
+    ggtitle(paste0("Sites ordered by ", Metric))
 }

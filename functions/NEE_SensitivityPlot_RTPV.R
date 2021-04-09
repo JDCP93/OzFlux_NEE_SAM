@@ -1,4 +1,4 @@
-SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT")){
+SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT"),Metric = "AnnualPPT"){
 
   # Source packages needed
   library(lubridate)
@@ -7,9 +7,9 @@ SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PP
   library(coda)
   
   # Run the analysis of the model outputs if they don't exist
-  source("r2jags_analysis_RTPV.R")
+  source("functions/NEE_analysis_function_RTPV.R")
   for (Site in Sites){
-    if (length(list.files("analysis/RTPV/",pattern = paste0("analysis_RTPV_",Site))) != 0){
+    if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))) != 0){
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
@@ -17,30 +17,13 @@ SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PP
     }
   }
   message("Plotting weights for sites...")
-
-  # Initialise MAP dataframe
-  MAP = data.frame("Site"=Sites,
-                   "MAP"=rep(NA,length(Sites)))
   
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
-    File = list.files("analysis/RTPV/",pattern = paste0("analysis_RTPV_",Site))
+    File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",File))
     assign(Site,output)
     rm(output)
-  
-  
-    # We also load the daily data to calculate MAP
-    load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
-    Input = eval(as.name(paste0(Site,"_Input")))
-    DailyData = Input$DailyData
-    DailyData$year = year(DailyData$TIMESTAMP)
-    
-    YearlyData <- DailyData %>%
-      group_by(year) %>%               # group by the year column
-      summarise(Precip=sum(Precip,na.rm=TRUE))
-    
-    MAP$MAP[MAP$Site==Site] = mean(YearlyData$Precip)
 }
 
   # Extract the sensitvity covariates
@@ -63,11 +46,24 @@ SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PP
   ESen$Variable[ESen$Variable == "PPT"] = "All Precipitation"
   
   # Assign levels to Variable
-  ESen$Variable = factor(ESen$Variable,levels = sort(unique(ESen$Variable)))
+  levels = c("Shortwave Radiation",
+             "Air Temperature",
+             "VPD",
+             "Short-term Precipitation",
+             "Long-term Precipitation",
+             "All Precipitation")
+  ESen$Variable = factor(ESen$Variable,levels)
   
-  # Order sites by MAP
-  MAP = MAP[order(MAP$MAP,decreasing = TRUE),]
-  ESen$Site = factor(ESen$Site,levels=MAP$Site)
+  # Order sites by chosen metric
+  load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
+  metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
+  colnames(metric) = c("Sites","Metric")
+  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2])
+  ESen$Site = paste0(ESen$Site,
+                     " - ",
+                     rep(metric[unique(match(ESen$Site,metric$Sites)),2],
+                         each = nrow(ESen)/length(Sites)))
+  ESen$Site = factor(ESen$Site,levels=SiteOrder)
   
   # Plot the sensitivity covariates
   library(ggplot2)
@@ -98,5 +94,6 @@ SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PP
             theme_bw() +
             theme(legend.position = "top",
                   text = element_text(size=20),
-                  axis.text.x = element_text(angle=45, hjust=1))
+                  axis.text.x = element_text(angle=45, hjust=1)) +
+    ggtitle(paste0("Sites ordered by ", Metric))
 }

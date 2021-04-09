@@ -96,16 +96,16 @@ for (i in 1:length(output.mcmc)){
 # output.mcmc = output.mcmc[1:6]
   
 #*******************************************************************************
-# Plotting weights and sensitivities for RTPVS
+# Plotting weights and sensitivities for RTPV
 #*******************************************************************************
   
   rm(list=ls())
   
-  source("functions/SensitivityPlot_RTPVS.R")
-  source("functions/WeightPlot_RTPVS.R")
-  Sites = c("AU-ASM","AU-Cum","AU-Cpr","AU-DaS","AU-Dry","AU-Gin","AU-GWW","AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
-  ESenPlot = SensitivityPlot_RTPVS(Sites,c("Precip"))
-  WeightPlot = WeightPlot_RTPVS(Sites,c("Precip"))
+  source("functions/NEE_SensitivityPlot_RTPV.R")
+  source("functions/NEE_WeightPlot_RTPV.R")
+  Sites = c("AU-ASM","AU-How","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW","AU-Stp","AU-TTE","AU-Whr","AU-Wom","AU-Tum")
+  ESenPlot = SensitivityPlot_RTPV(Sites)
+  WeightPlot = WeightPlot_RTPV(Sites)
   
   ESenPlot
   WeightPlot
@@ -379,7 +379,7 @@ Sites = c("AU-ASM"
           ,"AU-Whr"
           ,"AU-Wom")
 
-source("functions/NEE_BehaviourPlot_RTPV.R")
+source("functions/NEE_BehaviourPlot_function_RTPV.R")
 
 df = data.frame()
 
@@ -436,3 +436,4 @@ Plot
 
 source("functions/NEE_MetricsPlot_function_RTPV.R")
 Plot = NEE_MetricsPlot_function_RTPV(Sites)
+Plot

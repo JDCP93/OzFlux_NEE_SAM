@@ -27,7 +27,7 @@ df$Metric = factor(df$Metric, levels = c("R2","CCO","MBE","NME","SDD"))
 
 Plot = ggplot(df) +
   geom_bar(aes(x = Site,y=Value,group = Model,fill=Model),stat = "identity",position = "dodge") +
-  geom_text(aes(x = Site, y = Value, group = Model, label = round(Value,2)),position = position_dodge(width = 0.9)) +
+  geom_text(aes(x = Site, y = Value/2, group = Model, label = round(Value,2)),position = position_dodge(width = 0.9)) +
   facet_grid(Metric~.,scales="free") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank())
