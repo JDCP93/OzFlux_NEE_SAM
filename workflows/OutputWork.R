@@ -410,7 +410,7 @@ Sites = c("AU-ASM"   #1
           ,"AU-Whr"  #12
           ,"AU-Wom") #13
 
-source("functions/NEE_R2BarPlot_RTPV.R")
+source("functions/NEE_R2BarPlot_function_RTPV.R")
 
 Transects = c("NATT",
               "SAWS",
@@ -437,3 +437,20 @@ Plot
 source("functions/NEE_MetricsPlot_function_RTPV.R")
 Plot = NEE_MetricsPlot_function_RTPV(Sites)
 Plot
+
+
+
+#*******************************************************************************
+# Plotting weights and sensitivities per grouping
+#*******************************************************************************
+
+rm(list=ls())
+
+source("functions/NEE_WeightPlot_RTPV.R")
+Sites = c("AU-ASM","AU-How","AU-DaS","AU-Dry","AU-Stp","AU-TTE")
+WeightPlot = WeightPlot_RTPV(Sites)
+WeightPlot
+
+Sites = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Whr","AU-Wom","AU-Tum")
+WeightPlot = WeightPlot_RTPV(Sites)
+WeightPlot

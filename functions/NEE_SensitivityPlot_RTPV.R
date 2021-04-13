@@ -87,9 +87,9 @@ SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PP
                                   labels=c("FALSE"="Non-Significant",
                                            "TRUE"="Significant"),
                                   guide="legend",
-                                  option="magma",
-                                  begin=0.2,
-                                  end=0.6) +
+                                  begin=0.1,
+                                  end=0.9,
+                                  direction = -1) +
             ylab("Sensitivity") +
             theme_bw() +
             theme(legend.position = "top",

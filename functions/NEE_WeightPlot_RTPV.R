@@ -27,10 +27,7 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
   }
   
   # Let's load in the prior information
-  load("output/RTPV/NEE_output_RTPV_Prior_2021-02-20.Rdata")
-  output = summary(output$output.mcmc)
-  assign("Prior",output)
-  rm(output)
+  load("analysis/RTPV/NEE_prior_summary_RTPV.Rdata")
   # Do some shit with it
   CumWeightParams = c(sprintf("cum_weightA[%d,%d]",rep(1:4,14),rep(1:14,each=4)),
                       sprintf("cum_weightAP[%d]",seq(1:8)))
@@ -126,12 +123,18 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
     geom_hline(yintercept = 0.5, linetype = "dashed") +
     geom_line(aes(x = Lag, 
                   y = Med, 
-                  color = Variable)) +
-    geom_pointrange(aes(x = Lag, 
+                  color = Variable),
+              size = 2) +
+    geom_point(aes(x = Lag, 
+                  y = Med, 
+                  color = Variable),
+              size = 2.5) +
+    geom_linerange(aes(x = Lag, 
                         ymin = Low, 
                         y = Med, 
                         ymax = High,
-                        color = Variable)) +
+                        color = Variable),
+                    size = 2) +
     geom_errorbar(aes(x = Lag, 
                       ymin = Low, 
                       ymax = High,
@@ -142,12 +145,13 @@ WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong
     ylab("Cumulative Weight") +
     xlab("Days into Past") +
     scale_color_viridis_d(name="",
-                          option="magma",
-                          begin=0.2,
-                          end=0.8) +
+                          begin=0.1,
+                          end=0.9,
+                          direction = -1) +
     theme_bw() +
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +
     guides(color = "none") +
     ggtitle(paste0("Sites ordered by ", Metric))
 }
+

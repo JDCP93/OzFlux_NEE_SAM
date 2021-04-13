@@ -16,6 +16,12 @@ Sites = c("AU-ASM"
           ,"AU-Whr"
           ,"AU-Wom"
           )
+
+############################################################################
+# All sites, variable k amount with optimisation
+############################################################################
+
+
 # # Source the function
 # source("alternate/RTPV/NEE_variable_kmean_function_current_RTPV.R")
 # source("alternate/RTPV/NEE_variable_kmean_function_current_NDVI_RTPV.R")
@@ -40,7 +46,37 @@ Sites = c("AU-ASM"
 #   NEE_alllags_NDVI_variable_kmean_RTPV(Site)
 # }
 
+############################################################################
+# All sites, one cluster amount
+############################################################################
+# Source the function
+source("alternate/RTPV/NEE_kmean_function_current_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_current_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_singlePPT_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_singlePPT_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_allPPT_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_alllags_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
 
+k = 5
+# Calculate the values for the variable functions
+for (Site in Sites){
+  NEE_current_kmean_RTPV(Site,k)
+  NEE_current_NDVI_kmean_RTPV(Site,k)
+  for (Lag in 2:8){
+    NEE_singlePPT_kmean_RTPV(Site,k,Lag)
+    NEE_singlePPT_NDVI_kmean_RTPV(Site,k,Lag)
+  }
+  NEE_allPPT_kmean_RTPV(Site,k)
+  NEE_allPPT_NDVI_kmean_RTPV(Site,k)
+  NEE_alllags_kmean_RTPV(Site,k)
+  NEE_alllags_NDVI_kmean_RTPV(Site,k)
+}
+
+############################################################################
+# For a single Site but many different clusters!!!
+############################################################################
 
 # Source the function
 source("alternate/RTPV/NEE_kmean_function_current_RTPV.R")
@@ -52,9 +88,12 @@ source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_alllags_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
 
-k = 2
+# Source the function
+Site = "AU-Dry"
+
+ks = 2:50
 # Calculate the values for the variable functions
-for (Site in Sites){
+for (k in ks){
   NEE_current_kmean_RTPV(Site,k)
   NEE_current_NDVI_kmean_RTPV(Site,k)
   for (Lag in 2:8){

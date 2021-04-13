@@ -15,7 +15,7 @@ getmode <- function(v) {
   uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
-message("Performing k-means clustering with NDVI and all lags for ",Site," at ",Sys.time())
+message("Finding optimal k for k-means clustering with NDVI and all lags for ",Site," at ",Sys.time())
 # Load the input file and extract required data
 load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
@@ -112,6 +112,7 @@ NEE = input$NEE[-(1:365)]
 cluster = NbClust(climate, min.nc = 2, max.nc = 50, method = "kmeans")
 k = getmode(cluster$Best.nc)
 
+message("Performing ",k,"-cluster k-means clustering with NDVI and all lags for ",Site," at ",Sys.time())
 # Find the cluster allocations for recommended number of clusters
 kmean.output = kmeans(climate,k,iter.max = 25, nstart = 25)
 
@@ -144,13 +145,20 @@ for (i in 1:k){
               "r.squared"))
 }
 
+NEE_obs = compare$NEE_obs
+NEE_pred = compare$NEE_pred
+
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_pred))$r.squared
 output[["MBE"]] = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
 output[["NME"]] = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
 output[["SDD"]] = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
 output[["CCO"]] = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
 output[["series"]] = compare
+output[["totwithinss"]] = kmean.output$tot.withinss
 
+ss <- silhouette(kmean.output$cluster, dist(climate))
+ss = mean(ss[, 3])
+output[["avg.sil"]] = ss
 
 runtime = Sys.time()-starttime
 output[["runtime"]] = runtime

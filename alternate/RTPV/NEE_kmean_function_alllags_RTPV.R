@@ -9,7 +9,7 @@ library(NbClust)
 
 starttime = Sys.time()  
 
-message("Performing k-means clustering with all lags for ",Site," at ",Sys.time())
+message("Performing ",k,"-cluster k-means clustering with all lags for ",Site," at ",Sys.time())
 # Load the input file and extract required data
 load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
@@ -132,13 +132,20 @@ for (i in 1:k){
               "r.squared"))
 }
 
+NEE_obs = compare$NEE_obs
+NEE_pred = compare$NEE_pred
+
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_pred))$r.squared
 output[["MBE"]] = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
 output[["NME"]] = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
 output[["SDD"]] = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
 output[["CCO"]] = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
 output[["series"]] = compare
+output[["totwithinss"]] = kmean.output$tot.withinss
 
+ss <- silhouette(kmean.output$cluster, dist(climate))
+ss = mean(ss[, 3])
+output[["avg.sil"]] = ss
 
 runtime = Sys.time()-starttime
 output[["runtime"]] = runtime

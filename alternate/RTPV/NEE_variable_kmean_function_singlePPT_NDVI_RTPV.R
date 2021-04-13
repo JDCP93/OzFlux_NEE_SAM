@@ -38,7 +38,7 @@ PPTLagName = c("14-20",
                "270-365")
 
 if (PPTLag %in% c(2,3,4,5,6,7,8)){
-  message("Performing k-means clustering with NDVI and precip ",PPTLagDef[PPTLag-1]," for ",Site," at ",Sys.time())
+  message("Finding optimal k for k-means clustering with NDVI and precip ",PPTLagDef[PPTLag-1]," for ",Site," at ",Sys.time())
 } else {
   stop("PPTLag must be an integer between 2 and 8 inclusive! Try again!")
 }
@@ -69,6 +69,7 @@ NEE = input$NEE[-(1:365)]
 cluster = NbClust(data = climate, min.nc = 2, max.nc = 25, method = "kmeans")
 k = getmode(cluster$Best.nc)
 
+message("Performing ",k,"-cluster k-means clustering with NDVI and all lags for ",Site," at ",Sys.time())
 # Find the cluster allocations for recommended number of clusters
 kmean.output = kmeans(climate,k,iter.max = 25, nstart = 25)
 
@@ -101,12 +102,20 @@ for (i in 1:k){
               "r.squared"))
 }
 
+NEE_obs = compare$NEE_obs
+NEE_pred = compare$NEE_pred
+
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_pred))$r.squared
 output[["MBE"]] = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
 output[["NME"]] = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
 output[["SDD"]] = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
 output[["CCO"]] = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
 output[["series"]] = compare
+output[["totwithinss"]] = kmean.output$tot.withinss
+
+ss <- silhouette(kmean.output$cluster, dist(climate))
+ss = mean(ss[, 3])
+output[["avg.sil"]] = ss
 
 save(output,file = paste0("alternate/RTPV/results/NEE_output_kmean_PPT",PPTLagName[PPTLag-1],"_NDVI_RTPV_",Site,".Rdata"))
 
