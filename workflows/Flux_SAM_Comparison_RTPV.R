@@ -79,7 +79,7 @@ Plot = ggplot(plot.df) +
   facet_grid(Site~.) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank()) +
-  scale_alpha_manual(values=c(0.5, 1)) +
+  scale_fill_viridis_b() +
   coord_cartesian(ylim = c(0,1)) +
   ggtitle("NEE and LE model performance")
 
