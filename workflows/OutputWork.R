@@ -454,3 +454,54 @@ WeightPlot
 Sites = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Whr","AU-Wom","AU-Tum")
 WeightPlot = WeightPlot_RTPV(Sites)
 WeightPlot
+
+#*******************************************************************************
+# Check time series of sites
+#*******************************************************************************
+
+rm(list=ls())
+
+# List all sites
+Sites = c("AU-ASM"
+          ,"AU-Cpr"
+          ,"AU-Cum"
+          ,"AU-DaS"
+          ,"AU-Dry"
+          ,"AU-Gin"
+          ,"AU-GWW"
+          ,"AU-How"
+          ,"AU-Stp"
+          ,"AU-TTE"
+          ,"AU-Tum"
+          ,"AU-Whr"
+          ,"AU-Wom"
+)
+
+source("functions/Flux_TimeSeries_RTPV.R")
+
+for (Site in Sites){
+  Plot = Flux_TimeSeries_RTPV(Site)
+  plot(Plot)
+  Sys.sleep(3)
+}
+
+
+
+
+#*******************************************************************************
+# Stacked weights with different colours per transect
+#*******************************************************************************
+rm(list=ls())
+source("functions/NEE_StackedWeightPlot_Transects_RTPV.R")
+
+
+Sites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+          "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
+
+Transects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
+              "NATT","NATT","NATT","SAWS","SAWS","SAWS")
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"Tair","AnnualPPT")
+
+Plot
+

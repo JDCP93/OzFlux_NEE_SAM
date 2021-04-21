@@ -6,13 +6,16 @@ SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PP
   library(dplyr)
   library(coda)
   
+  source("functions/FindMetric.R")
+  TitleUnits = FindMetric(Metric)
+  
   # Run the analysis of the model outputs if they don't exist
-  source("functions/NEE_analysis_function_RTPV.R")
   for (Site in Sites){
     if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))) != 0){
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
+      source("functions/NEE_analysis_function_RTPV.R")
       r2jags_analysis_RTPV(Site)
     }
   }
@@ -58,11 +61,11 @@ SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PP
   load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
   metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
   colnames(metric) = c("Sites","Metric")
-  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2])
+  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2],TitleUnits$Units)
   ESen$Site = paste0(ESen$Site,
                      " - ",
                      rep(metric[unique(match(ESen$Site,metric$Sites)),2],
-                         each = nrow(ESen)/length(Sites)))
+                         each = nrow(ESen)/length(Sites)),TitleUnits$Units)
   ESen$Site = factor(ESen$Site,levels=SiteOrder)
   
   # Plot the sensitivity covariates
@@ -92,8 +95,9 @@ SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PP
                                   direction = -1) +
             ylab("Sensitivity") +
             theme_bw() +
-            theme(legend.position = "top",
+            theme(legend.position = "bottom",
                   text = element_text(size=20),
                   axis.text.x = element_text(angle=45, hjust=1)) +
-    ggtitle(paste0("Sites ordered by ", Metric))
+    ggtitle("NEE Sensitivity to Climate Variables",
+            subtitle = paste0("Sites ordered by ", TitleUnits$Title))
 }
