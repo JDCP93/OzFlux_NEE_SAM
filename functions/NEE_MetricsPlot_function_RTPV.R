@@ -66,8 +66,7 @@ Plot = ggplot(df) +
              scales="free",
              labeller = label_parsed) +
   theme_bw() +
-  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE),
-                       direction = -1) +
+  scale_fill_viridis_d(direction = -1) +
   theme(panel.grid.major.x = element_blank(),
         text = element_text(size=20),
         axis.text.x = element_text(angle=45, hjust=1),

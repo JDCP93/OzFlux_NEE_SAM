@@ -9,9 +9,6 @@ library(viridis)
 library(ggpubr)
 library(gridExtra)
 
-# Decide which k-means models we want to show
-Clusters = 2 
-
 # List all sites
 Sites = c("AU-ASM"
           ,"AU-Cpr"
@@ -49,16 +46,14 @@ load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
 
 # Initialise the dataframe of model R2 values
 R2 = data.frame("Site" = Sites,
-               "Transect" = Transects,
+                "Transect" = Transects,
                 "R2.CUR" = 0,
                 "R2.SAM" = 0,
-                "R2.AR1" = 0,
-                "R2.KMN" = 0,
-                "R2.KMC" = 0)
+                "R2.AR1" = 0)
 
 # For each site
 for (Site in Sites){
-
+  
   # Collect the R2 values from the analysis scripts
   message("Collating R2 values for ",Site)
   
@@ -74,17 +69,6 @@ for (Site in Sites){
   File = list.files("analysis/RTPV/",pattern = paste0("NEE_AR1_analysis_RTPV_",Site))
   load(paste0("analysis/RTPV/",File))
   R2$R2.AR1[R2$Site==Site] = output$AR1.R2
-  if (Clusters > 0){
-    load(paste0("alternate/RTPV/results/NEE_output_",Clusters,"cluster_kmean_current_NDVI_RTPV_",Site,".Rdata"))
-    R2$R2.KMN[R2$Site==Site] = output$r.squared
-    
-    load(paste0("alternate/RTPV/results/NEE_output_",Clusters,"cluster_kmean_current_RTPV_",Site,".Rdata"))
-    R2$R2.KMC[R2$Site==Site] = output$r.squared  
-  } else {
-      R2$R2.KMN = 0
-      R2$R2.KMC = 0
-  }
-
 }
 
 # Initialise the dataframe for the correlation values and p values
@@ -218,119 +202,6 @@ for (i in 5:ncol(WorldClimMetrics)){
   Correlations$SAWSRelImpP[i-4] = metricPvalue
 }
 
-
-
-# Plot the data!
-AllPValue = data.frame("Metric" = Correlations$Metric,
-                       "AbsVal" = Correlations$AbsP,
-                       "AbsImpVal" = Correlations$AbsImpP,
-                       "RelImpVal" = Correlations$RelImpP)
-AllPValue = AllPValue %>% 
-            pivot_longer(-Metric, names_to = "pvalues") %>% 
-            group_by(pvalues) %>% 
-            top_n(1, -value)
-AllBestMetric = AllPValue$Metric[which.min(AllPValue$value)]
-AllBestRelation = AllPValue$pvalues[which.min(AllPValue$value)]
-# Create the plot dataframe
-Site = rep(Sites,4)
-Site = factor(Site, levels = WorldClimMetrics[order(WorldClimMetrics[[AllBestMetric]]),1])
-Transect = rep(Transects,4)
-Model = rep(c("Current Environment (k-means)",
-              "Current Environment (SAM)",
-              "Environmental Memory (SAM)",
-              "Biological Memory (AR1)"),
-            each=length(Sites))
-Model = factor(Model,
-               levels=c("Biological Memory (AR1)",
-                        "Environmental Memory (SAM)",
-                        "Current Environment (SAM)",
-                        "Current Environment (k-means)"))
-
-Value = c(R2$R2.KMC,R2$R2.CUR-R2$R2.KMC,R2$R2.SAM-R2$R2.CUR,R2$R2.AR1-R2$R2.SAM)
-
-Fig = data.frame(Site,
-                 Transect,
-                 Model,
-                 Value)
-
-
-# Plot for every site based on best metric
-Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site)) +
-  geom_bar(position="stack",stat="identity") +
-  geom_bar(stat = "identity", color = "black",size = 1) +
-  coord_flip(ylim=c(0,1)) +
-  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
-  ylab(parse(text="R^2")) +
-  theme_bw() +
-  theme(legend.position = "bottom", 
-        text = element_text(size = 20),
-        legend.title = element_blank()) +
-  ggtitle(paste0("Model Performance, ordered by ",AllBestMetric," Desc"),
-          subtitle = AllBestRelation)
-
-Plot
-
-# Plot for just NATT based on mean daily temperature
-
-NATTPValue = data.frame("Metric" = Correlations$Metric,
-                       "AbsVal" = Correlations$NATTAbsP,
-                       "AbsImpVal" = Correlations$NATTAbsImpP,
-                       "RelImpVal" = Correlations$NATTRelImpP)
-NATTPValue = NATTPValue %>% 
-  pivot_longer(-Metric, names_to = "pvalues") %>% 
-  group_by(pvalues) %>% 
-  top_n(1, -value)
-NATTBestMetric = NATTPValue$Metric[which.min(NATTPValue$value)]
-NATTBestRelation = NATTPValue$pvalues[which.min(NATTPValue$value)]
-
-Fig$Site = factor(Fig$Site, levels = WorldClimMetrics[order(WorldClimMetrics[[NATTBestMetric]]),1])
-
-NATTPlot = ggplot(Fig[Fig$Transect=="NATT",],aes(fill=Model,y=Value,x=Site)) +
-  geom_bar(position="stack",stat="identity") +
-  geom_bar(stat = "identity", color = "black",size = 1) +
-  coord_flip(ylim=c(0,1)) +
-  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
-  ylab(parse(text="R^2")) +
-  theme_bw() +
-  theme(legend.position = "bottom", 
-        text = element_text(size = 20),
-        legend.title = element_blank()) +
-  ggtitle(paste0("NATT Model Performance, ordered by ",NATTBestMetric," Desc"),
-          subtitle = NATTBestRelation)
-
-NATTPlot
-
-
-# Plot for just SAWS based on coefficient of variation of daily radiation
-SAWSPValue = data.frame("Metric" = Correlations$Metric,
-                        "AbsVal" = Correlations$SAWSAbsP,
-                        "AbsImpVal" = Correlations$SAWSAbsImpP,
-                        "RelImpVal" = Correlations$SAWSRelImpP)
-SAWSPValue = SAWSPValue %>% 
-  pivot_longer(-Metric, names_to = "pvalues") %>% 
-  group_by(pvalues) %>% 
-  top_n(1, -value)
-SAWSBestMetric = SAWSPValue$Metric[which.min(SAWSPValue$value)] 
-SAWSBestRelation = SAWSPValue$pvalues[which.min(SAWSPValue$value)]
-
-Fig$Site = factor(Fig$Site, levels = WorldClimMetrics[order(WorldClimMetrics[[SAWSBestMetric]]),1])
-
-SAWSPlot = ggplot(Fig[Fig$Transect=="SAWS",],aes(fill=Model,y=Value,x=Site)) +
-  geom_bar(position="stack",stat="identity") +
-  geom_bar(stat = "identity", color = "black",size = 1) +
-  coord_flip(ylim=c(0,1)) +
-  scale_fill_viridis_d(guide = guide_legend(reverse = TRUE)) +
-  ylab(parse(text="R^2")) +
-  theme_bw() +
-  theme(legend.position = "bottom", 
-        text = element_text(size = 20),
-        legend.title = element_blank()) +
-  ggtitle(paste0("SAWS Model Performance, ordered by ",SAWSBestMetric," Desc"),
-          subtitle = SAWSBestRelation)
-
-SAWSPlot
-
-
 # Scatter plot the metrics vs memory to show the correlations
 
 Cor.df = WorldClimMetrics
@@ -339,77 +210,85 @@ Cor.df[["AbsImpVal"]] = (R2$R2.SAM-R2$R2.CUR)
 Cor.df[["RelImpVal"]] = (R2$R2.SAM-R2$R2.CUR)/R2$R2.CUR
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+# Specify the metrics
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
 # Calculate the linear trend line
-AllLine = lm(Cor.df[[AllBestRelation]] ~ Cor.df[[AllBestMetric]])$coefficients
-NATTLine = lm(Cor.df[[AllBestRelation]][Cor.df$Transect=="NATT"] ~ Cor.df[[AllBestMetric]][Cor.df$Transect=="NATT"])$coefficients
-SAWSLine =lm(Cor.df[[AllBestRelation]][Cor.df$Transect=="SAWS"] ~ Cor.df[[AllBestMetric]][Cor.df$Transect=="SAWS"])$coefficients
+AllLine = lm(Cor.df[["AbsImpVal"]] ~ Cor.df[["AnnualPPT"]])$coefficients
+NATTLine = lm(Cor.df[["AbsImpVal"]][Cor.df$Transect=="NATT"] ~ Cor.df[["AnnualPPT"]][Cor.df$Transect=="NATT"])$coefficients
+SAWSLine =lm(Cor.df[["AbsImpVal"]][Cor.df$Transect=="SAWS"] ~ Cor.df[["AnnualPPT"]][Cor.df$Transect=="SAWS"])$coefficients
 
 # Find the range of NATT and SAWS x values
-NATTmetric = Cor.df[[AllBestMetric]][Cor.df$Transect=="NATT"]
-SAWSmetric = Cor.df[[AllBestMetric]][Cor.df$Transect=="SAWS"]
+NATTmetric = Cor.df[["AnnualPPT"]][Cor.df$Transect=="NATT"]
+SAWSmetric = Cor.df[["AnnualPPT"]][Cor.df$Transect=="SAWS"]
 
 # Plot for all sites
 AllCorPlot = ggplot(Cor.df,aes(color = Transect,
-                               x=.data[[AllBestMetric]], 
-                               y = .data[[AllBestRelation]])) +
-            geom_point(aes(),size = 3) +
-            scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
-                                  option="magma",
-                                  begin=0.2,
-                                  end=0.8) +
-            geom_line(aes(x = .data[[AllBestMetric]], 
-                          y = AllLine[1] + AllLine[2]*.data[[AllBestMetric]]),
-                      color = magma(1,1,0.5,0.5),
-                      size = 1) + 
-            geom_line(aes(x = seq(min(NATTmetric),
-                                  max(NATTmetric),
-                                  length.out = nrow(Cor.df)), 
-                          y = NATTLine[1] + NATTLine[2]*seq(min(NATTmetric),
-                                                            max(NATTmetric),
-                                                            length.out = nrow(Cor.df))),
-                      color = magma(1,1,0.2,0.2),
-                      linetype = "dashed",
-                      size = 1) + 
-            geom_line(aes(x = seq(min(SAWSmetric),
-                                  max(SAWSmetric),
-                                  length.out = nrow(Cor.df)), 
-                          y = SAWSLine[1] + SAWSLine[2]*seq(min(SAWSmetric),
-                                                            max(SAWSmetric),
-                                                            length.out = nrow(Cor.df))),
-                      color = magma(1,1,0.8,0.8),
-                      linetype = "dashed",
-                      size = 1) + 
-            theme_bw() +
-            ylab(AllBestRelation) +
-            xlab(AllBestMetric) +
-            theme(text = element_text(size = 20)) +
-            ggtitle(label = paste0("OzFlux Memory Improvement"))#,
-                 #   subtitle=expression(paste("kendall's ",tau," = -0.64, p-value = 0.022")))
-
-AllCorPlot
-
-# Plot for NATT sites
-
-# Calculate the linear trend line
-AllLineNATT = lm(Cor.df[[NATTBestRelation]] ~ Cor.df[[NATTBestMetric]])$coefficients
-NATTLineNATT = lm(Cor.df[[NATTBestRelation]][Cor.df$Transect=="NATT"] ~ Cor.df[[NATTBestMetric]][Cor.df$Transect=="NATT"])$coefficients
-SAWSLineNATT =lm(Cor.df[[NATTBestRelation]][Cor.df$Transect=="SAWS"] ~ Cor.df[[NATTBestMetric]][Cor.df$Transect=="SAWS"])$coefficients
-
-# Find the range of NATT and SAWS x values
-NATTmetricNATT = Cor.df[[NATTBestMetric]][Cor.df$Transect=="NATT"]
-SAWSmetricNATT = Cor.df[[NATTBestMetric]][Cor.df$Transect=="SAWS"]
-
-# Plot for all sites
-NATTCorPlot = ggplot(Cor.df,aes(color = Transect,
-                               x=.data[[NATTBestMetric]], 
-                               y = .data[[NATTBestRelation]])) +
+                               x=.data[["AnnualPPT"]], 
+                               y = .data[["AbsImpVal"]])) +
   geom_point(aes(),size = 3) +
   scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
                         option="magma",
                         begin=0.2,
                         end=0.8) +
-  geom_line(aes(x = .data[[NATTBestMetric]], 
-                y = AllLineNATT[1] + AllLineNATT[2]*.data[[NATTBestMetric]]),
+  geom_line(aes(x = .data[["AnnualPPT"]], 
+                y = AllLine[1] + AllLine[2]*.data[["AnnualPPT"]]),
+            color = magma(1,1,0.5,0.5),
+            size = 1) + 
+  geom_line(aes(x = seq(min(NATTmetric),
+                        max(NATTmetric),
+                        length.out = nrow(Cor.df)), 
+                y = NATTLine[1] + NATTLine[2]*seq(min(NATTmetric),
+                                                  max(NATTmetric),
+                                                  length.out = nrow(Cor.df))),
+            color = magma(1,1,0.2,0.2),
+            linetype = "dashed",
+            size = 1) + 
+  geom_line(aes(x = seq(min(SAWSmetric),
+                        max(SAWSmetric),
+                        length.out = nrow(Cor.df)), 
+                y = SAWSLine[1] + SAWSLine[2]*seq(min(SAWSmetric),
+                                                  max(SAWSmetric),
+                                                  length.out = nrow(Cor.df))),
+            color = magma(1,1,0.8,0.8),
+            linetype = "dashed",
+            size = 1) + 
+  theme_bw() +
+  ylab("Memory Improvement") +
+  xlab("Mean Annual PPT") +
+  theme(text = element_text(size = 20)) +
+  ggtitle(label = paste0("All Sites"))
+AllCorPlot
+
+# Plot for NATT sites
+
+# Calculate the linear trend line
+AllLineNATT = lm(Cor.df[["RelImpVal"]] ~ Cor.df[["PPTSeasonality"]])$coefficients
+NATTLineNATT = lm(Cor.df[["RelImpVal"]][Cor.df$Transect=="NATT"] ~ Cor.df[["PPTSeasonality"]][Cor.df$Transect=="NATT"])$coefficients
+SAWSLineNATT =lm(Cor.df[["RelImpVal"]][Cor.df$Transect=="SAWS"] ~ Cor.df[["PPTSeasonality"]][Cor.df$Transect=="SAWS"])$coefficients
+
+# Find the range of NATT and SAWS x values
+NATTmetricNATT = Cor.df[["PPTSeasonality"]][Cor.df$Transect=="NATT"]
+SAWSmetricNATT = Cor.df[["PPTSeasonality"]][Cor.df$Transect=="SAWS"]
+
+# Plot for all sites
+NATTCorPlot = ggplot(Cor.df,aes(color = Transect,
+                                x=.data[["PPTSeasonality"]], 
+                                y = .data[["RelImpVal"]])) +
+  geom_point(aes(),size = 3) +
+  scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
+                        option="magma",
+                        begin=0.2,
+                        end=0.8) +
+  geom_line(aes(x = .data[["PPTSeasonality"]], 
+                y = AllLineNATT[1] + AllLineNATT[2]*.data[["PPTSeasonality"]]),
             color = magma(1,1,0.5,0.5),
             linetype = "dashed",
             size = 1) + 
@@ -417,25 +296,24 @@ NATTCorPlot = ggplot(Cor.df,aes(color = Transect,
                         max(NATTmetricNATT),
                         length.out = nrow(Cor.df)), 
                 y = NATTLineNATT[1] + NATTLineNATT[2]*seq(min(NATTmetricNATT),
-                                                  max(NATTmetricNATT),
-                                                  length.out = nrow(Cor.df))),
+                                                          max(NATTmetricNATT),
+                                                          length.out = nrow(Cor.df))),
             color = magma(1,1,0.2,0.2),
             size = 1) + 
   geom_line(aes(x = seq(min(SAWSmetricNATT),
                         max(SAWSmetricNATT),
                         length.out = nrow(Cor.df)), 
                 y = SAWSLineNATT[1] + SAWSLineNATT[2]*seq(min(SAWSmetricNATT),
-                                                  max(SAWSmetricNATT),
-                                                  length.out = nrow(Cor.df))),
+                                                          max(SAWSmetricNATT),
+                                                          length.out = nrow(Cor.df))),
             color = magma(1,1,0.8,0.8),
             linetype = "dashed",
             size = 1) + 
   theme_bw() +
-  ylab(NATTBestRelation) +
-  xlab(NATTBestMetric) +
+  ylab("Relative Mem. Improvement") +
+  xlab("PPT Seasonality") +
   theme(text = element_text(size = 20)) +
-  ggtitle(label = paste0("NATT Memory Improvement"))#,
-#   subtitle=expression(paste("kendall's ",tau," = -0.64, p-value = 0.022")))
+  ggtitle(label = paste0("NATT"))
 
 NATTCorPlot
 
@@ -443,25 +321,21 @@ NATTCorPlot
 # Plot for SAWS sites
 
 # Calculate the linear trend line
-AllLineSAWS = lm(Cor.df[[SAWSBestRelation]] ~ Cor.df[[SAWSBestMetric]])$coefficients
-NATTLineSAWS = lm(Cor.df[[SAWSBestRelation]][Cor.df$Transect=="NATT"] ~ Cor.df[[SAWSBestMetric]][Cor.df$Transect=="NATT"])$coefficients
-SAWSLineSAWS =lm(Cor.df[[SAWSBestRelation]][Cor.df$Transect=="SAWS"] ~ Cor.df[[SAWSBestMetric]][Cor.df$Transect=="SAWS"])$coefficients
+AllLineSAWS = lm(Cor.df[["RelImpVal"]] ~ Cor.df[["AnnualMeanTemp"]])$coefficients
+NATTLineSAWS = lm(Cor.df[["RelImpVal"]][Cor.df$Transect=="NATT"] ~ Cor.df[["AnnualMeanTemp"]][Cor.df$Transect=="NATT"])$coefficients
+SAWSLineSAWS =lm(Cor.df[["RelImpVal"]][Cor.df$Transect=="SAWS"] ~ Cor.df[["AnnualMeanTemp"]][Cor.df$Transect=="SAWS"])$coefficients
 
 # Find the range of NATT and SAWS x values
-NATTmetricSAWS = Cor.df[[SAWSBestMetric]][Cor.df$Transect=="NATT"]
-SAWSmetricSAWS = Cor.df[[SAWSBestMetric]][Cor.df$Transect=="SAWS"]
+NATTmetricSAWS = Cor.df[["AnnualMeanTemp"]][Cor.df$Transect=="NATT"]
+SAWSmetricSAWS = Cor.df[["AnnualMeanTemp"]][Cor.df$Transect=="SAWS"]
 
 # Plot for all sites
 SAWSCorPlot = ggplot(Cor.df,aes(color = Transect,
-                                x=.data[[SAWSBestMetric]], 
-                                y = .data[[SAWSBestRelation]])) +
+                                x=.data[["AnnualMeanTemp"]], 
+                                y = .data[["RelImpVal"]])) +
   geom_point(aes(),size = 3) +
-  scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
-                        option="magma",
-                        begin=0.2,
-                        end=0.8) +
-  geom_line(aes(x = .data[[SAWSBestMetric]], 
-                y = AllLineSAWS[1] + AllLineSAWS[2]*.data[[SAWSBestMetric]]),
+  geom_line(aes(x = .data[["AnnualMeanTemp"]], 
+                y = AllLineSAWS[1] + AllLineSAWS[2]*.data[["AnnualMeanTemp"]]),
             color = magma(1,1,0.5,0.5),
             linetype = "dashed",
             size = 1) + 
@@ -469,8 +343,8 @@ SAWSCorPlot = ggplot(Cor.df,aes(color = Transect,
                         max(NATTmetricSAWS),
                         length.out = nrow(Cor.df)), 
                 y = NATTLineSAWS[1] + NATTLineSAWS[2]*seq(min(NATTmetricSAWS),
-                                                  max(NATTmetricSAWS),
-                                                  length.out = nrow(Cor.df))),
+                                                          max(NATTmetricSAWS),
+                                                          length.out = nrow(Cor.df))),
             color = magma(1,1,0.2,0.2),
             linetype = "dashed",
             size = 1) + 
@@ -478,27 +352,35 @@ SAWSCorPlot = ggplot(Cor.df,aes(color = Transect,
                         max(SAWSmetricSAWS),
                         length.out = nrow(Cor.df)), 
                 y = SAWSLineSAWS[1] + SAWSLineSAWS[2]*seq(min(SAWSmetricSAWS),
-                                                  max(SAWSmetricSAWS),
-                                                  length.out = nrow(Cor.df))),
+                                                          max(SAWSmetricSAWS),
+                                                          length.out = nrow(Cor.df))),
             color = magma(1,1,0.8,0.8),
             size = 1) + 
   theme_bw() +
-  ylab(SAWSBestRelation) +
-  xlab(SAWSBestMetric) +
-  theme(text = element_text(size = 20)) +
-  ggtitle(label = paste0("SAWS Memory Improvement"))#,
-#   subtitle=expression(paste("kendall's ",tau," = -0.64, p-value = 0.022")))
+  scale_color_viridis_d(guide = guide_legend(reverse = TRUE),
+                        option="magma",
+                        begin=0.2,
+                        end=0.8) +
+  ylab("Relative Mem. Improvement") +
+  xlab("Annual Mean Temperature") +
+  theme(text = element_text(size = 20),
+        legend.position = "bottom") +
+  ggtitle(label = paste0("SAWS"))
 
 SAWSCorPlot
 
+
+
+
 # Write some text
-text = paste("Relationships between different measures of",
-             "memory impact on NEE predictability",
-             "and climate metrics for the NATT, the SAWS,",
-             "and all sites combined. Solid lines indicate",
-             "significance at p = 0.05 levels, dashed",
-             "lines indicate non-significance.", sep = "\n")
-text.p <- text_grob(text, face = "italic", size = 20, color = "black")
+text = paste("Relationships between different measures",
+             "of memory impact on NEE predictability",
+             "and climate metrics for the NATT, the",
+             "SAWS, and all sites combined. Solid ",
+             "lines indicate significance at p < 0.05",
+             "levels, dashed lines indicate",
+             "non-significance.", sep = "\n")
+text.p <- text_grob(text, face = "italic", size = 16, color = "black")
 
 get_legend<-function(myggplot){
   tmp <- ggplot_gtable(ggplot_build(myggplot))
@@ -515,10 +397,70 @@ SAWSCorPlot = SAWSCorPlot + theme(legend.position="none")
 
 figure = grid.arrange(AllCorPlot, NATTCorPlot, SAWSCorPlot, text.p, legend,
                       layout_matrix = rbind(c(1,2), c(3,4),c(5,5)),
-                       ncol = 2, 
-                       nrow = 3,
+                      ncol = 2, 
+                      nrow = 3,
                       widths = c(2.7, 2.7), 
                       heights = c(2.5, 2.5, 0.2))
 
 
 figure
+
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+# Testing sans AU-Dry in NATT as clear outlier
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
+foo = WorldClimMetrics[WorldClimMetrics$Transect=="NATT",]
+foo = foo[foo$Sites!="AU-Dry",]
+
+bar = R2[R2$Transect=="NATT",]
+bar = bar[bar$Site!="AU-Dry",]
+
+foobar = data.frame("Metric" = colnames(foo[-(1:4)]),
+                    "NATTAbsVal" = 0,
+                    "NATTAbsP" = 0,
+                    "NATTAbsImpVal" = 0,
+                    "NATTAbsImpP" = 0,
+                    "NATTRelImpVal" = 0,
+                    "NATTRelImpP" = 0)
+
+for (i in 5:ncol(foo)){
+  # For relative R2 improvement between SAM and current
+  metricR2 = cor.test(x = foo[,i],
+                      y = bar$R2.SAM,
+                      method = "spearman")$estimate
+  metricPvalue = cor.test(x = foo[,i],
+                          y = bar$R2.SAM,
+                          method = "spearman")$p.value
+  foobar$NATTAbsVal[i-4] = metricR2
+  foobar$NATTAbsP[i-4] = metricPvalue
+  
+  # For abs R2 improvement between SAM and current
+  metricR2 = cor.test(x = foo[,i],
+                      y = (bar$R2.SAM-bar$R2.CUR),
+                      method = "spearman")$estimate
+  metricPvalue = cor.test(x = foo[,i],
+                          y = (bar$R2.SAM-bar$R2.CUR),
+                          method = "spearman")$p.value
+  foobar$NATTAbsImpVal[i-4] = metricR2
+  foobar$NATTAbsImpP[i-4] = metricPvalue
+  
+  
+  # For relative R2 improvement between SAM and current
+  metricR2 = cor.test(x = foo[,i],
+                      y = (bar$R2.SAM-bar$R2.CUR)/bar$R2.CUR,
+                      method = "spearman")$estimate
+  metricPvalue = cor.test(x = foo[,i],
+                          y = (bar$R2.SAM-bar$R2.CUR)/bar$R2.CUR,
+                          method = "spearman")$p.value
+  foobar$NATTRelImpVal[i-4] = metricR2
+  foobar$NATTRelImpP[i-4] = metricPvalue
+}

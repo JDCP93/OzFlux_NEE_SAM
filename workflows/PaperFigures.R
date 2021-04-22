@@ -31,3 +31,10 @@ Plot
 source("functions/NEE_SensitivityPlot_RTPV.R")
 Plot = SensitivityPlot_RTPV(Sites)
 Plot
+
+#*******************************************************************************
+# Metric Improvements for NEE - SUPPLEMENTARY
+#*******************************************************************************
+source("functions/NEE_MetricsPlot_function_RTPV.R")
+Plot = NEE_MetricsPlot_function_RTPV(Sites)
+Plot
