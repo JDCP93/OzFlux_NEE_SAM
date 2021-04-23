@@ -7,6 +7,7 @@ rm(list=ls())
 # Source library
 library(raster)
 library(WorldClimTiles)
+library(viridis)
 
 # #Code to download and merge worldclim data if necessary
 r1 <- getData("worldclim",var="bio",res=0.5,lat = 0,lon=100)
@@ -70,27 +71,47 @@ df[,3:4] = df[,3:4]/10
 df[,5:6] = df[,5:6]/100
 df[,7:13] = df[,7:13]/10
 
-e = extent(110,160,-45, -10)
+e = extent(110,155,-45, -10)
 
 # Plot some metrics for Australia and show the site locations
 
 MAT = raster::extract(r,e,layer=1,nl=1)/10
-plot(r[[1]]/10, ext = e, main =  "Annual Mean Temperature (degC)", xlab = "Longitude", ylab = "Latitude",
-     breaks = round(seq(floor(min(MAT,na.rm=TRUE)),ceiling(max(MAT,na.rm=TRUE)),length.out=20),0), col = viridis(19))
-plot(points,add=T,cex=1,col="red",pch = 19)
-plot(points,add=T,cex=1,col="red")
-
-TAR = values(r[[7]])/10
-plot(r[[7]]/10, ext = e, main =  "Temperature Annual Range (degC)", xlab = "Longitude", ylab = "Latitude",
-     breaks = round(seq(floor(min(TAR,na.rm=TRUE)),ceiling(max(TAR,na.rm=TRUE)),length.out=20),0), col = viridis(19))
+plot(r[[1]]/10, 
+     ext = e,
+     breaks = seq(2,30,length.out=15), 
+     col = viridis(14), 
+     legend.args=list(text='Annual Mean Temperature (°C)',
+                      side=4,
+                      font=2, 
+                      line=3, 
+                      cex=1),
+     axes=FALSE)
 plot(points,add=T,cex=1,col="red",pch = 19)
 plot(points,add=T,cex=1,col="red")
 
 MAP = raster::extract(r,e,layer=12,nl=1)
-plot(r[[12]], ext = e, main =  "Annual Mean Precipitation (mm)", xlab = "Longitude", ylab = "Latitude",
-     breaks = round(seq(floor(min(MAP,na.rm=TRUE)),ceiling(max(MAP,na.rm=TRUE)),length.out=20),0), col = viridis(19,direction=-1))
+plot(r[[12]], 
+     ext = e, 
+     breaks = c(100,200,300,400,500,600,700,800,900,1000,
+                1200,1400,1600,1800,2000,2500,3000,4000,5000),
+     col = viridis(18,direction=-1),
+     legend.args=list(text='Mean Annual Precipitation (mm)',
+                      side=4,
+                      font=2, 
+                      line=3, 
+                      cex=1),
+     axes=FALSE)
 plot(points,add=T,cex=1,col="red",pch = 19)
 plot(points,add=T,cex=1,col="red")
+
+
+TAR = values(r[[7]])/10
+plot(r[[7]]/10, ext = e, main =  "Temperature Annual Range (°C)", xlab = "Longitude", ylab = "Latitude",
+     breaks = seq(floor(min(TAR,na.rm=TRUE)),ceiling(max(TAR,na.rm=TRUE)),length.out=20), col = viridis(19))
+plot(points,add=T,cex=1,col="red",pch = 19)
+plot(points,add=T,cex=1,col="red")
+
+
 
 PS = values(r[[15]])
 plot(r[[15]], ext = e, main =  "Precipitation Seasonality (%)", xlab = "Longitude", ylab = "Latitude",

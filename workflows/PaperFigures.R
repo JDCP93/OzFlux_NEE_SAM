@@ -8,7 +8,7 @@ Transects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
               "NATT","NATT","NATT","SAWS","SAWS","SAWS")
 
 #*******************************************************************************
-# Model Performance
+# NEE Model Performance
 #*******************************************************************************
 
 source("functions/NEE_R2BarPlot_function_RTPV.R")
@@ -16,17 +16,23 @@ Plot = NEE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
 Plot
 
 #*******************************************************************************
-# Stacked weights with different colours per transect
+# NEE stacked weights with different colours per transect
 #*******************************************************************************
 source("functions/NEE_StackedWeightPlot_Transects_RTPV.R")
-Plot = StackedWeightPlot_RTPV(Sites,Transects,"Tair","AnnualPPT")
+TairSites = c("AU-Cpr","AU-Cum","AU-DaS","AU-Gin","AU-GWW",
+          "AU-How","AU-Stp","AU-Tum","AU-Whr","AU-Wom")
+
+TairTransects = c("SAWS","SAWS","NATT","SAWS","SAWS",
+              "NATT","NATT","SAWS","SAWS","SAWS")
+
+Plot = StackedWeightPlot_RTPV(TairSites,TairTransects,"Tair","AnnualPPT")
 Plot
 
 Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","AnnualPPT")
 Plot
 
 #*******************************************************************************
-# Climate sensitivity
+# NEE climate sensitivity
 #*******************************************************************************
 source("functions/NEE_SensitivityPlot_RTPV.R")
 Plot = SensitivityPlot_RTPV(Sites)
@@ -37,4 +43,12 @@ Plot
 #*******************************************************************************
 source("functions/NEE_MetricsPlot_function_RTPV.R")
 Plot = NEE_MetricsPlot_function_RTPV(Sites)
+Plot
+
+#*******************************************************************************
+# LE Model Performance
+#*******************************************************************************
+
+source("functions/LE_R2BarPlot_function_RTPV.R")
+Plot = LE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
 Plot
