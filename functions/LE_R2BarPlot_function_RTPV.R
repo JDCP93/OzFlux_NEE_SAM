@@ -1,4 +1,4 @@
-LE_R2BarPlot_RTPV = function(Sites,Transects,Metric,Clusters = 0){
+LE_R2BarPlot_RTPV = function(Sites,Transects,Metric="AnnualPPT",Clusters = 0){
 
   
   # Load the required packages
@@ -75,9 +75,10 @@ LE_R2BarPlot_RTPV = function(Sites,Transects,Metric,Clusters = 0){
     load(paste0("analysis/RTPV/",File))
     R2$R2.CUR[R2$Site==Site] = output$CUR.R2
     
-    # File = list.files("analysis/RTPV/",pattern = paste0("LE_AR1_analysis_RTPV_",Site))
-    # load(paste0("analysis/RTPV/",File))
-    # R2$R2.AR1[R2$Site==Site] = output$AR1.R2
+    File = list.files("analysis/RTPV/",pattern = paste0("LE_AR1_analysis_RTPV_",Site))
+    load(paste0("analysis/RTPV/",File))
+    R2$R2.AR1[R2$Site==Site] = output$AR1.R2
+    
     if (Clusters > 0){
     load(paste0("alternate/RTPV/results/LE_output_",Clusters,"cluster_kmean_current_NDVI_RTPV_",Site,".Rdata"))
     R2$R2.KMN[R2$Site==Site] = output$r.squared

@@ -50,5 +50,10 @@ Plot
 #*******************************************************************************
 
 source("functions/LE_R2BarPlot_function_RTPV.R")
-Plot = LE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
+LESites = c("AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+          "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
+
+LETransects = c("SAWS","NATT","NATT","SAWS","AU-SAWS",
+              "NATT","NATT","NATT","SAWS","SAWS","SAWS")
+Plot = LE_R2BarPlot_RTPV(LESites,LETransects,"AnnualPPT", Clusters = 0)
 Plot
