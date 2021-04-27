@@ -51,7 +51,8 @@ Models = c("current",
            "PPT180-269",
            "PPT270-365",
            "allPPT",
-           "alllags")
+           "alllags",
+           "SAM")
 
 # NDVI included or not?
 NDVIs = factor(c("NoNDVI","NDVI"),
@@ -97,10 +98,11 @@ for (Site in Sites){
   file = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
   load(paste0("analysis/RTPV/",file))
   SAM$R2[SAM$Site == Site] = output$SAM.R2
+  df$R2[df$Site == Site & df$Model == "SAM"] = output$SAM.R2
 }
 
 # Box plot grouped by transect and NDVI
-BoxPlot = ggplot(df) +
+BoxPlot = ggplot(df[df$Model!="SAM",]) +
   geom_boxplot(aes(x = Transect, y = R2, fill = NDVI)) +
   scale_fill_viridis_d(begin = 0.1,
                        end = 0.9) +
@@ -116,11 +118,11 @@ BoxPlot = ggplot(df) +
 BoxPlot
 
 # Check whether including NDVI makes a difference
-NATTttest = t.test(df$R2[df$Transect == "NATT" & df$NDVI == "NDVI"],
-                   df$R2[df$Transect == "NATT" & df$NDVI == "NoNDVI"],
+NATTttest = t.test(df$R2[df$Transect == "NATT" & df$NDVI == "NDVI" & df$Model!="SAM"],
+                   df$R2[df$Transect == "NATT" & df$NDVI == "NoNDVI" & df$Model!="SAM"],
                    paired = TRUE)
-SAWSttest = t.test(df$R2[df$Transect == "SAWS" & df$NDVI == "NDVI"],
-                   df$R2[df$Transect == "SAWS" & df$NDVI == "NoNDVI"],
+SAWSttest = t.test(df$R2[df$Transect == "SAWS" & df$NDVI == "NDVI" & df$Model!="SAM"],
+                   df$R2[df$Transect == "SAWS" & df$NDVI == "NoNDVI" & df$Model!="SAM"],
                    paired = TRUE)
 
 if (NATTttest$p.value<0.05){
@@ -140,6 +142,8 @@ plot.df = df %>%
   group_by(Transect,NDVI,Model) %>%
   summarise(meanR2 = mean(R2),
             sdR2 = sd(R2))
+
+plot.df$sdR2[plot.df$Model == "SAM"] = 0
 # Plot the R2 per model, transect and NDVI
 Plot = ggplot(plot.df) +
   geom_bar(aes(x = Model,y=meanR2, fill=NDVI),stat = "identity",position = "dodge") +
@@ -203,22 +207,29 @@ Plot = ggplot(plot.NDVIdf[!plot.NDVIdf$Model%in%c("current","allPPT","alllags"),
 Plot
 
 # Plot boxplots for each site and model, limited to nCl clusters or less
-nCl = 8
-Plot = ggplot(NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags") & NDVI.df$Clusters<=nCl,]) +
+nCl = 16
+Plot = ggplot(NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags","SAM") & NDVI.df$Clusters<=nCl,]) +
       geom_boxplot(aes(x=Model,y=R2,fill=Model)) +
+      geom_point(data=NDVI.df[NDVI.df$Model=="SAM",],aes(x=Model,y=R2,color=Model),shape=19) +
+      geom_point(data=NDVI.df[NDVI.df$Model=="SAM",],aes(x=Model,y=R2,color=Model),shape=4,stroke=1) +
       facet_grid(.~Site) +
       theme_bw() +
       theme(axis.text.x = element_blank(),
             axis.ticks.x = element_blank(),
             panel.grid.major.x = element_blank(),
-            text = element_text(size=20)) +
+            text = element_text(size=20),
+            legend.position = "bottom") +
       scale_y_continuous(breaks= seq(0,1,by=0.1),
                         expand = c(0,0)) +
       ylab("R2") +
       xlab("") +
-      scale_fill_viridis_d(begin=0.1,
+      scale_color_manual(name="",
+                         values = "red") +
+      scale_fill_viridis_d(name="k-means Models",
+                           begin=0.1,
                            end = 0.9) +
       coord_cartesian(ylim = c(0,1)) +
+      guides(fill = guide_legend(order = 1),colour = guide_legend(order = 2)) +
       ggtitle(paste0("R2 values for each site and rainfall lag, with NDVI and ",nCl," clusters or less"))
 
 Plot

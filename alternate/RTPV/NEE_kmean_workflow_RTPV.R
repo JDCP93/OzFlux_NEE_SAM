@@ -91,7 +91,7 @@ source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
 # Set the site
 Sites = "AU-How"
 
-ks = c(50,60,70,80,90,100)
+ks = c(60,70,80,90,100)
 # Calculate the values for the variable functions
 for (k in ks){
   for (Site in Sites){
