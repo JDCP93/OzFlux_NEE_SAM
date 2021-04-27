@@ -33,7 +33,7 @@ climate = scale(climate[-(1:365),])
 NEE = input$NEE[-(1:365)]
 
 # Find the cluster allocations for recommended number of clusters
-kmean.output = kmeans(climate,k,iter.max = 25, nstart = 25)
+kmean.output = kmeans(climate,k,iter.max = 100, nstart = 50)
 
 # Initialise the comparison dataframe
 compare = data.frame("NEE_obs" = NEE,"NEE_pred" = 0)
@@ -67,6 +67,13 @@ for (i in 1:k){
 NEE_obs = compare$NEE_obs
 NEE_pred = compare$NEE_pred
 
+if (any(kmean.output$size<50)){
+  message("                     ##**## WARNING! ##**##\n",
+          sum(kmean.output$size<50)," clusters have too few observations for a reliable regression!\n",
+          "                     ##**## WARNING! ##**##")
+  Sys.sleep(3)
+}
+
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_pred))$r.squared
 output[["MBE"]] = sum(NEE_pred-NEE_obs,na.rm=TRUE)/length(NEE_pred)
 output[["NME"]] = sum(abs(NEE_pred-NEE_obs),na.rm=TRUE)/sum(abs(mean(NEE_obs,na.rm=TRUE)-NEE_obs),na.rm=TRUE)
@@ -74,6 +81,7 @@ output[["SDD"]] = abs(1-sd(NEE_pred,na.rm=TRUE)/sd(NEE_obs,na.rm=TRUE))
 output[["CCO"]] = cor(NEE_pred,NEE_obs,use = "complete.obs", method = "pearson")
 output[["series"]] = compare
 output[["totwithinss"]] = kmean.output$tot.withinss
+output[["bet.tot.ratio"]] = kmean.output$betweenss/kmean.output$totss
 
 ss <- silhouette(kmean.output$cluster, dist(climate))
 ss = mean(ss[, 3])

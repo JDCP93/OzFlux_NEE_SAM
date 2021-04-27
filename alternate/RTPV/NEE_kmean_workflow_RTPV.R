@@ -88,22 +88,22 @@ source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_alllags_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
 
-# Source the function
-Site = "AU-Dry"
+# Set the site
+Sites = "AU-How"
 
-ks = c(2,4,8,16)
+ks = c(50,60,70,80,90,100)
 # Calculate the values for the variable functions
 for (k in ks){
   for (Site in Sites){
-    NEE_current_kmean_RTPV(Site,k)
+#    NEE_current_kmean_RTPV(Site,k)
     NEE_current_NDVI_kmean_RTPV(Site,k)
     for (Lag in 2:8){
-      NEE_singlePPT_kmean_RTPV(Site,k,Lag)
+#      NEE_singlePPT_kmean_RTPV(Site,k,Lag)
       NEE_singlePPT_NDVI_kmean_RTPV(Site,k,Lag)
     }
-    NEE_allPPT_kmean_RTPV(Site,k)
+#    NEE_allPPT_kmean_RTPV(Site,k)
     NEE_allPPT_NDVI_kmean_RTPV(Site,k)
-    NEE_alllags_kmean_RTPV(Site,k)
+#    NEE_alllags_kmean_RTPV(Site,k)
     NEE_alllags_NDVI_kmean_RTPV(Site,k)
   }
 }
