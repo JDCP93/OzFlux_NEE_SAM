@@ -248,6 +248,6 @@ NEE_analysis_AR1_RTPV <- function(Site){
                 "AR1.R2" = AR1.R2,
                 "df" = df)
   
-  save(output,file = paste0("NEE_analysis_AR1_RTPV_",Site,"_",Sys.Date(),".Rdata"))
+  save(output,file = paste0("NEE_AR1_analysis_RTPV_",Site,"_",Sys.Date(),".Rdata"))
 }
 

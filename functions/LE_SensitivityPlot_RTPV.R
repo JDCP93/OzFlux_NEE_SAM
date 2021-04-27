@@ -1,4 +1,4 @@
-NEE_SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT"),Metric = "AnnualPPT"){
+LE_SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong","PPT"),Metric = "AnnualPPT"){
 
   # Source packages needed
   library(lubridate)
@@ -11,11 +11,11 @@ NEE_SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort"
   
   # Run the analysis of the model outputs if they don't exist
   for (Site in Sites){
-    if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))) != 0){
+    if (length(list.files("analysis/RTPV/",pattern = paste0("LE_analysis_RTPV_",Site))) != 0){
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
-      source("functions/NEE_analysis_function_RTPV.R")
+      source("functions/LE_analysis_function_RTPV.R")
       r2jags_analysis_RTPV(Site)
     }
   }
@@ -23,7 +23,7 @@ NEE_SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort"
   
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
-    File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
+    File = list.files("analysis/RTPV/",pattern = paste0("LE_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",File))
     assign(Site,output)
     rm(output)
@@ -98,6 +98,6 @@ NEE_SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort"
             theme(legend.position = "bottom",
                   text = element_text(size=20),
                   axis.text.x = element_text(angle=45, hjust=1)) +
-    ggtitle("NEE Sensitivity to Climate Variables",
+    ggtitle("LE Sensitivity to Climate Variables",
             subtitle = paste0("Sites ordered by ", TitleUnits$Title))
 }

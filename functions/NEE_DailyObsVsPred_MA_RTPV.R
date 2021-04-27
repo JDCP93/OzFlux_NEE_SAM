@@ -4,6 +4,9 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
   library(cowplot)
   library(ggplot2)
   library(zoo)
+  library(viridisLite)
+  library(ggnewscale)
+  library(viridis)
   
   # Load the analysed model outputs
   File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
@@ -40,8 +43,10 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
   
   
   AR1_Pred = SAM$df$Pred[-1]-AR1$df$Pred
-  AR1_Min = SAM$df$Min[-1]-AR1$df$Max
-  AR1_Max = SAM$df$Max[-1]-AR1$df$Min
+  # Use root sum of squares to calculate CI of AR1
+  AR1_CI = sqrt((SAM$df$Max[-1]-SAM$df$Min[-1])+(AR1$df$Max-AR1$df$Min))
+  AR1_Min = AR1_Pred-AR1_CI
+  AR1_Max = AR1_Pred+AR1_CI
   AR1_Obs = SAM$df$Obs[-1]
   
   AR1df = data.frame("Date"=AR1$df$Date,
@@ -98,7 +103,7 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
                          option="magma",
                          begin=0.2,
                          end=0.2) +
-    ylab("NEE (umol/m^2/s)") +
+    ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) +
     ggtitle("SAM Model (with lags)") +
     theme_bw()
   
@@ -119,7 +124,7 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
                          end=0.2) +
     theme_bw() +
     ggtitle("Current-only Model") +
-    ylab("NEE (umol/m^2/s)")
+    ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) 
   
   AR1_ObsVsNEE_ma = ggplot(AR1_MA) +
     geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill="Pred"),alpha=0.5) +
@@ -138,7 +143,14 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
                          end=0.2) +
     theme_bw() +
     ggtitle("SAM Model + AR1-modelled residuals") +
-    ylab("NEE (umol/m^2/s)")
+    ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) 
+  
+  # Let's also make a stacked plot
+  # Trim to AR1 timeframe
+  SAMMAdf = SAM_MA[-1,]
+  CURMAdf = CUR_MA[-1,]
+  AR1MAdf = AR1_MA
+  
   
   if (plotAR1==F){
     # Make layout matrix
@@ -151,6 +163,40 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
                               ncol = 1, 
                               layout_matrix=lay,
                            top=paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site))
+    
+    # Make the colours
+    plotcolors = turbo(3,end = 0.8)
+    # Plot!
+    StackedPlot = ggplot() +
+      geom_ribbon(data=SAMMAdf,
+                  aes(x=Date,ymin=Min,ymax=Max),
+                  fill = plotcolors[3],
+                  alpha = 0.4) +
+      geom_ribbon(data=CURMAdf,
+                  aes(x=Date,ymin=Min,ymax=Max),
+                  fill = plotcolors[2],
+                  alpha = 0.4) +
+      geom_line(data = CURMAdf,
+                aes(x=Date,y=Obs,
+                color = plotcolors[1])) +
+      geom_line(data = CURMAdf,
+                aes(x=Date,y=Pred,
+                color = plotcolors[2]),
+                alpha = 0.8) +
+      geom_line(data = SAMMAdf,
+                aes(x=Date,y=Pred,
+                color = plotcolors[3]),
+                alpha = 0.8) +
+      theme_bw() +
+      theme(legend.position="bottom") +
+      ggtitle(paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site)) +
+      labs(color = "Model") +
+      ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) +
+      scale_color_manual(labels = c("Observations",
+                                    "Current-Only",
+                                    "SAM"),
+                          values = plotcolors)
+    
   } else {
     # Make layout matrix
     lay <- rbind(1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4)
@@ -163,6 +209,51 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
                            ncol = 1, 
                            layout_matrix=lay,
                            top=paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site))
+    
+    # Make the colours
+    plotcolors = turbo(4,end = 0.8)
+    # Plot!
+    StackedPlot = ggplot() +
+      geom_ribbon(data=AR1MAdf,
+                  aes(x=Date,ymin=Min,ymax=Max),
+                  fill = plotcolors[4],
+                  alpha = 0.4) +
+      geom_ribbon(data=SAMMAdf,
+                  aes(x=Date,ymin=Min,ymax=Max),
+                  fill = plotcolors[3],
+                  alpha = 0.4) +
+      geom_ribbon(data=CURMAdf,
+                  aes(x=Date,ymin=Min,ymax=Max),
+                  fill = plotcolors[2],
+                  alpha = 0.4) +
+      geom_line(data = CURMAdf,
+                aes(x=Date,y=Obs,
+                color = plotcolors[1])) +
+      geom_line(data = CURMAdf,
+                aes(x=Date,y=Pred,
+                color = plotcolors[2]),
+                alpha = 0.8) +
+      geom_line(data = SAMMAdf,
+                aes(x=Date,y=Pred,
+                color = plotcolors[3]),
+                alpha = 0.8) +
+      geom_line(data = AR1MAdf,
+                aes(x=Date,y=Pred,
+                color = plotcolors[4]),
+                alpha = 0.8) +
+      theme_bw() +
+      theme(legend.position="bottom") +
+      ggtitle(paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site)) +
+      labs(color = "Model") +
+      ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) +
+      scale_color_manual(labels = c("Observations",
+                                    "Current-Only",
+                                    "SAM",
+                                    "AR1 + SAM"),
+                         values = plotcolors)
   }
+  
+  output = list("SoloPlot" = ma_plot,
+                "StackedPlot" = StackedPlot)
   
 }
