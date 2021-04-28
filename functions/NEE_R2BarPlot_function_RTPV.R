@@ -146,7 +146,7 @@ NEE_R2BarPlot_RTPV = function(Sites,Transects,Metric,Clusters = 0){
     geom_bar(stat = "identity",color = "black",size = 1) +
     geom_point(data = Fig[Fig$Transect=="NATT",],aes(x=Site,y = 1),shape=8,size = 2,show.legend=FALSE) +
     geom_point(data = Fig[Fig$Transect=="NATT",],aes(x=Site,y = -0.025),shape=8,size = 2,show.legend=FALSE) +
-    scale_fill_viridis_d(direction=-1) +
+    scale_fill_viridis_d(direction=-1,begin=0.2,end=1) +
     guides(fill=guide_legend(nrow=ceiling(length(unique(Fig$Model))/3),byrow=TRUE)) +
     coord_flip(ylim=c(0,1)) +
     ylab(parse(text="R^2")) +

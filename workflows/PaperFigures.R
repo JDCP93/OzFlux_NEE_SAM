@@ -16,8 +16,30 @@ Plot = NEE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
 Plot
 
 #*******************************************************************************
+# NEE Model Performance
+#*******************************************************************************
+
+source("functions/Flux_R2BarPlot_function_RTPV.R")
+Plot = Flux_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
+Plot
+
+#*******************************************************************************
+# LE Model Performance
+#*******************************************************************************
+
+source("functions/LE_R2BarPlot_function_RTPV.R")
+LESites = c("AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+            "AU-How","AU-Stp","AU-Tum","AU-Wom")
+
+LETransects = c("SAWS","NATT","NATT","SAWS","AU-SAWS",
+                "NATT","NATT","SAWS","SAWS")
+Plot = LE_R2BarPlot_RTPV(LESites,LETransects,"AnnualPPT", Clusters = 0)
+Plot
+
+#*******************************************************************************
 # NEE stacked weights with different colours per transect
 #*******************************************************************************
+
 source("functions/NEE_StackedWeightPlot_Transects_RTPV.R")
 TairSites = c("AU-Cpr","AU-Cum","AU-DaS","AU-Gin","AU-GWW",
           "AU-How","AU-Stp","AU-Tum","AU-Whr","AU-Wom")
@@ -31,40 +53,28 @@ Plot
 Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","AnnualPPT")
 Plot
 
-
-
 #*******************************************************************************
 # Metric Improvements for NEE - SUPPLEMENTARY
 #*******************************************************************************
+
 source("functions/NEE_MetricsPlot_function_RTPV.R")
 Plot = NEE_MetricsPlot_function_RTPV(Sites)
 Plot
 
 #*******************************************************************************
-# LE Model Performance
-#*******************************************************************************
-
-source("functions/LE_R2BarPlot_function_RTPV.R")
-LESites = c("AU-DaS","AU-How","AU-Stp")
-
-LETransects = c("NATT","NATT","NATT")
-Plot = LE_R2BarPlot_RTPV(LESites,LETransects,"AnnualPPT", Clusters = 0)
-Plot
-
-
-#*******************************************************************************
 # Model Performance Time Series
 #*******************************************************************************
+
 source("functions/NEE_DailyObsVsPred_MA_RTPV.R")
 for (Site in Sites){
   Plots = NEE_DailyObsVsPred_MA_RTPV(Site)
   plot(Plots$StackedPlot)
 }
 
-
 #*******************************************************************************
 # Climate Sensitivity
 #*******************************************************************************
+
 source("functions/NEE_SensitivityPlot_RTPV.R")
 Plot = NEE_SensitivityPlot_RTPV(Sites)
 Plot
