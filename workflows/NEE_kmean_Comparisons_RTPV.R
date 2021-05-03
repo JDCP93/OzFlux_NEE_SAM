@@ -147,7 +147,7 @@ plot.df$sdR2[plot.df$Model == "SAM"] = 0
 # Plot the R2 per model, transect and NDVI
 Plot = ggplot(plot.df) +
   geom_bar(aes(x = Model,y=meanR2, fill=NDVI),stat = "identity",position = "dodge") +
-  geom_errorbar(aes(x = Model,ymin = meanR2-sdR2, ymax = meanR2+sdR2, group = NDVI),position = position_dodge(width = 1), width = 0.5) +
+  geom_errorbar(data = plot.df[plot.df$Model!="SAM",], aes(x = Model,ymin = meanR2-sdR2, ymax = meanR2+sdR2, group = NDVI),position = position_dodge(width = 1), width = 0.5) +
   facet_grid(Transect~.) +
   theme_bw() +
   ylab("Mean R2") +
@@ -171,7 +171,7 @@ plot.NDVIdf = NDVI.df %>%
 # Plot the R2 per site and model
 Plot = ggplot(plot.NDVIdf) +
   geom_bar(aes(x = Model,y=meanR2, fill=Model),stat = "identity",position = "dodge") +
-  geom_errorbar(aes(x = Model,ymin = meanR2-sdR2, ymax = meanR2+sdR2, group = Model),position = position_dodge(width = 0.9), width = 0.5) +
+  geom_errorbar(data = plot.NDVIdf[plot.NDVIdf$Model!="SAM",],aes(x = Model,ymin = meanR2-sdR2, ymax = meanR2+sdR2, group = Model),position = position_dodge(width = 0.9), width = 0.5) +
   geom_text(aes(x = Model,y = 0.9, group = Model, label = round(meanR2,2)),position = position_dodge(width = 0.9)) +
   facet_grid(Site~.,scales="free") +
   theme_bw() +
@@ -188,7 +188,7 @@ Plot
 # Limit to individual rainfall lags
 Plot = ggplot(plot.NDVIdf[!plot.NDVIdf$Model%in%c("current","allPPT","alllags"),]) +
   geom_bar(aes(x = Model,y=meanR2, fill=Model),stat = "identity",position = "dodge") +
-  geom_errorbar(aes(x = Model,ymin = meanR2-sdR2, ymax = meanR2+sdR2, group = Model),position = position_dodge(width = 0.9), width = 0.5) +
+  geom_errorbar(data = plot.NDVIdf[!plot.NDVIdf$Model%in%c("current","allPPT","alllags","SAM"),],aes(x = Model,ymin = meanR2-sdR2, ymax = meanR2+sdR2, group = Model),position = position_dodge(width = 0.9), width = 0.5) +
   geom_text(aes(x = Model,y = 0.9, group = Model, label = round(meanR2,2)),position = position_dodge(width = 0.9)) +
   facet_grid(Site~.,scales="free") +
   theme_bw() +

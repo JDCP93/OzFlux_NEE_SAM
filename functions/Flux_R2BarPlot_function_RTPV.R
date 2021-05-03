@@ -7,6 +7,7 @@ Flux_R2BarPlot_RTPV = function(Sites,Transects,Metric="AnnualPPT",Clusters = 0){
   library(viridis)
   library(ggpubr)
   library(gridExtra)
+  library(ggnewscale)
   
   # Make a nice metric title
   Titles =c("Annual Mean Temp",
