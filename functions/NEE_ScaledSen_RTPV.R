@@ -208,3 +208,177 @@ NEE_ScaledSen = function(Site){
                       "med" = SumSen,
                       "max" = SumSen_max)
 }
+
+NEE_ScaledSen_Alt = function(Site){
+  
+  library(coda)
+  library(gtools)
+  library(stringr)
+  
+  # Load the input file and extract required data
+  load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
+  input = eval(as.name(paste0(Site,"_Input")))
+  # Combine climate data and precip data
+  climend = nrow(input$clim)
+  climate = cbind(input$clim,
+                  rbind(matrix(NA,1,4),input$clim[-climend,]),
+                  rbind(matrix(NA,2,4),input$clim[-((climend-1):climend),]),
+                  rbind(matrix(NA,3,4),input$clim[-((climend-2):climend),]),
+                  rbind(matrix(NA,4,4),input$clim[-((climend-3):climend),]),
+                  rbind(matrix(NA,5,4),input$clim[-((climend-4):climend),]),
+                  rbind(matrix(NA,6,4),input$clim[-((climend-5):climend),]),
+                  rbind(matrix(NA,7,4),input$clim[-((climend-6):climend),]),
+                  rbind(matrix(NA,8,4),input$clim[-((climend-7):climend),]),
+                  rbind(matrix(NA,9,4),input$clim[-((climend-8):climend),]),
+                  rbind(matrix(NA,10,4),input$clim[-((climend-9):climend),]),
+                  rbind(matrix(NA,11,4),input$clim[-((climend-10):climend),]),
+                  rbind(matrix(NA,12,4),input$clim[-((climend-11):climend),]),
+                  rbind(matrix(NA,13,4),input$clim[-((climend-12):climend),]),
+                  input$ppt_multiscale)
+  
+  
+  colnames(climate) = c("Tair_1",
+                        "Fsd_1",
+                        "VPD_1",
+                        "PPTshort_1",
+                        "Tair_2",
+                        "Fsd_2",
+                        "VPD_2",
+                        "PPTshort_2",
+                        "Tair_3",
+                        "Fsd_3",
+                        "VPD_3",
+                        "PPTshort_3",
+                        "Tair_4",
+                        "Fsd_4",
+                        "VPD_4",
+                        "PPTshort_4",
+                        "Tair_5",
+                        "Fsd_5",
+                        "VPD_5",
+                        "PPTshort_5",
+                        "Tair_6",
+                        "Fsd_6",
+                        "VPD_6",
+                        "PPTshort_6",
+                        "Tair_7",
+                        "Fsd_7",
+                        "VPD_7",
+                        "PPTshort_7",
+                        "Tair_8",
+                        "Fsd_8",
+                        "VPD_8",
+                        "PPTshort_8",
+                        "Tair_9",
+                        "Fsd_9",
+                        "VPD_9",
+                        "PPTshort_9",
+                        "Tair_10",
+                        "Fsd_10",
+                        "VPD_10",
+                        "PPTshort_10",
+                        "Tair_11",
+                        "Fsd_11",
+                        "VPD_11",
+                        "PPTshort_11",
+                        "Tair_12",
+                        "Fsd_12",
+                        "VPD_12",
+                        "PPTshort_12",
+                        "Tair_13",
+                        "Fsd_13",
+                        "VPD_13",
+                        "PPTshort_13",
+                        "Tair_14",
+                        "Fsd_14",
+                        "VPD_14",
+                        "PPTshort_14",
+                        "PPTlong_1",
+                        "PPTlong_2",
+                        "PPTlong_3",
+                        "PPTlong_4",
+                        "PPTlong_5",
+                        "PPTlong_6",
+                        "PPTlong_7",
+                        "PPTlong_8")
+  
+  # Remove first year, which has no PPT data
+  NDVI = input$NDVI[-(1:365)]
+  climate = climate[-(1:365),]
+  NEE = input$NEE[-(1:365)]
+  
+  
+  # Load the coefficients
+  File = list.files("analysis/RTPV/",pattern = paste0("NEE_summary_RTPV_",Site))
+  load(paste0("analysis/RTPV/",File))
+  
+  File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
+  load(paste0("analysis/RTPV/",File))
+  phi0 = output$Phi0[1]
+  
+  phi = (1-phi0+phi0*NDVI)*NDVI
+  
+  # Extract coefficients and weights
+  coeff = output.summary$statistics[substr(rownames(output.summary$statistics),1,1)=="a",1]
+  coeff_min = output.summary$quantiles[substr(rownames(output.summary$quantiles),1,1)=="a",1]
+  coeff_max = output.summary$quantiles[substr(rownames(output.summary$quantiles),1,1)=="a",5]
+  
+  weightnames = c(sprintf("weightA[%d,%d]",rep(1:4,14),rep(1:14,each=4)),
+                  sprintf("weightAP[%d]",seq(1:8)))
+  
+  weights = output.summary$statistics[rownames(output.summary$statistics) %in% weightnames,1]
+  weights_min = output.summary$quantiles[rownames(output.summary$quantiles) %in% weightnames,1]
+  weights_max = output.summary$quantiles[rownames(output.summary$quantiles) %in% weightnames,5]
+  # Rename weights
+  names(weights)=str_replace_all(names(weights),pattern="weightA\\[1,","Tair_")
+  names(weights)=str_replace_all(names(weights),pattern="weightA\\[2,","Fsd_")
+  names(weights)=str_replace_all(names(weights),pattern="weightA\\[3,","VPD_")
+  names(weights)=str_replace_all(names(weights),pattern="weightA\\[4,","PPTshort_")
+  names(weights)=str_replace_all(names(weights),pattern="weightAP\\[","PPTlong_")
+  names(weights)=str_replace_all(names(weights),pattern="\\]","")
+  
+  # Initialise matrix
+  wts = data.frame("Timestep" = 1:nrow(climate),
+                   "Tair" = NA,
+                   "Fsd" = NA,
+                   "VPD" = NA,
+                   "PPTshort" = NA,
+                   "PPTlong" = NA)
+  
+  # Calculated the weighted climate term at each timestep
+  for (t in wts$Timestep){
+    wts$Tair[t] = sum(weights[substr(names(weights),1,4)=="Tair"]*climate[t,substr(colnames(climate),1,4)=="Tair"])
+    wts$Fsd[t] = sum(weights[substr(names(weights),1,3)=="Fsd"]*climate[t,substr(colnames(climate),1,3)=="Fsd"])
+    wts$VPD[t] = sum(weights[substr(names(weights),1,3)=="VPD"]*climate[t,substr(colnames(climate),1,3)=="VPD"])
+    wts$PPTshort[t] = sum(weights[substr(names(weights),1,4)=="PPTs"]*climate[t,substr(colnames(climate),1,4)=="PPTs"])
+    wts$PPTlong[t] = sum(weights[substr(names(weights),1,4)=="PPTl"]*climate[t,substr(colnames(climate),1,4)=="PPTl"])
+  }
+  
+  # Introduce NDVI impact
+  wtscoeff = data.frame("Timestep" = wts$Timestep)
+  wtscoeff[sprintf("a%s%d",rep(c("g","n"),each=15),2:16)] = NA
+  
+  for (t in wts$Timestep){
+    wtscoeff[t,c("ag2","ag3","ag4","ag5")] = coeff[2:5]*wts[t,2:5]*phi[t]
+    wtscoeff[t,c("ag6","ag7","ag8","ag9")] = coeff[6:9]*wts[t,1:4]*wts[t,1:4]*phi[t]
+    wtscoeff[t,c("ag10","ag11","ag12","ag13","ag14","ag15")] = coeff[10:15]*wts[t,combinations(n=4,r=2)[,1]]*wts[t,combinations(n=4,r=2)[,2]]*phi[t]
+    wtscoeff[t,"ag16"] = coeff[16]*wts[t,5]*phi[t]
+    wtscoeff[t,c("an2","an3","an4","an5")] = coeff[18:21]*wts[t,1:4]*(1-phi[t])
+    wtscoeff[t,c("an6","an7","an8","an9")] = coeff[22:25]*wts[t,1:4]*wts[t,1:4]*(1-phi[t])
+    wtscoeff[t,c("an10","an11","an12","an13","an14","an15")] = coeff[26:31]*wts[t,combinations(n=4,r=2)[,1]]*wts[t,combinations(n=4,r=2)[,2]]*(1-phi[t])
+    wtscoeff[t,"an16"] = coeff[32]*wts[t,5]*(1-phi[t])
+  }
+  
+  
+  
+  
+  climstep = data.frame("Timestep" = wts$Timestep,
+                        "Tair" = rowSums(wtscoeff[c(2,6,10,11,12,17,21,25,26,27)]),
+                        "Fsd" = rowSums(wtscoeff[c(3,7,10,13,14,18,22,25,28,29)]),
+                        "VPD" = rowSums(wtscoeff[c(4,8,11,13,15,19,23,26,28,30)]),
+                        "PPTshort" = rowSums(wtscoeff[c(5,9,12,14,15,20,24,27,29,30)]),
+                        "PPTlong" = rowSums(wtscoeff[c(16,31)]))
+  
+  
+  SumSen = colSums(wSen,na.rm=TRUE)
+}

@@ -16,14 +16,6 @@ Plot = NEE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
 Plot
 
 #*******************************************************************************
-# NEE Model Performance
-#*******************************************************************************
-
-source("functions/Flux_R2BarPlot_function_RTPV.R")
-Plot = Flux_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
-Plot
-
-#*******************************************************************************
 # LE Model Performance
 #*******************************************************************************
 
@@ -34,6 +26,36 @@ LESites = c("AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
 LETransects = c("SAWS","NATT","NATT","SAWS","AU-SAWS",
                 "NATT","NATT","NATT","SAWS","SAWS")
 Plot = LE_R2BarPlot_RTPV(LESites,LETransects,"AnnualPPT", Clusters = 0)
+Plot
+
+#*******************************************************************************
+# Flux Model Performance
+#*******************************************************************************
+
+source("functions/Flux_R2BarPlot_function_RTPV.R")
+Plot = Flux_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
+Plot
+
+#*******************************************************************************
+# Grouping Model Performance
+#*******************************************************************************
+NATT = c("AU-ASM","AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
+SAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
+
+Plot = NEE_R2BarPlot_RTPV(NATT,"NATT","PPTSeasonality", Clusters = 0)
+Plot
+
+Plot = NEE_R2BarPlot_RTPV(SAWS,"SAWS","AnnualMeanTemp", Clusters = 0)
+Plot
+
+
+LENATT = c("AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
+LESAWS = c("AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Wom")
+
+Plot = LE_R2BarPlot_RTPV(LENATT,"NATT","AnnualPPT", Clusters = 0)
+Plot
+
+Plot = LE_R2BarPlot_RTPV(LESAWS,"SAWS","PPTDryQtr", Clusters = 0)
 Plot
 
 #*******************************************************************************

@@ -144,8 +144,8 @@ NEE_R2BarPlot_RTPV = function(Sites,Transects,Metric,Clusters = 0){
   Plot = ggplot(Fig,aes(fill=Model,y=Value,x=Site,group = ValueFactor)) +
     geom_bar(position="stack",stat="identity") +
     geom_bar(stat = "identity",color = "black",size = 1) +
-    geom_point(data = Fig[Fig$Transect=="NATT",],aes(x=Site,y = 1),shape=8,size = 2,show.legend=FALSE) +
-    geom_point(data = Fig[Fig$Transect=="NATT",],aes(x=Site,y = -0.025),shape=8,size = 2,show.legend=FALSE) +
+    geom_point(data = Fig[Fig$Transect=="NATT",],aes(x=Site,y = rep(1,length(Site))),shape=8,size = 2,show.legend=FALSE) +
+    geom_point(data = Fig[Fig$Transect=="NATT",],aes(x=Site,y = rep(-0.025,length(Site))),shape=8,size = 2,show.legend=FALSE) +
     scale_fill_viridis_d(direction=-1,begin=0.2,end=1) +
     guides(fill=guide_legend(nrow=ceiling(length(unique(Fig$Model))/3),byrow=TRUE)) +
     coord_flip(ylim=c(0,1)) +
