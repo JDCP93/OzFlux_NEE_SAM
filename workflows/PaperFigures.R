@@ -123,9 +123,9 @@ source("functions/NEE_MetricsPlot_function_RTPV.R")
 Plot = NEE_MetricsPlot_function_RTPV(Sites)
 Plot
 
-# source("functions/LE_MetricsPlot_function_RTPV.R")
-# Plot = LE_MetricsPlot_function_RTPV(Sites)
-# Plot
+source("functions/LE_MetricsPlot_function_RTPV.R")
+Plot = LE_MetricsPlot_function_RTPV(c("AU-DaS","AU-Dry","AU-Gin"))
+Plot
 
 #*******************************************************************************
 # Model Performance Time Series - SUPPLEMENTARY
@@ -142,14 +142,17 @@ for (Site in Sites){
 #*******************************************************************************
 
 source("functions/NEE_WeightPlot_RTPV.R")
-Plot = NEE_WeightPlot_RTPV(Sites)
+Plot = NEE_WeightPlot_RTPV(NATT)
+Plot
+
+Plot = NEE_WeightPlot_RTPV(SAWS)
 Plot
 
 source("functions/LE_WeightPlot_RTPV.R")
 Plot = LE_WeightPlot_RTPV(LENATT)
 Plot
 
-source("functions/LE_WeightPlot_RTPV.R")
+LESAWS = c("AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
 Plot = LE_WeightPlot_RTPV(LESAWS)
 Plot
 

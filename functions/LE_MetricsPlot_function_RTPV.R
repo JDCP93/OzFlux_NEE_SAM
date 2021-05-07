@@ -18,20 +18,20 @@ df = data.frame("Site" = rep(Sites,each = 15),
 
 for (Site in Sites){
 
-  File = list.files("analysis/RTPV/metrics/",
-                    pattern = paste0("LE_current_metrics_RTPV_",Site))
-  load(paste0("analysis/RTPV/metrics/",File))
-  df$Value[df$Site == Site & df$Model == "Current Environment (SAM)"] = unlist(output[c(1:5)])
+  File = list.files("analysis/RTPV/",
+                    pattern = paste0("LE_current_analysis_RTPV_",Site))
+  load(paste0("analysis/RTPV/",File))
+  df$Value[df$Site == Site & df$Model == "Current Environment (SAM)"] = unlist(output[c(4:8)])
 
-  File = list.files("analysis/RTPV/metrics/",
-                    pattern = paste0("LE_metrics_RTPV_",Site))
-  load(paste0("analysis/RTPV/metrics/",File))
-  df$Value[df$Site == Site & df$Model == "Environmental Memory (SAM)"] = unlist(output[c(1:5)])
+  File = list.files("analysis/RTPV/",
+                    pattern = paste0("LE_analysis_RTPV_",Site))
+  load(paste0("analysis/RTPV/",File))
+  df$Value[df$Site == Site & df$Model == "Environmental Memory (SAM)"] = unlist(output[c(4:8)])
 
-  File = list.files("analysis/RTPV/metrics/",
-                    pattern = paste0("LE_AR1_metrics_RTPV_",Site))
-  load(paste0("analysis/RTPV/metrics/",File))
-  df$Value[df$Site == Site & df$Model == "Biological Memory (AR1)"] = unlist(output[c(1:5)])
+  File = list.files("analysis/RTPV/",
+                    pattern = paste0("LE_AR1_analysis_RTPV_",Site))
+  load(paste0("analysis/RTPV/",File))
+  df$Value[df$Site == Site & df$Model == "Biological Memory (AR1)"] = unlist(output[c(4:8)])
 }
 
 df$Model = factor(df$Model,
