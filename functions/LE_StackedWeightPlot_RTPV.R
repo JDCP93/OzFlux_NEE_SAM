@@ -1,4 +1,4 @@
-NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
+StackedWeightPlot_RTPV = function(Sites,Var,Metric= "AnnualPPT"){
   
   # Sort must be one of the following metrics available in the world clim data:
   # "AnnualMeanTemp"   
@@ -27,23 +27,14 @@ NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
   library(magrittr)
   library(dplyr)
   library(coda)
-  library(viridis)
-  
-  # Define the plot title and units
-  source("functions/FindMetric.R")
-  TitleUnits = FindMetric(Metric)
- 
-  Title = TitleUnits$Title
-  Unit = TitleUnits$Units
   
   # Run the analysis of the model outputs if they don't exist
-
+  source("functions/LE_analysis_function_RTPV.R")
   for (Site in Sites){
-    if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))) != 0){
+    if (length(list.files("analysis/RTPV/",pattern = paste0("LE_analysis_RTPV_",Site))) != 0){
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
-      source("functions/NEE_analysis_function_RTPV.R")
       r2jags_analysis_RTPV(Site)
     }
   }
@@ -51,7 +42,7 @@ NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
   
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
-    File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
+    File = list.files("analysis/RTPV/",pattern = paste0("LE_analysis_RTPV_",Site))
     message("Loading analysis output for ",Site," where file is ",File)
     load(paste0("analysis/RTPV/",File))
     assign(Site,output)
@@ -65,7 +56,6 @@ NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
 
   # Extract the cumulative weights
   CumWeights = data.frame("Site"=rep(Sites,each = 64),
-                          "Transect"=rep(Transects,each=64),
                           "Variable" = rep(rownames(eval(as.name(Sites[1]))$CumWeights),length(Sites)),
                           "Lag" = rep(0,each = 64*length(Sites)),
                           "Low" = unlist(lapply(Sites,function(x) eval(as.name(x))$CumWeights$WeightsLow)),
@@ -135,65 +125,55 @@ NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
   # Order sites by chosen variable
   load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
   metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
-  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2],Unit)
-  CumWeights$Site = paste0(CumWeights$Site," - ",rep(metric[,2],each = nrow(CumWeights)/length(Sites)),Unit)
+  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2])
+  CumWeights$Site = paste0(CumWeights$Site," - ",rep(metric[,2],each = nrow(CumWeights)/length(Sites)))
   CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
+  
+  # Let's try and get a correlation between cumulative weights and metric
+  MedCorr = cor.test(WeightSummary$Median,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+  RangeCorr = cor.test(WeightSummary$Range,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+  InterceptCorr = cor.test(WeightSummary$Intercept,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+  IQRCorr = cor.test(WeightSummary$IQR,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
+  Lag50Corr = cor.test(WeightSummary$Lag50,WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,Metric])$estimate
 
-  # Make sure the Var is nice!
-  TitleVar = rep(0,length(Var))
-  TitleVar[Var == "Fsd"] = "Shortwave Radiation"
-  TitleVar[Var == "Tair"] = "Air Temperature"
-  TitleVar[Var == "VPD"] = "VPD"
-  TitleVar[Var == "PPTshort"] = "Short-term Precipitation"
-  TitleVar[Var == "PPTlong"] = "Long-term Precipitation"
-  
-  
   # Plot the sensitivity covariates
-  
-  colors =  turbo(length(Sites)+4)
-  
   library(ggplot2)
   library(viridisLite)
-  library(ggnewscale)
-  library(viridis)
-  StackedWeightsPlot = ggplot() +
+  StackedWeightsPlot = ggplot(CumWeights) +
     geom_hline(yintercept = 0.5, linetype = "dashed") +
-    geom_line(data = CumWeights[CumWeights$Transect=="NATT",],
-              aes(x = Lag, 
+    geom_line(aes(x = Lag, 
                   y = Med, 
-                  color = Site,
-              ),
+                  color = Site),
               size = 2) +
-    geom_point(data = CumWeights[CumWeights$Transect=="NATT",],
-               aes(x = Lag,
-                   y = Med,
-                   color = Site),
+    geom_point(aes(x = Lag,
+                  y = Med,
+                  color = Site),
                size = 3) +
-    scale_color_manual(name = "NATT",
-                       values = colors[rev(1:length(unique(CumWeights$Site[CumWeights$Transect=="NATT"])))],
-                       guide = guide_legend(order = 1)) +
-    new_scale_color() + 
-    geom_line(data = CumWeights[CumWeights$Transect=="SAWS",],
-              aes(x = Lag, 
-                  y = Med, 
-                  color = Site,
-              ),
-              size = 2) +
-    geom_point(data = CumWeights[CumWeights$Transect=="SAWS",],
-               aes(x = Lag,
-                   y = Med,
-                   color = Site),
-               size = 3) +
-    scale_color_manual(name = "SAWS ",
-                       values = colors[(length(unique(CumWeights$Site[CumWeights$Transect=="NATT"]))+5):(length(Sites)+4)],
-                       guide = guide_legend(order = 2)) +
+    facet_grid(.~Variable,
+               scales = "free_x") +
     coord_cartesian(ylim = c(0,1)) +
     ylab("Cumulative Weight") +
     xlab("Days into Past") +
+    scale_color_viridis_d(name="",
+                          #option="magma",
+                          begin=0,
+                          end=1,
+                          direction = 1) +
     theme_bw() +
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +
-    ggtitle(paste0(TitleVar," Cumulative Weights"), 
-            subtitle = paste0("Sites ordered by ",Title))
+    guides(color = guide_legend(title = Metric)) +
+    ggtitle(round(sum(c(abs(MedCorr),
+                        abs(RangeCorr),
+                        abs(InterceptCorr),
+                        abs(IQRCorr),
+                        abs(Lag50Corr)),
+                      na.rm=TRUE),
+                  2),
+            subtitle = paste0("Md = ",round(MedCorr,2),
+                              ", Rg = ", round(RangeCorr,2),
+                             ", In = ",round(InterceptCorr,2),
+                             ", QR = ",round(IQRCorr,2),
+                              ", L50 = ", round(Lag50Corr,2)))
 }
 

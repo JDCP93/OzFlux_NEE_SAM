@@ -308,7 +308,7 @@ SAWS = c("AU-Cpr"
 )
 
 
-source("functions/NEE_StackedWeightPlot_RTPV.R")
+source("functions/LE_StackedWeightPlot_Transects_RTPV.R")
 
 
 Metrics = c("AnnualMeanTemp",
@@ -492,16 +492,64 @@ for (Site in Sites){
 # Stacked weights with different colours per transect
 #*******************************************************************************
 rm(list=ls())
-source("functions/NEE_StackedWeightPlot_Transects_RTPV.R")
+source("functions/LE_StackedWeightPlot_Transects_RTPV.R")
 
 
-Sites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+Sites = c("AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
           "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
-Transects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
+Transects = c("SAWS","NATT","NATT","SAWS","SAWS",
               "NATT","NATT","NATT","SAWS","SAWS","SAWS")
 
-Plot = StackedWeightPlot_RTPV(Sites,Transects,"Tair","AnnualPPT")
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"Tair","TempSeasonality")
+plot(Plot)
 
-Plot
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"Tair","PPTHotQtr")
+plot(Plot)
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"Tair","AnnualPPT")
+plot(Plot)
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"Fsd","PPTWetMon")
+plot(Plot)
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"Fsd","PPTWetQtr")
+plot(Plot)
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"Fsd","AnnualPPT")
+plot(Plot)
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTshort","PPTWetMon")
+plot(Plot)
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTshort","PPTWetQtr")
+plot(Plot)
+
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTshort","AnnualPPT")
+plot(Plot)
+
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","PPTWetMon")
+plot(Plot)
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","PPTWetQtr")
+plot(Plot)
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","PPTHotQtr")
+plot(Plot)
+
+
+Plot = StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","PPTSeasonality")
+plot(Plot)
 

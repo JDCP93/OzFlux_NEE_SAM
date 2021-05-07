@@ -8,6 +8,8 @@ library(lubridate)
 library(magrittr)
 library(tidyverse)
 
+
+
 # List all sites
 Sites = c("AU-ASM",
           "AU-Cpr",
@@ -22,6 +24,10 @@ Sites = c("AU-ASM",
           "AU-Tum",
           "AU-Whr",
           "AU-Wom")
+
+# Source worldclim correlations and climate metrics
+load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
+Sites = factor(Sites, levels = WorldClimMetrics[order(WorldClimMetrics[colnames(WorldClimMetrics)=="AnnualPPT"]),1])
 
 # List the transects
 Transects = c("NATT",
@@ -104,16 +110,18 @@ for (Site in Sites){
 # Box plot grouped by transect and NDVI
 BoxPlot = ggplot(df[df$Model!="SAM",]) +
   geom_boxplot(aes(x = Transect, y = R2, fill = NDVI)) +
-  scale_fill_viridis_d(begin = 0.1,
-                       end = 0.9) +
+  scale_fill_viridis_d("Model",
+                      begin = 0.1,
+                      end = 0.9,
+                      labels=c("No NDVI term","Includes NDVI")) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         text = element_text(size=20)) +
   scale_y_continuous(breaks= seq(0,1,by=0.1),
                      expand = c(0,0)) +
-  ylab("R2") +
+  ylab(expression(paste(R^2))) +
   coord_cartesian(ylim = c(0,1)) +
-  ggtitle(paste0("R2 values for each transect, split by inclusion of NDVI as predictor")) 
+  ggtitle(expression(paste("Model Performance (",""<=16," clusters)")))
 
 BoxPlot
 
@@ -206,12 +214,13 @@ Plot = ggplot(plot.NDVIdf[!plot.NDVIdf$Model%in%c("current","allPPT","alllags"),
           "Mean R2 with +/- 1 std. dev., averaged over 2-16 clusters")
 Plot
 
+
 # Plot boxplots for each site and model, limited to nCl clusters or less
 nCl = 16
-Plot = ggplot(NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags","SAM") & NDVI.df$Clusters<=nCl,]) +
+SAMdf = NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags") & NDVI.df$Clusters<=nCl,]
+Plot = ggplot(SAMdf) +
       geom_boxplot(aes(x=Model,y=R2,fill=Model)) +
-      geom_point(data=NDVI.df[NDVI.df$Model=="SAM",],aes(x=Model,y=R2,color=Model),shape=19) +
-      geom_point(data=NDVI.df[NDVI.df$Model=="SAM",],aes(x=Model,y=R2,color=Model),shape=4,stroke=1) +
+      geom_point(data=SAMdf[SAMdf$Model=="SAM",],aes(x=Model,y=R2,color=Model),shape=8,stroke=1) +
       facet_grid(.~Site) +
       theme_bw() +
       theme(axis.text.x = element_blank(),
@@ -221,19 +230,79 @@ Plot = ggplot(NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags","SAM") & NDVI.df$Cl
             legend.position = "bottom") +
       scale_y_continuous(breaks= seq(0,1,by=0.1),
                         expand = c(0,0)) +
-      ylab("R2") +
+      ylab(expression(R^2)) +
       xlab("") +
+      scale_fill_viridis_d(name="k-means Models",
+                           breaks=c("current",
+                                    "PPT14-20",
+                                    "PPT21-29",
+                                    "PPT30-59",
+                                    "PPT60-119",
+                                    "PPT120-179",
+                                    "PPT180-269",
+                                    "PPT270-365"),
+                           labels = c("Current-only",
+                                      "+ 14-20 day PPT lag",
+                                      "+ 21-29 day PPT lag",
+                                      "+ 30-59 day PPT lag",
+                                      "+ 60-119 day PPT lag",
+                                      "+ 120-179 day PPT lag",
+                                      "+ 180-269 day PPT lag",
+                                      "+ 270-365 day PPT lag")) +
       scale_color_manual(name="",
                          values = "red") +
-      scale_fill_viridis_d(name="k-means Models",
-                           begin=0.1,
-                           end = 0.9) +
       coord_cartesian(ylim = c(0,1)) +
       guides(fill = guide_legend(order = 1),colour = guide_legend(order = 2)) +
-      ggtitle(paste0("R2 values for each site and rainfall lag, with NDVI and ",nCl," clusters or less"))
+      ggtitle(paste0("k-means performance for each site and PPT lag, with NDVI and ",nCl," clusters or less"))
 
 Plot
 
+
+# Plot boxplots for each site and model, limited to nCl clusters or less
+nCl = 8
+alldf = NDVI.df[NDVI.df$Clusters<=nCl,]
+Plot = ggplot(alldf) +
+  geom_boxplot(aes(x=Model,y=R2,fill=Model)) +
+  geom_point(data=alldf[alldf$Model=="SAM",],aes(x=Model,y=R2,color=Model),shape=8,stroke=1) +
+  facet_grid(.~Site) +
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        text = element_text(size=20),
+        legend.position = "bottom") +
+  scale_y_continuous(breaks= seq(0,1,by=0.1),
+                     expand = c(0,0)) +
+  ylab(expression(R^2)) +
+  xlab("") +
+  scale_fill_viridis_d(name="k-means Models",
+                       breaks=c("current",
+                                "PPT14-20",
+                                "PPT21-29",
+                                "PPT30-59",
+                                "PPT60-119",
+                                "PPT120-179",
+                                "PPT180-269",
+                                "PPT270-365",
+                                "allPPT",
+                                "alllags"),
+                       labels = c("Current-only",
+                                 "+ 14-20 day PPT lag",
+                                 "+ 21-29 day PPT lag",
+                                 "+ 30-59 day PPT lag",
+                                 "+ 60-119 day PPT lag",
+                                 "+ 120-179 day PPT lag",
+                                 "+ 180-269 day PPT lag",
+                                 "+ 270-365 day PPT lag",
+                                 "+ all PPT lags",
+                                 "+ all climate lags")) +
+  scale_color_manual(name="",
+                     values = "red") +
+  coord_cartesian(ylim = c(0,1)) +
+  guides(fill = guide_legend(order = 1),colour = guide_legend(order = 2)) +
+  ggtitle(paste0("k-means performance for each site and lag effect, with NDVI and ",nCl," clusters or less"))
+
+Plot
 # Plot boxplots for each site and model with nCl clusters
 nCl = 8
 Plot = ggplot(NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags") & NDVI.df$Clusters==nCl,]) +

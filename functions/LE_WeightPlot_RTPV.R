@@ -1,4 +1,4 @@
-NEE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong"),Metric = "AnnualPPT"){
+LE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTlong"),Metric = "AnnualPPT"){
   
   # Source packages needed
   library(lubridate)
@@ -7,9 +7,9 @@ NEE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPT
   library(coda)
   
   # Run the analysis of the model outputs if they don't exist
-  source("functions/NEE_analysis_function_RTPV.R")
+  source("functions/LE_analysis_function_RTPV.R")
   for (Site in Sites){
-    if (length(list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))) != 0){
+    if (length(list.files("analysis/RTPV/",pattern = paste0("LE_analysis_RTPV_",Site))) != 0){
       message("Analysis file already exists for ",Site,". Moving to next site...")
     } else {
       message("Conducting model output analysis for ",Site,". Please wait...")
@@ -20,7 +20,7 @@ NEE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPT
   
   # Collect the analysis outputs and name them with each site
   for (Site in Sites){
-    File = list.files("analysis/RTPV/",pattern = paste0("NEE_analysis_RTPV_",Site))
+    File = list.files("analysis/RTPV/",pattern = paste0("LE_analysis_RTPV_",Site))
     load(paste0("analysis/RTPV/",File))
     assign(Site,output)
     rm(output)

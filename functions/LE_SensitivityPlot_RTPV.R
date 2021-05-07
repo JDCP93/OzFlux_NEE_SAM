@@ -77,12 +77,14 @@ LE_SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort",
                                 ymin = Low, 
                                 y = Med, 
                                 ymax = High, 
-                                color = Significant)) +
+                                color = Significant),
+                            size = 1) +
             geom_errorbar(aes(x = Site, 
                               ymin = Low, 
                               ymax = High, 
                               color = Significant), 
-                          width = 0.5) +
+                          width = 0.5,
+                          size = 2) +
             facet_wrap(Variable~.,
                         scales = "free_y",
                        ncol = (length(Vars)>=4)*2+(length(Vars)<4*1)) +
