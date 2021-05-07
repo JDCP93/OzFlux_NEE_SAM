@@ -124,7 +124,7 @@ Plot = NEE_MetricsPlot_function_RTPV(Sites)
 Plot
 
 source("functions/LE_MetricsPlot_function_RTPV.R")
-Plot = LE_MetricsPlot_function_RTPV(c("AU-DaS","AU-Dry","AU-Gin"))
+Plot = LE_MetricsPlot_function_RTPV(LESites)
 Plot
 
 #*******************************************************************************
