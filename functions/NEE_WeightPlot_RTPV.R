@@ -6,6 +6,13 @@ NEE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPT
   library(dplyr)
   library(coda)
   
+  # Define the plot title and units
+  source("functions/FindMetric.R")
+  TitleUnits = FindMetric(Metric)
+  
+  Title = TitleUnits$Title
+  Unit = TitleUnits$Units
+  
   # Run the analysis of the model outputs if they don't exist
   source("functions/NEE_analysis_function_RTPV.R")
   for (Site in Sites){
@@ -152,6 +159,6 @@ NEE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPT
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +
     guides(color = "none") +
-    ggtitle(paste0("Sites ordered by ", Metric))
+    ggtitle(paste0("Sites ordered by ", Title))
 }
 

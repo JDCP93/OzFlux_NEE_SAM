@@ -20,10 +20,10 @@ Plot
 #*******************************************************************************
 
 source("functions/LE_R2BarPlot_function_RTPV.R")
-LESites = c("AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+LESites = c("AU-ASM","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
             "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Wom")
 
-LETransects = c("SAWS","NATT","NATT","SAWS","AU-SAWS",
+LETransects = c("NATT","SAWS","NATT","NATT","SAWS","AU-SAWS",
                 "NATT","NATT","NATT","SAWS","SAWS")
 Plot = LE_R2BarPlot_RTPV(LESites,LETransects,"AnnualPPT", Clusters = 0)
 Plot
@@ -49,7 +49,7 @@ Plot = NEE_R2BarPlot_RTPV(SAWS,"SAWS","AnnualMeanTemp", Clusters = 0)
 Plot
 
 
-LENATT = c("AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
+LENATT = c("AU-ASM","AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
 LESAWS = c("AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Wom")
 
 Plot = LE_R2BarPlot_RTPV(LENATT,"NATT","AnnualPPT", Clusters = 0)
@@ -66,10 +66,10 @@ source("functions/NEE_SensitivityPlot_RTPV.R")
 Plot = NEE_SensitivityPlot_RTPV(Sites)
 Plot
 
-LESites = c("AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+LESites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
             "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
-LETransects = c("SAWS","NATT","NATT","SAWS","AU-SAWS",
+LETransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","AU-SAWS",
                 "NATT","NATT","NATT","SAWS","SAWS","SAWS")
 source("functions/LE_SensitivityPlot_RTPV.R")
 Plot = LE_SensitivityPlot_RTPV(LESites)
@@ -97,19 +97,19 @@ Plot
 #*******************************************************************************
 
 source("functions/LE_StackedWeightPlot_Transects_RTPV.R")
-TairSites = c("AU-Cum","AU-DaS","AU-Gin","AU-GWW",
+TairSites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Gin","AU-GWW",
               "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
-TairTransects = c("SAWS","NATT","SAWS","SAWS",
+TairTransects = c("NATT","SAWS","SAWS","NATT","SAWS","SAWS",
                   "NATT","NATT","NATT","SAWS","SAWS","SAWS")
 
 Plot = LE_StackedWeightPlot_RTPV(TairSites,TairTransects,"Tair","AnnualPPT")
 Plot
 
-LESites = c("AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+LESites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
             "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
-LETransects = c("SAWS","NATT","NATT","SAWS","SAWS",
+LETransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
                 "NATT","NATT","NATT","SAWS","SAWS","SAWS")
 
 Plot = LE_StackedWeightPlot_RTPV(LESites,LETransects,"Fsd","AnnualPPT")
@@ -124,6 +124,8 @@ Plot = NEE_MetricsPlot_function_RTPV(Sites)
 Plot
 
 source("functions/LE_MetricsPlot_function_RTPV.R")
+LESites = c("AU-ASM","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+            "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Wom")
 Plot = LE_MetricsPlot_function_RTPV(LESites)
 Plot
 
@@ -152,7 +154,7 @@ source("functions/LE_WeightPlot_RTPV.R")
 Plot = LE_WeightPlot_RTPV(LENATT)
 Plot
 
-LESAWS = c("AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
+LESAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
 Plot = LE_WeightPlot_RTPV(LESAWS)
 Plot
 

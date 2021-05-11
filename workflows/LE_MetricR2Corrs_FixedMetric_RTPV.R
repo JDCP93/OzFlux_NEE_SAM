@@ -10,9 +10,9 @@ library(ggpubr)
 library(gridExtra)
 
 # List all sites
-Sites = c(#"AU-ASM"
+Sites = c("AU-ASM"
           #,"AU-Cpr"
-          "AU-Cum"
+          ,"AU-Cum"
           ,"AU-DaS"
           ,"AU-Dry"
           ,"AU-Gin"
@@ -26,7 +26,7 @@ Sites = c(#"AU-ASM"
 )
 
 # Assign transects
-Transects = c(#"NATT",
+Transects = c("NATT",
               #"SAWS",
               "SAWS",
               "NATT",
@@ -43,6 +43,7 @@ Transects = c(#"NATT",
 
 # Source worldclim correlations and climate metrics
 load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
+WorldClimMetrics = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,]
 
 # Initialise the dataframe of model R2 values
 R2 = data.frame("Site" = Sites,

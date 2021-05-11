@@ -275,8 +275,8 @@ plot
 rm(list=ls())
 dev.off()
 # List sites
-Sites = c("AU-ASM"
-         ,"AU-Cpr"
+Sites = c(#"AU-ASM"
+         "AU-Cpr"
          ,"AU-Cum"
          ,"AU-DaS"
          ,"AU-Dry"
@@ -290,8 +290,7 @@ Sites = c("AU-ASM"
          ,"AU-Wom"
 )
 
-NATT = c("AU-ASM"
-        ,"AU-DaS"
+NATT = c("AU-DaS"
         ,"AU-Dry"
         ,"AU-How"
         ,"AU-Stp"
@@ -308,7 +307,7 @@ SAWS = c("AU-Cpr"
 )
 
 
-source("functions/LE_StackedWeightPlot_Transects_RTPV.R")
+source("functions/LE_StackedWeightPlot_RTPV.R")
 
 
 Metrics = c("AnnualMeanTemp",
@@ -331,34 +330,15 @@ Metrics = c("AnnualMeanTemp",
 "PPTHotQtr",
 "PPTColdQtr")
 
-for (Metric in Metrics){
-# TairStacked = StackedWeightPlot_RTPV(Sites,Var = "Tair",Metric = "PPTSeasonality")
-TairStacked = StackedWeightPlot_RTPV(SAWS,Var = "Tair",Metric = Metric)
+Vars = c("Fsd","Tair","VPD","PPTshort","PPTlong")
 
-# PPTLongStacked = StackedWeightPlot_RTPV(Sites,Var = "PPTlong",Metric = "AnnualPPT")
-# PPTLongStacked = StackedWeightPlot_RTPV(NATT,Var = "PPTlong",Metric = Metric)
-
-# VPDStacked = StackedWeightPlot_RTPV(Sites,Var = "VPD",Metric = "MeanDiurnalRange")
-# VPDStacked = StackedWeightPlot_RTPV(Sites,Var = "VPD",Metric = Metric)
-
-# RadStacked = StackedWeightPlot_RTPV(Sites,Var = "Fsd",Metric = "MeanDiurnalRange")
-# RadStacked = StackedWeightPlot_RTPV(Sites,Var = "Fsd",Metric = Metric)
-
-# PPTShortStacked = StackedWeightPlot_RTPV(Sites,Var = "PPTshort",Metric = "PPTDryQtr")
-# PPTShortStacked = StackedWeightPlot_RTPV(Sites,Var = "PPTshort",Metric = Metric)
-
-plot(TairStacked)
-Sys.sleep(3)
-# plot(PPTLongStacked)
-# Sys.sleep(3)
-# plot(VPDStacked)
-# Sys.sleep(3)
-# plot(RadStacked)
-# Sys.sleep(3)
-# plot(PPTShortStacked)
-# Sys.sleep(3)
+for (Var in Vars){
+  for (Metric in Metrics){
+    Plot = StackedWeightPlot_RTPV(Sites,Var = Var,Metric = Metric)
+    plot(Plot)
+    Sys.sleep(1)
+  }
 }
-
 
 #*******************************************************************************
 # Plotting an vs ag behaviour

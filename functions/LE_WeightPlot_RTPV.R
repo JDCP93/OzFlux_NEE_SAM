@@ -6,6 +6,13 @@ LE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTl
   library(dplyr)
   library(coda)
   
+  # Define the plot title and units
+  source("functions/FindMetric.R")
+  TitleUnits = FindMetric(Metric)
+  
+  Title = TitleUnits$Title
+  Unit = TitleUnits$Units
+  
   # Run the analysis of the model outputs if they don't exist
   source("functions/LE_analysis_function_RTPV.R")
   for (Site in Sites){
@@ -100,11 +107,11 @@ LE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTl
   load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
   metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
   colnames(metric) = c("Sites","Metric")
-  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2])
+  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2],Unit)
   CumWeights$Site = paste0(CumWeights$Site,
                            " - ",
                            rep(metric[unique(match(CumWeights$Site,metric$Sites)),2],
-                               each = nrow(CumWeights)/length(Sites)))
+                               each = nrow(CumWeights)/length(Sites)) ,Unit)
   CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
   
   # Check whether the climate variable is significant - does the CI contain 0?
@@ -152,6 +159,6 @@ LE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTl
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +
     guides(color = "none") +
-    ggtitle(paste0("Sites ordered by ", Metric))
+    ggtitle(paste0("Sites ordered by ", Title))
 }
 
