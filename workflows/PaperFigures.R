@@ -62,17 +62,15 @@ Plot
 # Climate Sensitivity
 #*******************************************************************************
 
-source("functions/NEE_SensitivityPlot_RTPV.R")
-Plot = NEE_SensitivityPlot_RTPV(Sites)
+source("functions/NEE_SDScaledSensitivity_RTPV.R")
+Plot = NEE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
 Plot
 
 LESites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
             "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
-LETransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","AU-SAWS",
-                "NATT","NATT","NATT","SAWS","SAWS","SAWS")
-source("functions/LE_SensitivityPlot_RTPV.R")
-Plot = LE_SensitivityPlot_RTPV(LESites)
+source("functions/LE_SDScaledSensitivity_RTPV.R")
+Plot = LE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
 Plot
 
 #*******************************************************************************

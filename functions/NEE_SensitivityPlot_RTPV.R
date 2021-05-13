@@ -29,7 +29,7 @@ NEE_SensitivityPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort"
     rm(output)
 }
 
-  # Extract the sensitvity covariates
+  # Extract the sensitivity covariates
   ESen = data.frame("Site"=rep(Sites,each = 6),
                     "Variable" = rep(rownames(eval(as.name(Sites[1]))$ESen),length(Sites)),
                     "Low" = unlist(lapply(Sites,function(x) eval(as.name(x))$ESen$ESenLow)),
