@@ -8,6 +8,7 @@
 *.csv
 *.rda
 *.png
+*.nc4
 *.jpg
 *.xlsx
 *.pptx
