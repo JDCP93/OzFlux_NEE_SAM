@@ -1,5 +1,5 @@
 
-kmean_longPPT = function(Site,k,MinDate,MaxDate){
+kmean_shortPPT_noclimate = function(Site,k,MinDate,MaxDate){
   
 # Load the required packages
 library(cluster)
@@ -7,30 +7,26 @@ library(tidyverse)
 library(factoextra)
 library(NbClust)
 
-message("Performing ",k,"-cluster k-means clustering with all long-term precip lags for ",Site," at ",Sys.time())
+message("Performing ",k,"-cluster k-means clustering with all short-term precip lags for ",Site," at ",Sys.time())
 # Load the input file and extract required data
 load(paste0("input/",Site,"_Input.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
 # Combine climate data and precip data
-climate = cbind(input$clim,input$NDVI,input$ppt[,8:14])
-colnames(climate) = c("Ta",
-                      "Fsd",
-                      "VPD",
-                      "PPT",
-                      "NDVI",
-                      "PPT_1_30",
-                      "PPT_31_90",
-                      "PPT_91_180",
-                      "PPT_181_365",
-                      "PPT_366_730",
-                      "PPT_731_1095",
-                      "PPT_1096_1460")
+climate = cbind(input$NDVI,input$ppt[,1:7])
+colnames(climate) = c("NDVI",
+                      "PPT_1_14",
+                      "PPT_15_30",
+                      "PPT_31_60",
+                      "PPT_61_120",
+                      "PPT_121_180",
+                      "PPT_181_270",
+                      "PPT_271_365")
 
 StartDate = as.Date(paste0(MinDate,"0101"),format="%Y%m%d")
 EndDate = as.Date(paste0(MaxDate+1,"0101"),format="%Y%m%d")
 
 index=!(input$Time>EndDate | input$Time<StartDate)
-index[1:1460] = FALSE
+index[1:365] = FALSE
 climate = climate[index,]
 NEE = input$NEE[index]
 # Scale
@@ -69,8 +65,8 @@ for (i in 1:k){
               "r.squared"))
 }
 
-NEE_obs = compare$NEE_obs
-NEE_pred = compare$NEE_pred
+NEE_obs = compare$NEE_obs[-(1:1095)]
+NEE_pred = compare$NEE_pred[-(1:1095)]
 
 if (any(kmean.output$size<50)){
   message("                     ##**## WARNING! ##**##\n",
@@ -92,28 +88,26 @@ ss <- silhouette(kmean.output$cluster, dist(climate))
 ss = mean(ss[, 3])
 output[["avg.sil"]] = ss
 
-
-
 # create dataset with the cluster number
 cluster <- c(1:k)
 center <- kmean.output$centers
 center_df <- data.frame(cluster, center)
 # Reshape the data
-center_reshape <- gather(center_df, features, values, Ta:PPT_1096_1460)
+center_reshape <- gather(center_df, features, values, NDVI:PPT_271_365)
 center_reshape$features = factor(center_reshape$features,levels = unique(center_reshape$features))
 # Plot the heat map
 heatmap = ggplot(data = center_reshape, aes(x = features, y = cluster, fill = values)) +
-          scale_y_continuous(breaks = seq(1, k, by = 1)) +
-          geom_tile() +
-          coord_equal() +
-          scale_fill_distiller(palette="RdBu") +
-          theme_classic() +
-          theme(axis.text.x = element_text(angle=-90))
+  scale_y_continuous(breaks = seq(1, k, by = 1)) +
+  geom_tile() +
+  coord_equal() +
+  scale_fill_distiller(palette="RdBu") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle=-90))
+
 
 output[["heatmap"]] = heatmap
 
-save(output,file = paste0("output/kmeans_longPPT_",MinDate,MaxDate,"_",k,"cluster_output_",Site,".Rdata"))
+save(output,file = paste0("output/kmeans_shortPPT_noclimate_",MinDate,MaxDate,"_",k,"cluster_output_",Site,".Rdata"))
 
 output
-
 }

@@ -1,5 +1,5 @@
 
-kmean_longPPT = function(Site,k,MinDate,MaxDate){
+kmean_longPPT_noclimate = function(Site,k,MinDate,MaxDate){
   
 # Load the required packages
 library(cluster)
@@ -12,12 +12,8 @@ message("Performing ",k,"-cluster k-means clustering with all long-term precip l
 load(paste0("input/",Site,"_Input.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
 # Combine climate data and precip data
-climate = cbind(input$clim,input$NDVI,input$ppt[,8:14])
-colnames(climate) = c("Ta",
-                      "Fsd",
-                      "VPD",
-                      "PPT",
-                      "NDVI",
+climate = cbind(input$NDVI,input$ppt[,8:14])
+colnames(climate) = c("NDVI",
                       "PPT_1_30",
                       "PPT_31_90",
                       "PPT_91_180",
@@ -99,7 +95,7 @@ cluster <- c(1:k)
 center <- kmean.output$centers
 center_df <- data.frame(cluster, center)
 # Reshape the data
-center_reshape <- gather(center_df, features, values, Ta:PPT_1096_1460)
+center_reshape <- gather(center_df, features, values, NDVI:PPT_1096_1460)
 center_reshape$features = factor(center_reshape$features,levels = unique(center_reshape$features))
 # Plot the heat map
 heatmap = ggplot(data = center_reshape, aes(x = features, y = cluster, fill = values)) +
@@ -112,7 +108,7 @@ heatmap = ggplot(data = center_reshape, aes(x = features, y = cluster, fill = va
 
 output[["heatmap"]] = heatmap
 
-save(output,file = paste0("output/kmeans_longPPT_",MinDate,MaxDate,"_",k,"cluster_output_",Site,".Rdata"))
+save(output,file = paste0("output/kmeans_longPPT_noclimate_",MinDate,MaxDate,"_",k,"cluster_output_",Site,".Rdata"))
 
 output
 

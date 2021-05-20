@@ -1,4 +1,4 @@
-DailyObsVsPred = function(Site,k,Type,MA,MinDate,MaxDate){
+ClusterLocation = function(Site,k,Type,MinDate,MaxDate){
   # Source required libraries
   library(gridExtra)
   library(cowplot)
@@ -7,8 +7,6 @@ DailyObsVsPred = function(Site,k,Type,MA,MinDate,MaxDate){
   library(viridisLite)
   library(ggnewscale)
   library(viridis)
-  
-  message("*** Plotting observations vs predictions for ",Site," and model ",Type," ***")
   
   # Load the k-means+regression model outputs
   File = list.files("output/",pattern = paste0(Type,"_",MinDate,MaxDate,"_",k,"cluster_output_",Site))
@@ -32,34 +30,24 @@ DailyObsVsPred = function(Site,k,Type,MA,MinDate,MaxDate){
     index[1:1460]=FALSE
   }
   # We also calculate a dataframe of moving averages to smooth out the plot
-  NEE_MA = data.frame("Date"=rollmedian(input$Time[index],MA),
-                     "Pred"=rollmedian(kmeans$series$NEE_pred,MA),
-                     "Obs"=rollmedian(kmeans$series$NEE_obs,MA))
+  ClusterDF = data.frame("Date"=input$Time[index],
+                        "Cluster"=kmeans$series$cluster)
   
   titletype = c("Current Climate","PPT lags up to 1 year","PPT lags up to 4 years")[c(Type=="noPPT",Type=="shortPPT",Type=="longPPT")]
   titler2 = round(kmeans$r.squared,2)
   # Create the plot, just to steal the legend
-  ma_plot = ggplot(NEE_MA) +
-    geom_line(aes(x=Date,y=Obs,color="Obs")) +
-    geom_line(aes(x=Date,y=Pred,color="Pred")) +
-    scale_color_viridis_d(name="Daily Mean NEE",
-                          labels=c("Obs"="Observations","Pred"="Predicted"),
-                          guide="legend",
-                          option="magma",
-                          direction=-1,
-                          begin=0.2,
-                          end=0.8) +
-    scale_fill_viridis_d(name="95% CI",
-                         labels=c("Pred"="Predicted"),
-                         guide="legend",
-                         option="magma",
-                         begin=0.2,
-                         end=0.2) +
+  cluster_plot = ggplot(ClusterDF) +
+    geom_point(aes(x=Date,y=Cluster,color=Cluster)) +
     theme_bw() +
-    theme(legend.position = "bottom") +
+    theme(legend.position = "none",
+          panel.grid.minor.y = element_blank()) +
     ggtitle(bquote(.(titletype) ~ ":" ~ .(titler2) ~ r^{2})) +
-    scale_x_datetime(limits = c(input$Time[1],tail(input$Time,n=1)))
+    scale_y_continuous(breaks = 1:k) +
+    scale_x_datetime(date_breaks = "1 year",
+                     date_labels = "%Y",
+                     minor_breaks = NULL,
+                     limits = c(input$Time[1],tail(input$Time,n=1)))
 
-  output = ma_plot
+  output = cluster_plot
   
 }
