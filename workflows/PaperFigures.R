@@ -20,12 +20,12 @@ Plot
 #*******************************************************************************
 
 source("functions/LE_R2BarPlot_function_RTPV.R")
-LESites = c("AU-ASM","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
-            "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Wom")
-
-LETransects = c("NATT","SAWS","NATT","NATT","SAWS","AU-SAWS",
-                "NATT","NATT","NATT","SAWS","SAWS")
-Plot = LE_R2BarPlot_RTPV(LESites,LETransects,"AnnualPPT", Clusters = 0)
+# LESites = c("AU-ASM","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+#             "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Wom")
+# 
+# LETransects = c("NATT","SAWS","NATT","NATT","SAWS","AU-SAWS",
+#                 "NATT","NATT","NATT","SAWS","SAWS")
+Plot = LE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
 Plot
 
 #*******************************************************************************
