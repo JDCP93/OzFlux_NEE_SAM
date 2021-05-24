@@ -50,7 +50,7 @@ Plot
 
 
 LENATT = c("AU-ASM","AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
-LESAWS = c("AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Wom")
+LESAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
 
 Plot = LE_R2BarPlot_RTPV(LENATT,"NATT","AnnualPPT", Clusters = 0)
 Plot
@@ -122,9 +122,7 @@ Plot = NEE_MetricsPlot_function_RTPV(Sites)
 Plot
 
 source("functions/LE_MetricsPlot_function_RTPV.R")
-LESites = c("AU-ASM","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
-            "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Wom")
-Plot = LE_MetricsPlot_function_RTPV(LESites)
+Plot = LE_MetricsPlot_function_RTPV(Sites)
 Plot
 
 #*******************************************************************************

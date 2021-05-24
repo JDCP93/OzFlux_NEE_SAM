@@ -66,11 +66,12 @@ Plot = ggplot(df) +
              scales="free",
              labeller = label_parsed) +
   theme_bw() +
+  xlab("") +
   scale_fill_viridis_d(direction = -1) +
   theme(panel.grid.major.x = element_blank(),
         text = element_text(size=20),
         axis.text.x = element_text(angle=45, hjust=1),
-        legend.position = "bottom",
+        legend.position = "none",
         legend.title = element_blank())
 
 }

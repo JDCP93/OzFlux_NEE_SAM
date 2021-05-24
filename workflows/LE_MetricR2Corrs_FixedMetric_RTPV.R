@@ -11,7 +11,7 @@ library(gridExtra)
 
 # List all sites
 Sites = c("AU-ASM"
-          #,"AU-Cpr"
+          ,"AU-Cpr"
           ,"AU-Cum"
           ,"AU-DaS"
           ,"AU-Dry"
@@ -21,23 +21,23 @@ Sites = c("AU-ASM"
           ,"AU-Stp"
           ,"AU-TTE"
           ,"AU-Tum"
-          #,"AU-Whr"
+          ,"AU-Whr"
           ,"AU-Wom"
 )
 
 # Assign transects
 Transects = c("NATT",
-              #"SAWS",
-              "SAWS",
-              "NATT",
-              "NATT",
               "SAWS",
               "SAWS",
               "NATT",
               "NATT",
+              "SAWS",
+              "SAWS",
+              "NATT",
+              "NATT",
               "NATT",
               "SAWS",
-              #"SAWS",
+              "SAWS",
               "SAWS"
 )
 
@@ -412,7 +412,7 @@ figure
 ################################################################################################################
 ################################################################################################################
 
-# Testing sans AU-Dry in NATT as clear outlier
+# Testing sans AU-Dry in NATT as clear outlier in NEE
 
 ################################################################################################################
 ################################################################################################################
