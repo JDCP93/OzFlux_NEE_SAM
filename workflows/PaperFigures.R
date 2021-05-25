@@ -104,13 +104,13 @@ TairTransects = c("NATT","SAWS","SAWS","NATT","SAWS","SAWS",
 Plot = LE_StackedWeightPlot_RTPV(TairSites,TairTransects,"Tair","AnnualPPT")
 Plot
 
-LESites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
-            "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
+PPTlongSites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+            "AU-How","AU-Stp","AU-TTE","AU-Whr","AU-Wom")
 
-LETransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
-                "NATT","NATT","NATT","SAWS","SAWS","SAWS")
+PPTlongTransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
+                "NATT","NATT","NATT","SAWS","SAWS")
 
-Plot = LE_StackedWeightPlot_RTPV(LESites,LETransects,"Fsd","AnnualPPT")
+Plot = LE_StackedWeightPlot_RTPV(PPTlongSites,PPTlongTransects,"Fsd","AnnualPPT")
 Plot
 
 #*******************************************************************************

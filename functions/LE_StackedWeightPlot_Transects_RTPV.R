@@ -135,9 +135,10 @@ LE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
   # Order sites by chosen variable
   load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
   metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
-  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2],Unit)
-  CumWeights$Site = paste0(CumWeights$Site," - ",rep(metric[,2],each = nrow(CumWeights)/length(Sites)),Unit)
-  CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
+  # SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2],Unit)
+  # CumWeights$Site = paste0(CumWeights$Site," - ",rep(metric[,2],each = nrow(CumWeights)/length(Sites)),Unit)
+  # CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
+  CumWeights$Site = factor(CumWeights$Site,levels=metric[order(metric[,2]),1])
 
   # Make sure the Var is nice!
   TitleVar = rep(0,length(Var))
@@ -192,8 +193,8 @@ LE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
     xlab("Days into Past") +
     theme_bw() +
     theme(text = element_text(size=20),
-          axis.text.x = element_text(angle=45, hjust=1)) +
-    ggtitle(paste0(TitleVar," Cumulative Weights"), 
-            subtitle = paste0("Sites ordered by ",Title))
+          axis.text.x = element_text(angle=45, hjust=1))
+  #  ggtitle(paste0(TitleVar," Cumulative Weights"), 
+  #          subtitle = paste0("Sites ordered by ",Title))
 }
 

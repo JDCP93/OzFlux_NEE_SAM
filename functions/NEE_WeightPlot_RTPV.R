@@ -107,12 +107,13 @@ NEE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPT
   load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
   metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
   colnames(metric) = c("Sites","Metric")
-  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2])
-  CumWeights$Site = paste0(CumWeights$Site,
-                           " - ",
-                           rep(metric[unique(match(CumWeights$Site,metric$Sites)),2],
-                               each = nrow(CumWeights)/length(Sites)))
-  CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
+  # SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2],Unit)
+  # CumWeights$Site = paste0(CumWeights$Site,
+  #                          " - ",
+  #                          rep(metric[unique(match(CumWeights$Site,metric$Sites)),2],
+  #                              each = nrow(CumWeights)/length(Sites)) ,Unit)
+  #CumWeights$Site = factor(CumWeights$Site,levels=SiteOrder)
+  CumWeights$Site = factor(CumWeights$Site,levels=metric[order(metric[,2]),1])
   
   # Check whether the climate variable is significant - does the CI contain 0?
  # ?????? ESen$Significant = sign(ESen$Low*ESen$High)==1
@@ -158,7 +159,7 @@ NEE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPT
     theme_bw() +
     theme(text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1)) +
-    guides(color = "none") +
-    ggtitle(paste0("Sites ordered by ", Title))
+    guides(color = "none") 
+   # ggtitle(paste0("Sites ordered by ", Title))
 }
 

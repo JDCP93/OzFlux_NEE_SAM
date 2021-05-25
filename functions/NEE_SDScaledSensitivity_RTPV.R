@@ -200,12 +200,13 @@ NEE_SDScaledSensitivity_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTsh
   load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
   metric = WorldClimMetrics[WorldClimMetrics$Sites %in% Sites,c("Sites",Metric)]
   colnames(metric) = c("Sites","Metric")
-  SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2],TitleUnits$Units)
-  ESen$Site = paste0(ESen$Site,
-                     " - ",
-                     rep(metric[unique(match(ESen$Site,metric$Sites)),2],
-                         each = nrow(ESen)/length(Sites)),TitleUnits$Units)
-  ESen$Site = factor(ESen$Site,levels=SiteOrder)
+  # SiteOrder = paste0(metric[order(metric[,2]),1]," - ",metric[order(metric[,2]),2],TitleUnits$Units)
+  # ESen$Site = paste0(ESen$Site,
+  #                    " - ",
+  #                    rep(metric[unique(match(ESen$Site,metric$Sites)),2],
+  #                        each = nrow(ESen)/length(Sites)),TitleUnits$Units)
+  # ESen$Site = factor(ESen$Site,levels=SiteOrder)
+  ESen$Site = factor(ESen$Site, levels = metric[order(metric[,2]),1])
   
   # Plot the sensitivity covariates
   library(ggplot2)
@@ -231,14 +232,15 @@ NEE_SDScaledSensitivity_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTsh
                           labels=c("FALSE"="Non-Significant",
                                    "TRUE"="Significant"),
                           guide="legend",
-                          begin=0.1,
-                          end=0.9,
+                          begin=0,
+                          end=1,
                           direction = -1) +
     ylab("Sensitivity") +
+    xlab("") +
     theme_bw() +
-    theme(legend.position = "bottom",
+    theme(legend.position = "none",
           text = element_text(size=20),
-          axis.text.x = element_text(angle=45, hjust=1)) +
-    ggtitle("NEE Sensitivity to Climate Variables",
-            subtitle = paste0("Sites ordered by ", TitleUnits$Title))
+          axis.text.x = element_text(angle=45, hjust=1))
+  # ggtitle("NEE Sensitivity to Climate Variables",
+  #        subtitle = paste0("Sites ordered by ", TitleUnits$Title))
 }
