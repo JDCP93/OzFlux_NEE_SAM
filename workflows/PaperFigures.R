@@ -139,6 +139,9 @@ for (Site in Sites){
 # Individual Weight Plots - SUPPLEMENTARY
 #*******************************************************************************
 
+NATT = c("AU-ASM","AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
+SAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
+
 source("functions/NEE_WeightPlot_RTPV.R")
 Plot = NEE_WeightPlot_RTPV(NATT)
 Plot
@@ -147,10 +150,10 @@ Plot = NEE_WeightPlot_RTPV(SAWS)
 Plot
 
 source("functions/LE_WeightPlot_RTPV.R")
-Plot = LE_WeightPlot_RTPV(LENATT)
+Plot = LE_WeightPlot_RTPV(NATT)
 Plot
 
-LESAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
-Plot = LE_WeightPlot_RTPV(LESAWS)
+
+Plot = LE_WeightPlot_RTPV(SAWS)
 Plot
 
