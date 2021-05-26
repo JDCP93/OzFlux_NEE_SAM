@@ -50,60 +50,75 @@ Sites = c("AU-ASM"
 # All sites, one cluster amount
 ############################################################################
 # Source the function
-source("alternate/RTPV/NEE_kmean_function_current_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_current_NDVI_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_singlePPT_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_singlePPT_NDVI_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_allPPT_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_alllags_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
-
-k = 5
-# Calculate the values for the variable functions
-for (Site in Sites){
-  NEE_current_kmean_RTPV(Site,k)
-  NEE_current_NDVI_kmean_RTPV(Site,k)
-  for (Lag in 2:8){
-    NEE_singlePPT_kmean_RTPV(Site,k,Lag)
-    NEE_singlePPT_NDVI_kmean_RTPV(Site,k,Lag)
-  }
-  NEE_allPPT_kmean_RTPV(Site,k)
-  NEE_allPPT_NDVI_kmean_RTPV(Site,k)
-  NEE_alllags_kmean_RTPV(Site,k)
-  NEE_alllags_NDVI_kmean_RTPV(Site,k)
-}
+# source("alternate/RTPV/NEE_kmean_function_current_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_current_NDVI_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_singlePPT_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_singlePPT_NDVI_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_allPPT_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_alllags_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
+# 
+# k = 5
+# # Calculate the values for the variable functions
+# for (Site in Sites){
+#   NEE_current_kmean_RTPV(Site,k)
+#   NEE_current_NDVI_kmean_RTPV(Site,k)
+#   for (Lag in 2:8){
+#     NEE_singlePPT_kmean_RTPV(Site,k,Lag)
+#     NEE_singlePPT_NDVI_kmean_RTPV(Site,k,Lag)
+#   }
+#   NEE_allPPT_kmean_RTPV(Site,k)
+#   NEE_allPPT_NDVI_kmean_RTPV(Site,k)
+#   NEE_alllags_kmean_RTPV(Site,k)
+#   NEE_alllags_NDVI_kmean_RTPV(Site,k)
+# }
 
 ############################################################################
 # For a single Site but many different clusters!!!
 ############################################################################
 
-# Source the function
-source("alternate/RTPV/NEE_kmean_function_current_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_current_NDVI_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_singlePPT_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_singlePPT_NDVI_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_allPPT_RTPV.R")
+# # Source the function
+# source("alternate/RTPV/NEE_kmean_function_current_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_current_NDVI_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_singlePPT_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_singlePPT_NDVI_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_allPPT_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_alllags_RTPV.R")
+# source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
+# 
+# # Set the site
+# Sites = "AU-How"
+# 
+# ks = c(60,70,80,90,100)
+# # Calculate the values for the variable functions
+# for (k in ks){
+#   for (Site in Sites){
+# #    NEE_current_kmean_RTPV(Site,k)
+#     NEE_current_NDVI_kmean_RTPV(Site,k)
+#     for (Lag in 2:8){
+# #      NEE_singlePPT_kmean_RTPV(Site,k,Lag)
+#       NEE_singlePPT_NDVI_kmean_RTPV(Site,k,Lag)
+#     }
+# #    NEE_allPPT_kmean_RTPV(Site,k)
+#     NEE_allPPT_NDVI_kmean_RTPV(Site,k)
+# #    NEE_alllags_kmean_RTPV(Site,k)
+#     NEE_alllags_NDVI_kmean_RTPV(Site,k)
+#   }
+# }
+
+
+k = 4
+Type = "allPPT"
 source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_alllags_RTPV.R")
-source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
-
-# Set the site
-Sites = "AU-How"
-
-ks = c(60,70,80,90,100)
-# Calculate the values for the variable functions
-for (k in ks){
-  for (Site in Sites){
-#    NEE_current_kmean_RTPV(Site,k)
-    NEE_current_NDVI_kmean_RTPV(Site,k)
-    for (Lag in 2:8){
-#      NEE_singlePPT_kmean_RTPV(Site,k,Lag)
-      NEE_singlePPT_NDVI_kmean_RTPV(Site,k,Lag)
-    }
-#    NEE_allPPT_kmean_RTPV(Site,k)
-    NEE_allPPT_NDVI_kmean_RTPV(Site,k)
-#    NEE_alllags_kmean_RTPV(Site,k)
-    NEE_alllags_NDVI_kmean_RTPV(Site,k)
-  }
+source("functions/NEE_kmeans_CoeffPlot_function.R")
+for (Site in Sites){
+  NEE_allPPT_NDVI_kmean_RTPV(Site,k)
+  Plot = ClusterCoefficients(Site,k,Type)
+  plot(Plot)
+  Sys.sleep(5)
 }
+
+
+
