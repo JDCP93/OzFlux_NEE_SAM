@@ -226,8 +226,10 @@ NEE_SDScaledSensitivity_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTsh
                   width = 0.5,
                   size = 2) +
     facet_wrap(Variable~.,
-               scales = "free_y",
-               ncol = (length(Vars)>=4)*2+(length(Vars)<4*1)) +
+             #   scales = "free_y",
+             # ncol = (length(Vars)>=4)*2+(length(Vars)<4*1)) +
+             ncol = 1) +
+    #facet_grid(Variable~.) +
     scale_color_viridis_d(name="",
                           labels=c("FALSE"="Non-Significant",
                                    "TRUE"="Significant"),

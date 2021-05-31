@@ -32,9 +32,9 @@ Plot
 # Flux Model Performance
 #*******************************************************************************
 
-source("functions/Flux_R2BarPlot_function_RTPV.R")
-Plot = Flux_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
-Plot
+# source("functions/Flux_R2BarPlot_function_RTPV.R")
+# Plot = Flux_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
+# Plot
 
 #*******************************************************************************
 # Grouping Model Performance
@@ -42,21 +42,17 @@ Plot
 NATT = c("AU-ASM","AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
 SAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
 
-Plot = NEE_R2BarPlot_RTPV(NATT,"NATT","PPTSeasonality", Clusters = 0)
-Plot
+# Plot = NEE_R2BarPlot_RTPV(NATT,"NATT","PPTSeasonality", Clusters = 0)
+# Plot
+# 
+# Plot = NEE_R2BarPlot_RTPV(SAWS,"SAWS","AnnualMeanTemp", Clusters = 0)
+# Plot
 
-Plot = NEE_R2BarPlot_RTPV(SAWS,"SAWS","AnnualMeanTemp", Clusters = 0)
-Plot
-
-
-LENATT = c("AU-ASM","AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
-LESAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
-
-Plot = LE_R2BarPlot_RTPV(LENATT,"NATT","AnnualPPT", Clusters = 0)
-Plot
-
-Plot = LE_R2BarPlot_RTPV(LESAWS,"SAWS","PPTDryQtr", Clusters = 0)
-Plot
+# Plot = LE_R2BarPlot_RTPV(NATT,"NATT","AnnualPPT", Clusters = 0)
+# Plot
+# 
+# Plot = LE_R2BarPlot_RTPV(SAWS,"SAWS","PPTDryQtr", Clusters = 0)
+# Plot
 
 #*******************************************************************************
 # Climate Sensitivity
@@ -65,9 +61,6 @@ Plot
 source("functions/NEE_SDScaledSensitivity_RTPV.R")
 Plot = NEE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
 Plot
-
-LESites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
-            "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
 source("functions/LE_SDScaledSensitivity_RTPV.R")
 Plot = LE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
@@ -138,9 +131,6 @@ for (Site in Sites){
 #*******************************************************************************
 # Individual Weight Plots - SUPPLEMENTARY
 #*******************************************************************************
-
-NATT = c("AU-ASM","AU-DaS","AU-Dry","AU-How","AU-Stp","AU-TTE")
-SAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
 
 source("functions/NEE_WeightPlot_RTPV.R")
 Plot = NEE_WeightPlot_RTPV(NATT)
