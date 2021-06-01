@@ -217,13 +217,13 @@ LE_SDScaledSensitivity_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTsho
                         y = Med, 
                         ymax = High, 
                         color = Significant),
-                    size = 1) +
+                    size = 0.25) +
     geom_errorbar(aes(x = Site, 
                       ymin = Low, 
                       ymax = High, 
                       color = Significant), 
                   width = 0.5,
-                  size = 2) +
+                  size = 1) +
     facet_wrap(Variable~.,
                #   scales = "free_y",
                # ncol = (length(Vars)>=4)*2+(length(Vars)<4*1)) +
@@ -234,14 +234,16 @@ LE_SDScaledSensitivity_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTsho
                                    "TRUE"="Significant"),
                           guide="legend",
                           begin=0,
-                          end=1,
+                          end=0.75,
                           direction = -1) +
     ylab("Sensitivity") +
     xlab("") +
     theme_bw() +
     theme(legend.position = "none",
           text = element_text(size=20),
-          axis.text.x = element_text(angle=45, hjust=1)) 
+          axis.text.x = element_text(angle=45, hjust=1),
+          panel.grid.minor.y = element_blank(),
+          panel.grid.major.y = element_blank()) 
   #  ggtitle("LE Sensitivity to Climate Variables",
   #          subtitle = paste0("Sites ordered by ", TitleUnits$Title))
 }

@@ -1,6 +1,8 @@
 
 rm(list=ls())
 
+library(cowplot)
+
 Sites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
           "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
@@ -12,8 +14,8 @@ Transects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
 #*******************************************************************************
 
 source("functions/NEE_R2BarPlot_function_RTPV.R")
-Plot = NEE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
-Plot
+NEE_R2 = NEE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
+NEE_R2
 
 #*******************************************************************************
 # LE Model Performance
@@ -25,9 +27,10 @@ source("functions/LE_R2BarPlot_function_RTPV.R")
 # 
 # LETransects = c("NATT","SAWS","NATT","NATT","SAWS","AU-SAWS",
 #                 "NATT","NATT","NATT","SAWS","SAWS")
-Plot = LE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
-Plot
+LE_R2 = LE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
+LE_R2
 
+plot_grid(NEE_R2,LE_R2,labels = c("(a)","(b)"),label_size = 20,label_x = -0.01)
 #*******************************************************************************
 # Flux Model Performance
 #*******************************************************************************
@@ -59,13 +62,14 @@ SAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
 #*******************************************************************************
 
 source("functions/NEE_SDScaledSensitivity_RTPV.R")
-Plot = NEE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
-Plot
+NEE_Sen = NEE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
+NEE_Sen
 
 source("functions/LE_SDScaledSensitivity_RTPV.R")
-Plot = LE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
-Plot
+LE_Sen = LE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
+LE_Sen
 
+plot_grid(NEE_Sen,LE_Sen,labels = c("(a)","(b)"),label_size = 20, label_x = -0.01)
 #*******************************************************************************
 # NEE stacked weights with different colours per transect
 #*******************************************************************************
@@ -103,7 +107,7 @@ PPTlongSites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
 PPTlongTransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
                 "NATT","NATT","NATT","SAWS","SAWS")
 
-Plot = LE_StackedWeightPlot_RTPV(PPTlongSites,PPTlongTransects,"Fsd","AnnualPPT")
+Plot = LE_StackedWeightPlot_RTPV(PPTlongSites,PPTlongTransects,"PPTlong","AnnualPPT")
 Plot
 
 #*******************************************************************************

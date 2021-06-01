@@ -151,7 +151,8 @@ NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
   
   # Plot the sensitivity covariates
   
-  colors =  turbo(length(Sites)+4)
+  #colors =  turbo(length(Sites)+4)
+  colors = viridis(length(Sites)+4)
   
   library(ggplot2)
   library(viridisLite)
@@ -186,7 +187,7 @@ NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
                    color = Site),
                size = 3) +
     scale_color_manual(name = "SAWS ",
-                       values = colors[(length(unique(CumWeights$Site[CumWeights$Transect=="NATT"]))+5):(length(Sites)+4)],
+                       values = colors[rev((length(unique(CumWeights$Site[CumWeights$Transect=="NATT"]))+5):(length(Sites)+4))],
                        guide = guide_legend(order = 2)) +
     coord_cartesian(ylim = c(0,1)) +
     ylab("Cumulative Weight") +

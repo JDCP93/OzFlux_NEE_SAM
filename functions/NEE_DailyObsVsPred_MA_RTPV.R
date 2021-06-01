@@ -1,4 +1,4 @@
-NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
+NEE_DailyObsVsPred_MA_RTPV = function(Site,k=13,plotAR1=F){
   # Source required libraries
   library(gridExtra)
   library(cowplot)
@@ -70,14 +70,14 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
     scale_color_viridis_d(name="Daily Mean NEE",
                           labels=c("Obs"="Observations","Pred"="Predicted"),
                           guide="legend",
-                          option="magma",
+                          option="viridis",
                           direction=-1,
                           begin=0.2,
                           end=0.8) +
     scale_fill_viridis_d(name="95% CI",
                          labels=c("Pred"="Predicted"),
                          guide="legend",
-                         option="magma",
+                         option="viridis",
                          begin=0.2,
                          end=0.2) +
     theme_bw() +
@@ -94,20 +94,22 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
     scale_color_viridis_d(name="Mean Daily NEE",
                           labels=c("Obs"="Observations","Pred"="Predicted"),
                           guide="none",
-                          option="magma",
+                          option="viridis",
                           direction=-1,
                           begin=0.2,
                           end=0.8) +
     scale_fill_viridis_d(name="95% CI",
                          labels=c("Pred"="Predicted"),
                          guide="none",
-                         option="magma",
+                         option="viridis",
                          begin=0.2,
                          end=0.2) +
+    theme_bw() +
     theme(text = element_text(size = 20)) +
     ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) +
-    ggtitle("SAM Model (with lags)") +
-    theme_bw()
+    xlab("") +
+    ggtitle("Environmental Memory")
+
   
   CUR_ObsVsNEE_ma = ggplot(CUR_MA) +
     geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill="Pred"),alpha=0.5) +
@@ -115,19 +117,21 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
     geom_line(aes(x=Date,y=Pred,color="Pred")) +
     scale_color_viridis_d(labels=c("Obs"="Observations","Pred"="Predicted"),
                           guide="none",
-                          option="magma",
+                          option="viridis",
                           direction=-1,
                           begin=0.2,
                           end=0.8) +
     scale_fill_viridis_d(labels=c("Pred"="Predicted"),
                          guide="none",
-                         option="magma",
+                         option="viridis",
                          begin=0.2,
                          end=0.2) +
     theme_bw() +
     theme(text = element_text(size = 20)) +
-    ggtitle("Current-only Model") +
-    ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) 
+    ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) +
+    xlab("") +
+    ggtitle("Current Climate")
+
   
   AR1_ObsVsNEE_ma = ggplot(AR1_MA) +
     geom_ribbon(aes(x=Date,ymin=Min,ymax=Max, fill="Pred"),alpha=0.5) +
@@ -135,13 +139,13 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
     geom_line(aes(x=Date,y=Pred,color="Pred")) +
     scale_color_viridis_d(labels=c("Obs"="Observations","Pred"="Predicted"),
                           guide="none",
-                          option="magma",
+                          option="viridis",
                           direction=-1,
                           begin=0.2,
                           end=0.8) +
     scale_fill_viridis_d(labels=c("Pred"="Predicted"),
                          guide="none",
-                         option="magma",
+                         option="viridis",
                          begin=0.2,
                          end=0.2) +
     theme_bw() +
@@ -162,47 +166,61 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
     
     # Arrange the plots!
     ma_plot = grid.arrange(CUR_ObsVsNEE_ma,
-                              SAM_ObsVsNEE_ma,
-                              legend, 
-                              ncol = 1, 
-                              layout_matrix=lay,
+                            SAM_ObsVsNEE_ma,
+                            legend, 
+                            ncol = 1, 
+                            layout_matrix=lay,
                            top=paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site))
     
     # Make the colours
-    plotcolors = magma(3,end = 0.7)
+    plotcolors = viridis(2,begin = 0.2,end = 0.6)
     # Plot!
     StackedPlot = ggplot() +
       geom_ribbon(data=SAMMAdf,
-                  aes(x=Date,ymin=Min,ymax=Max),
-                  fill = plotcolors[2],
-                  alpha = 0.4) +
+                  aes(x=Date,
+                      ymin=Min,
+                      ymax=Max),
+                  fill = plotcolors[1],
+                  alpha = 0.3) +
       geom_ribbon(data=CURMAdf,
-                  aes(x=Date,ymin=Min,ymax=Max),
-                  fill = plotcolors[3],
-                  alpha = 0.4) +
+                  aes(x=Date,
+                      ymin=Min,
+                      ymax=Max),
+                  fill = plotcolors[2],
+                  alpha = 0.3) +
       geom_line(data = CURMAdf,
-                aes(x=Date,y=Obs,
-                color = plotcolors[1])) +
+                aes(x=Date,
+                    y=Obs,
+                    color = "black"),
+                size = 1) +
       geom_line(data = CURMAdf,
-                aes(x=Date,y=Pred,
-                color = plotcolors[3]),
-                alpha = 0.8) +
+                aes(x=Date,
+                    y=Pred,
+                    color = plotcolors[2]),
+                alpha = 1,
+                size = 1) +
       geom_line(data = SAMMAdf,
-                aes(x=Date,y=Pred,
-                color = plotcolors[2]),
-                alpha = 0.8) +
+                aes(x=Date,
+                    y=Pred,
+                    color = plotcolors[1]),
+                alpha = 1,
+                size = 1) +
       theme_bw() +
       theme(legend.position="bottom",
-            text = element_text(size = 20)) +
-      ggtitle(paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site)) +
-      labs(color = "Model") +
+            text = element_text(size = 20),
+            panel.grid.major.x = element_blank(),
+            panel.grid.minor.x = element_blank()) +
+ #     ggtitle(paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site)) +
+      labs(color = "") +
       ylab(expression(paste("NEE (",mu,"mol/",m^2,"s)"))) +
+      xlab("") +
       guides(color = guide_legend(override.aes = list(size = 2))) +
       scale_color_identity(guide = "legend",
+                           
                            labels = c("Observations",
-                                    "Current-Only",
-                                    "SAM"),
-                          breaks = plotcolors[c(1,3,2)])
+                                    "Current Climate",
+                                    "Environmental Memory"),
+                          breaks = c("black",plotcolors[c(2,1)]))
     
   } else {
     # Make layout matrix
@@ -218,7 +236,7 @@ NEE_DailyObsVsPred_MA_RTPV = function(Site,k=15,plotAR1=F){
                            top=paste0("Daily Mean NEE (Moving Average, k = ",k,") for ",Site))
     
     # Make the colours
-    plotcolors = magma(4,end = 0.8)
+    plotcolors = viridis(4,end = 0.8)
     # Plot!
     StackedPlot = ggplot() +
       geom_ribbon(data=AR1MAdf,
