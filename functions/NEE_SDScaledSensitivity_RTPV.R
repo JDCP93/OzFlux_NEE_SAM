@@ -244,7 +244,8 @@ NEE_SDScaledSensitivity_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTsh
           text = element_text(size=20),
           axis.text.x = element_text(angle=45, hjust=1),
           panel.grid.minor.y = element_blank(),
-          panel.grid.major.y = element_blank()) 
+          panel.grid.major.y = element_blank(),
+          panel.grid.major.x = element_blank()) 
   # ggtitle("NEE Sensitivity to Climate Variables",
   #        subtitle = paste0("Sites ordered by ", TitleUnits$Title))
 }

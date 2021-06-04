@@ -15,22 +15,19 @@ Transects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
 
 source("functions/NEE_R2BarPlot_function_RTPV.R")
 NEE_R2 = NEE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
-NEE_R2
+#NEE_R2
 
 #*******************************************************************************
 # LE Model Performance
 #*******************************************************************************
 
 source("functions/LE_R2BarPlot_function_RTPV.R")
-# LESites = c("AU-ASM","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
-#             "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Wom")
-# 
-# LETransects = c("NATT","SAWS","NATT","NATT","SAWS","AU-SAWS",
-#                 "NATT","NATT","NATT","SAWS","SAWS")
 LE_R2 = LE_R2BarPlot_RTPV(Sites,Transects,"AnnualPPT", Clusters = 0)
-LE_R2
-
+#LE_R2
+#
+png("All_R2.png",width = 1200, height = 400)
 plot_grid(NEE_R2,LE_R2,labels = c("(a)","(b)"),label_size = 20,label_x = -0.01)
+dev.off()
 #*******************************************************************************
 # Flux Model Performance
 #*******************************************************************************
@@ -63,65 +60,88 @@ SAWS = c("AU-Cpr","AU-Cum","AU-Gin","AU-GWW","AU-Tum","AU-Whr","AU-Wom")
 
 source("functions/NEE_SDScaledSensitivity_RTPV.R")
 NEE_Sen = NEE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
-NEE_Sen
+#NEE_Sen
 
 source("functions/LE_SDScaledSensitivity_RTPV.R")
 LE_Sen = LE_SDScaledSensitivity_RTPV(Sites,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
-LE_Sen
+#LE_Sen
 
+png("All_Sen.png",width = 1200, height = 800)
 plot_grid(NEE_Sen,LE_Sen,labels = c("(a)","(b)"),label_size = 20, label_x = -0.01)
+dev.off()
+
+#*******************************************************************************
+# Climate Sensitivity
+#*******************************************************************************
+
+source("functions/SensitivityBoxPlot_RTPV.R")
+out = SensitivityBoxPlot_RTPV (Sites,Transects,Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong"))
+
+png("Sen_Point.png",width = 800, height = 800)
+plot(out$PointPlot)
+dev.off()
+
+png("Sen_Box.png",width = 1200, height = 800)
+plot(out$BoxPlot)
+dev.off()
+
 #*******************************************************************************
 # NEE stacked weights with different colours per transect
 #*******************************************************************************
 
 source("functions/NEE_StackedWeightPlot_Transects_RTPV.R")
-TairSites = c("AU-Cpr","AU-Cum","AU-DaS","AU-Gin","AU-GWW",
+NEETairSites = c("AU-Cpr","AU-Cum","AU-DaS","AU-Gin","AU-GWW",
           "AU-How","AU-Stp","AU-Tum","AU-Whr","AU-Wom")
 
-TairTransects = c("SAWS","SAWS","NATT","SAWS","SAWS",
+NEETairTransects = c("SAWS","SAWS","NATT","SAWS","SAWS",
               "NATT","NATT","SAWS","SAWS","SAWS")
 
-Plot = NEE_StackedWeightPlot_RTPV(TairSites,TairTransects,"Tair","AnnualPPT")
-Plot
+NEE_Tair = NEE_StackedWeightPlot_RTPV(NEETairSites,NEETairTransects,"Tair","AnnualPPT")
+#NEE_Tair
 
-Plot = NEE_StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","AnnualPPT")
-Plot
+NEE_PPT = NEE_StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","AnnualPPT")
+#NEE_PPT
 
+plot_grid(NEE_Tair,NEE_PPT,labels = c("(a)","(b)"),label_size = 20, label_x = -0.02)
 #*******************************************************************************
 # LE stacked weights with different colours per transect
 #*******************************************************************************
 
 source("functions/LE_StackedWeightPlot_Transects_RTPV.R")
-TairSites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Gin","AU-GWW",
+LETairSites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Gin","AU-GWW",
               "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
-TairTransects = c("NATT","SAWS","SAWS","NATT","SAWS","SAWS",
+LETairTransects = c("NATT","SAWS","SAWS","NATT","SAWS","SAWS",
                   "NATT","NATT","NATT","SAWS","SAWS","SAWS")
 
-Plot = LE_StackedWeightPlot_RTPV(TairSites,TairTransects,"Tair","AnnualPPT")
-Plot
+LE_Tair = LE_StackedWeightPlot_RTPV(LETairSites,LETairTransects,"Tair","AnnualPPT")
+#LE_Tair
 
-PPTlongSites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
+LEPPTSites = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
             "AU-How","AU-Stp","AU-TTE","AU-Whr","AU-Wom")
 
-PPTlongTransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
+LEPPTTransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
                 "NATT","NATT","NATT","SAWS","SAWS")
 
-Plot = LE_StackedWeightPlot_RTPV(PPTlongSites,PPTlongTransects,"PPTlong","AnnualPPT")
-Plot
+LE_PPT = LE_StackedWeightPlot_RTPV(LEPPTSites,LEPPTTransects,"PPTlong","AnnualPPT")
+#LE_PPT
 
+plot_grid(LE_Tair,LE_PPT,labels = c("(a)","(b)"),label_size = 20, label_x = -0.01)
 #*******************************************************************************
 # Metric Improvements - SUPPLEMENTARY
 #*******************************************************************************
 
 source("functions/NEE_MetricsPlot_function_RTPV.R")
-Plot = NEE_MetricsPlot_function_RTPV(Sites)
-Plot
+png("NEE_Metrics.png",width = 1200, height = 1200)
+NEE_Metrics = NEE_MetricsPlot_function_RTPV(Sites)
+NEE_Metrics
+dev.off()
 
 source("functions/LE_MetricsPlot_function_RTPV.R")
-Plot = LE_MetricsPlot_function_RTPV(Sites)
-Plot
-
+png("LE_Metrics.png",width = 1200, height = 1200)
+LE_Metrics = LE_MetricsPlot_function_RTPV(Sites)
+LE_Metrics
+dev.off()
 #*******************************************************************************
 # Model Performance Time Series - SUPPLEMENTARY
 #*******************************************************************************
@@ -137,17 +157,24 @@ for (Site in Sites){
 #*******************************************************************************
 
 source("functions/NEE_WeightPlot_RTPV.R")
-Plot = NEE_WeightPlot_RTPV(NATT)
-Plot
+png("NEE_NATT_Weights.png",width = 1200, height = 700)
+NEE_NATT_Weights = NEE_WeightPlot_RTPV(NATT)
+NEE_NATT_Weights
+dev.off()
 
-Plot = NEE_WeightPlot_RTPV(SAWS)
-Plot
+png("NEE_SAWS_Weights.png",width = 1200, height = 800)
+NEE_SAWS_Weights = NEE_WeightPlot_RTPV(SAWS)
+NEE_SAWS_Weights
+dev.off()
 
 source("functions/LE_WeightPlot_RTPV.R")
-Plot = LE_WeightPlot_RTPV(NATT)
-Plot
+png("LE_NATT_Weights.png",width = 1200, height = 700)
+LE_NATT_Weights = LE_WeightPlot_RTPV(NATT)
+LE_NATT_Weights
+dev.off()
 
-
-Plot = LE_WeightPlot_RTPV(SAWS)
-Plot
+png("LE_SAWS_Weights.png",width = 1200, height = 800)
+LE_SAWS_Weights = LE_WeightPlot_RTPV(SAWS)
+LE_SAWS_Weights
+dev.off()
 

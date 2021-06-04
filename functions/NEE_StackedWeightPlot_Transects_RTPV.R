@@ -153,6 +153,7 @@ NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
   
   #colors =  turbo(length(Sites)+4)
   colors = viridis(length(Sites)+4)
+  breaks = unique(c(c(0,1,2,3,4,5,6,7,8,9,10,11,12,13)*(Var!="PPTlong"),c(0,30,60,120,180,270,365)*(Var=="PPTlong")))
   
   library(ggplot2)
   library(viridisLite)
@@ -189,12 +190,17 @@ NEE_StackedWeightPlot_RTPV = function(Sites,Transects,Var,Metric= "AnnualPPT"){
     scale_color_manual(name = "SAWS ",
                        values = colors[rev((length(unique(CumWeights$Site[CumWeights$Transect=="NATT"]))+5):(length(Sites)+4))],
                        guide = guide_legend(order = 2)) +
-    coord_cartesian(ylim = c(0,1)) +
+    scale_y_continuous(limits=c(0, 1), expand = c(0.001, 0.001)) +
+    scale_x_continuous(expand = c(0.001,0.001),breaks = breaks) +
     ylab("Cumulative Weight") +
     xlab("Days into Past") +
     theme_bw() +
     theme(text = element_text(size=20),
-          axis.text.x = element_text(angle=45, hjust=1))
+          axis.text.x = element_text(angle=45, hjust=1),
+          panel.grid.major.y = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank())
   #  ggtitle(paste0(TitleVar," Cumulative Weights"), 
   #          subtitle = paste0("Sites ordered by ",Title))
 }

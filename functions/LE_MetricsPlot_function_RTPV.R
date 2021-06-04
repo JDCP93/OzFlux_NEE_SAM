@@ -51,27 +51,32 @@ df$Metric = factor(df$Metric,
                               expression("Correlation~Coeff.")))
 
 Plot = ggplot(df) +
+  geom_hline(yintercept=0,alpha = 0.5,size = 0.5) +
   geom_bar(aes(x = Site,
                y=Value,
                group = Model,
                fill=Model),
            stat = "identity",
-           position = "dodge") +
-  geom_text(aes(x = Site,
-                y = Value/2, 
-                group = Model, 
-                label = round(Value,2)),
-            position = position_dodge(width = 0.9)) +
+           position = "dodge",
+           colour = "black") +
+  #geom_text(aes(x = Site,
+  #              y = Value/2, 
+  #              group = Model, 
+  #              label = round(Value,2)),
+  #          position = position_dodge(width = 0.9)) +
   facet_grid(Metric~.,
              scales="free",
              labeller = label_parsed) +
   theme_bw() +
   xlab("") +
   scale_fill_viridis_d(direction = -1) +
+  scale_y_continuous(expand=c(0.1,0)) +
   theme(panel.grid.major.x = element_blank(),
         text = element_text(size=20),
         axis.text.x = element_text(angle=45, hjust=1),
         legend.position = "none",
-        legend.title = element_blank())
+        legend.title = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
 
 }

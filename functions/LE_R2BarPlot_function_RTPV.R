@@ -155,7 +155,8 @@ LE_R2BarPlot_RTPV = function(Sites,Transects,Metric="AnnualPPT",Clusters = 0){
     theme_bw() +
     theme(legend.position = "none", 
           text = element_text(size = 20),
-          legend.title = element_blank())
+          legend.title = element_blank(),
+          panel.grid.major.y = element_blank())
   
   Plot
 

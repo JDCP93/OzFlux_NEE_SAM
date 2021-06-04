@@ -158,7 +158,8 @@ LE_WeightPlot_RTPV = function(Sites,Vars = c("Tair","Fsd","VPD","PPTshort","PPTl
                           direction = -1) +
     theme_bw() +
     theme(text = element_text(size=20),
-          axis.text.x = element_text(angle=45, hjust=1)) +
+          axis.text.x = element_text(angle=45, hjust=1),
+          panel.grid = element_blank()) +
     guides(color = "none") 
     #ggtitle(paste0("Sites ordered by ", Title))
 }
