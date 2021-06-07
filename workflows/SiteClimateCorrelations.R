@@ -30,12 +30,12 @@ for (Site in Sites){
   PPT = eval(as.name(paste0(Site,"_Input")))$DailyData$Precip
 
   # FInd the correlation between the climate variables
-  TxV = cor.test(Tair,VPD)
-  TxS = cor.test(Tair,SW)
-  TxP = cor.test(Tair,PPT)
-  VxS = cor.test(SW,VPD)
-  VxP = cor.test(PPT,VPD)
-  SxP = cor.test(PPT,SW)
+  TxV = cor.test(Tair,VPD,method="spearman")
+  TxS = cor.test(Tair,SW,method="spearman")
+  TxP = cor.test(Tair,PPT,method="spearman")
+  VxS = cor.test(SW,VPD,method="spearman")
+  VxP = cor.test(PPT,VPD,method="spearman")
+  SxP = cor.test(PPT,SW,method="spearman")
 
   # Put these into a dataframe
   df = data.frame("Correlations" = rep(0,6),

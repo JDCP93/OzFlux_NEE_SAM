@@ -449,7 +449,7 @@ SensitivityBoxPlot_RTPV = function(Sites,Transects,Vars = c("Tair","Fsd","VPD","
   library(viridisLite)
   NEEPointPlot = ggplot(NEE_ESen) +
     geom_hline(yintercept = 0, linetype = "dashed") +
-    geom_pointrange(aes(x = Variable, y = Med,ymin=Low,ymax=High,color = Variable,group=Site,shape=Significant,alpha=Significant),position=position_dodge2(width=1),size=) +
+    geom_pointrange(aes(x = Variable, y = Med,ymin=Low,ymax=High,color = Variable,group=Site,shape=Significant,alpha=Significant),position=position_dodge2(width=1),size=1) +
     scale_color_viridis_d() +
     scale_shape_manual(guide="none",values=c(1,16)) +
     scale_alpha_discrete(guide="none",range=c(0.8,1)) +

@@ -101,8 +101,9 @@ NEE_Tair = NEE_StackedWeightPlot_RTPV(NEETairSites,NEETairTransects,"Tair","Annu
 
 NEE_PPT = NEE_StackedWeightPlot_RTPV(Sites,Transects,"PPTlong","AnnualPPT")
 #NEE_PPT
-
+png("NEE_lag_TairPPTlong.png",width = 1200, height = 600)
 plot_grid(NEE_Tair,NEE_PPT,labels = c("(a)","(b)"),label_size = 20, label_x = -0.02)
+dev.off()
 #*******************************************************************************
 # LE stacked weights with different colours per transect
 #*******************************************************************************
@@ -125,8 +126,9 @@ LEPPTTransects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
 
 LE_PPT = LE_StackedWeightPlot_RTPV(LEPPTSites,LEPPTTransects,"PPTlong","AnnualPPT")
 #LE_PPT
-
-plot_grid(LE_Tair,LE_PPT,labels = c("(a)","(b)"),label_size = 20, label_x = -0.01)
+png("LE_lag_TairPPTlong.png",width = 1200, height = 600)
+plot_grid(LE_Tair,LE_PPT,labels = c("(a)","(b)"),label_size = 20, label_x = -0.02)
+dev.off()
 #*******************************************************************************
 # Metric Improvements - SUPPLEMENTARY
 #*******************************************************************************
