@@ -110,18 +110,23 @@ for (Site in Sites){
 # Box plot grouped by transect and NDVI
 BoxPlot = ggplot(df[df$Model!="SAM",]) +
   geom_boxplot(aes(x = Transect, y = R2, fill = NDVI)) +
-  scale_fill_viridis_d("Model",
-                      begin = 0.1,
-                      end = 0.9,
+  scale_fill_viridis_d(guide = "none",
+                      "Model",
+                      begin = 0.2,
+                      end = 0.8,
                       labels=c("No NDVI term","Includes NDVI")) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
-        text = element_text(size=20)) +
+        text = element_text(size=20),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank()) +
   scale_y_continuous(breaks= seq(0,1,by=0.1),
                      expand = c(0,0)) +
   ylab(expression(paste(R^2))) +
-  coord_cartesian(ylim = c(0,1)) +
-  ggtitle(expression(paste("Model Performance (",""<=16," clusters)")))
+  xlab("") +
+  #ggtitle(expression(paste("Model Performance (",""<=16," clusters)"))) +
+  coord_cartesian(ylim = c(0,1)) 
+
 
 BoxPlot
 
@@ -153,20 +158,20 @@ plot.df = df %>%
 
 plot.df$sdR2[plot.df$Model == "SAM"] = 0
 # Plot the R2 per model, transect and NDVI
-Plot = ggplot(plot.df) +
-  geom_bar(aes(x = Model,y=meanR2, fill=NDVI),stat = "identity",position = "dodge") +
-  geom_errorbar(data = plot.df[plot.df$Model!="SAM",], aes(x = Model,ymin = meanR2-sdR2, ymax = meanR2+sdR2, group = NDVI),position = position_dodge(width = 1), width = 0.5) +
-  facet_grid(Transect~.) +
-  theme_bw() +
-  ylab("Mean R2") +
-  theme(panel.grid.major.x = element_blank(),
-        text = element_text(size=20)) +
-  scale_fill_viridis_d(begin=0.1,
-                       end = 0.9) +
-  coord_cartesian(ylim = c(0,1)) +
-  ggtitle("k-means Model Performance",
-          "Mean R2 with +/- 1 std. dev., averaged over sites and 2-16 clusters")
-Plot
+# Plot = ggplot(plot.df) +
+#   geom_bar(aes(x = Model,y=meanR2, fill=NDVI),stat = "identity",position = "dodge") +
+#   geom_errorbar(data = plot.df[plot.df$Model!="SAM",], aes(x = Model,ymin = meanR2-sdR2, ymax = meanR2+sdR2, group = NDVI),position = position_dodge(width = 1), width = 0.5) +
+#   facet_grid(Transect~.) +
+#   theme_bw() +
+#   ylab("Mean R2") +
+#   theme(panel.grid.major.x = element_blank(),
+#         text = element_text(size=20)) +
+#   scale_fill_viridis_d(begin=0.1,
+#                        end = 0.9) +
+#   coord_cartesian(ylim = c(0,1)) +
+#   ggtitle("k-means Model Performance",
+#           "Mean R2 with +/- 1 std. dev., averaged over sites and 2-16 clusters")
+# Plot
 
 #  Therefore it is clear that NDVI must be included in the k-means modelling
 NDVI.df = df[df$NDVI=="NDVI",]
@@ -217,7 +222,8 @@ Plot
 
 # Plot boxplots for each site and model, limited to nCl clusters or less
 nCl = 16
-SAMdf = NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags") & NDVI.df$Clusters<=nCl,]
+#SAMdf = NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags") & NDVI.df$Clusters<=nCl,]
+SAMdf = NDVI.df[NDVI.df$Clusters<=nCl,]
 Plot = ggplot(SAMdf) +
       geom_boxplot(aes(x=Model,y=R2,fill=Model)) +
       geom_point(data=SAMdf[SAMdf$Model=="SAM",],aes(x=Model,y=R2,color=Model),shape=8,stroke=1) +
@@ -240,20 +246,25 @@ Plot = ggplot(SAMdf) +
                                     "PPT60-119",
                                     "PPT120-179",
                                     "PPT180-269",
-                                    "PPT270-365"),
-                           labels = c("Current-only",
+                                    "PPT270-365",
+                                    "allPPT",
+                                    "alllags"),
+                           labels = c("Current Climate",
                                       "+ 14-20 day PPT lag",
                                       "+ 21-29 day PPT lag",
                                       "+ 30-59 day PPT lag",
                                       "+ 60-119 day PPT lag",
                                       "+ 120-179 day PPT lag",
                                       "+ 180-269 day PPT lag",
-                                      "+ 270-365 day PPT lag")) +
+                                      "+ 270-365 day PPT lag",
+                                      "+ all PPT lags",
+                                      "+ all climate lags")) +
       scale_color_manual(name="",
                          values = "red") +
       coord_cartesian(ylim = c(0,1)) +
-      guides(fill = guide_legend(order = 1),colour = guide_legend(order = 2)) +
-      ggtitle(paste0("k-means performance for each site and PPT lag, with NDVI and ",nCl," clusters or less"))
+      #ggtitle(paste0("k-means performance for each site and PPT lag, with NDVI and ",nCl," clusters or less")) +
+      guides(fill = guide_legend(order = 1),colour = guide_legend(order = 2))
+
 
 Plot
 

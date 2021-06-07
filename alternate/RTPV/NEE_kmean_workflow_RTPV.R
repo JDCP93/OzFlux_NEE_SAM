@@ -109,16 +109,28 @@ Sites = c("AU-ASM"
 # }
 
 
-k = 4
-Type = "allPPT"
-source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
-source("functions/NEE_kmeans_CoeffPlot_function.R")
+# k = 4
+# Type = "allPPT"
+# source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
+# source("functions/NEE_kmeans_CoeffPlot_function.R")
+# for (Site in Sites){
+#   NEE_allPPT_NDVI_kmean_RTPV(Site,k)
+#   Plot = ClusterCoefficients(Site,k,Type)
+#   plot(Plot)
+#   Sys.sleep(5)
+# }
+# 
+
+
+source("alternate/RTPV/NEE_kmean_function_Fsdlags_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_Tairlags_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_VPDlags_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_PPTlags_NDVI_RTPV.R")
 for (Site in Sites){
-  NEE_allPPT_NDVI_kmean_RTPV(Site,k)
-  Plot = ClusterCoefficients(Site,k,Type)
-  plot(Plot)
-  Sys.sleep(5)
+  for (k in 2:16){
+    NEE_Fsdlags_NDVI_kmean_RTPV(Site,k)
+    NEE_Tairlags_NDVI_kmean_RTPV(Site,k)
+    NEE_VPDlags_NDVI_kmean_RTPV(Site,k)
+    NEE_PPTlags_NDVI_kmean_RTPV(Site,k)
+  }
 }
-
-
-
