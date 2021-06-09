@@ -27,7 +27,7 @@ NEE = input$NEE[-(1:365)]
 kmean.output = kmeans(climate,k,iter.max = 100, nstart = 50)
 
 # Initialise the comparison dataframe
-compare = data.frame("NEE_obs" = NEE,"NEE_pred" = 0)
+compare = data.frame("NEE_obs" = NEE,"NEE_pred" = 0, "cluster" = kmean.output$cluster)
 
 output = list()
 

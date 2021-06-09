@@ -126,11 +126,26 @@ source("alternate/RTPV/NEE_kmean_function_Fsdlags_NDVI_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_Tairlags_NDVI_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_VPDlags_NDVI_RTPV.R")
 source("alternate/RTPV/NEE_kmean_function_PPTlags_NDVI_RTPV.R")
-for (Site in Sites){
-  for (k in 2:16){
-    NEE_Fsdlags_NDVI_kmean_RTPV(Site,k)
-    NEE_Tairlags_NDVI_kmean_RTPV(Site,k)
-    NEE_VPDlags_NDVI_kmean_RTPV(Site,k)
-    NEE_PPTlags_NDVI_kmean_RTPV(Site,k)
+source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_alllags_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_alllags_scaledNEE_NDVI_RTPV.R")
+for (k in 9:16){
+  for (Site in Sites){
+    NEE_alllags_scaledNEE_NDVI_kmean_RTPV(Site,k)
+#    NEE_alllags_NDVI_kmean_RTPV(Site,k)
+#    NEE_Fsdlags_NDVI_kmean_RTPV(Site,k)
+#    NEE_Tairlags_NDVI_kmean_RTPV(Site,k)
+#    NEE_VPDlags_NDVI_kmean_RTPV(Site,k)
+#    NEE_PPTlags_NDVI_kmean_RTPV(Site,k)
   }
+}
+
+
+source("alternate/RTPV/NEE_kmean_function_Fsdlags_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_Tairlags_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_VPDlags_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_PPTlags_NDVI_RTPV.R")
+source("alternate/RTPV/NEE_kmean_function_allPPT_NDVI_RTPV.R")
+for (k in 167:200){
+    NEE_PPTlags_NDVI_kmean_RTPV("AU-How",k)
 }

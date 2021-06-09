@@ -1,5 +1,5 @@
 
-NEE_PPTlags_NDVI_kmean_RTPV = function(Site,k){
+NEE_current_scaledNEE_NDVI_kmean_RTPV = function(Site,k){
   
 # Load the required packages
 library(cluster)
@@ -7,52 +7,21 @@ library(tidyverse)
 library(factoextra)
 library(NbClust)
 
-starttime = Sys.time()  
-
-message("Performing ",k,"-cluster k-means clustering with NDVI and all short term PPT lags for ",Site," at ",Sys.time())
+message("Performing ",k,"-cluster k-means clustering with NDVI and current climate for ",Site, " at ", Sys.time())
 # Load the input file and extract required data
 load(paste0("inputs/RTPV/",Site,"_Input_RTPV.Rdata"))
 input = eval(as.name(paste0(Site,"_Input")))
 # Combine climate data and precip data
-climend = nrow(input$clim)
-climate = cbind(input$clim,
-                c(NA,input$clim[-climend,4]),
-                c(rep(NA,2),input$clim[-((climend-1):climend),4]),
-                c(rep(NA,3),input$clim[-((climend-2):climend),4]),
-                c(rep(NA,4),input$clim[-((climend-3):climend),4]),
-                c(rep(NA,5),input$clim[-((climend-4):climend),4]),
-                c(rep(NA,6),input$clim[-((climend-5):climend),4]),
-                c(rep(NA,7),input$clim[-((climend-6):climend),4]),
-                c(rep(NA,8),input$clim[-((climend-7):climend),4]),
-                c(rep(NA,9),input$clim[-((climend-8):climend),4]),
-                c(rep(NA,10),input$clim[-((climend-9):climend),4]),
-                c(rep(NA,11),input$clim[-((climend-10):climend),4]),
-                c(rep(NA,12),input$clim[-((climend-11):climend),4]),
-                c(rep(NA,13),input$clim[-((climend-12):climend),4]),
-                input$NDVI)
-
+climate = cbind(input$clim,input$NDVI)
 colnames(climate) = c("Ta",
                       "Fsd",
                       "VPD",
                       "PPT",
-                      "PPT_1",
-                      "PPT_2",
-                      "PPT_3",
-                      "PPT_4",
-                      "PPT_5",
-                      "PPT_6",
-                      "PPT_7",
-                      "PPT_8",
-                      "PPT_9",
-                      "PPT_10",
-                      "PPT_11",
-                      "PPT_12",
-                      "PPT_13",
                       "NDVI")
 
 # Remove first year, which has no PPT data and scale
 climate = scale(climate[-(1:365),])
-NEE = input$NEE[-(1:365)]
+NEE = scale(input$NEE[-(1:365)])
 
 # Find the cluster allocations for recommended number of clusters
 kmean.output = kmeans(climate,k,iter.max = 100, nstart = 50)
@@ -65,7 +34,7 @@ output = list()
 for (i in 1:k){
   climate_cluster = climate[kmean.output$cluster==i,]
   NEE_cluster = NEE[kmean.output$cluster==i]
-  lin.mod = lm(NEE_cluster ~ climate_cluster,na.action = na.exclude)
+  lin.mod = lm(NEE_cluster ~ climate_cluster, na.action = na.exclude)
   r.squared = summary(lin.mod)$r.squared
   # Place the k-means fitted NEE into the data frame
   compare$NEE_pred[kmean.output$cluster==i] = fitted(lin.mod)
@@ -93,7 +62,7 @@ if (any(kmean.output$size<50)){
   message("                     ##**## WARNING! ##**##\n",
           sum(kmean.output$size<50)," clusters have too few observations for a reliable regression!\n",
           "                     ##**## WARNING! ##**##")
-  Sys.sleep(1)
+  Sys.sleep(3)
 }
 
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_pred))$r.squared
@@ -109,8 +78,6 @@ ss <- silhouette(kmean.output$cluster, dist(climate))
 ss = mean(ss[, 3])
 output[["avg.sil"]] = ss
 
-runtime = Sys.time()-starttime
-output[["runtime"]] = runtime
-save(output,file = paste0("alternate/RTPV/results/NEE_output_",k,"cluster_kmean_PPTlags_NDVI_RTPV_",Site,".Rdata"))
+save(output,file = paste0("alternate/RTPV/results/NEE_output_",k,"cluster_kmean_current_scaledNEE_NDVI_RTPV_",Site,".Rdata"))
 
 }

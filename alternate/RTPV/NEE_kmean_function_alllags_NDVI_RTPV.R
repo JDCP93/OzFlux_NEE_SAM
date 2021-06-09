@@ -106,7 +106,7 @@ NEE = input$NEE[-(1:365)]
 kmean.output = kmeans(climate,k,iter.max = 100, nstart = 50)
 
 # Initialise the comparison dataframe
-compare = data.frame("NEE_obs" = NEE,"NEE_pred" = 0)
+compare = data.frame("NEE_obs" = NEE,"NEE_pred" = 0, "cluster" = kmean.output$cluster)
 
 output = list()
 
@@ -141,7 +141,7 @@ if (any(kmean.output$size<50)){
   message("                     ##**## WARNING! ##**##\n",
           sum(kmean.output$size<50)," clusters have too few observations for a reliable regression!\n",
           "                     ##**## WARNING! ##**##")
-  Sys.sleep(3)
+  Sys.sleep(1)
 }
 
 output[["r.squared"]] = summary(lm(compare$NEE_obs ~ compare$NEE_pred))$r.squared
