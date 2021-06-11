@@ -1,6 +1,9 @@
 # Clean up
 rm(list=ls())
 
+# Choose the cluster numbers (must be 2 or a sequence starting at 2)
+Clusters = 2:16
+
 # Load libraries
 library(ggplot2)
 library(viridis)
@@ -23,6 +26,9 @@ range01 <- function(x){(x-min(x))/(max(x)-min(x))}
 Sites_og = c("AU-ASM","AU-Cpr","AU-Cum","AU-DaS","AU-Dry","AU-Gin","AU-GWW",
              "AU-How","AU-Stp","AU-TTE","AU-Tum","AU-Whr","AU-Wom")
 
+Transects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
+              "NATT","NATT","NATT","SAWS","SAWS","SAWS")
+
 Metric = "AnnualPPT"
 
 Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong")
@@ -31,9 +37,6 @@ Vars=c("Tair","Fsd","VPD","PPTshort","PPTlong")
 load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
 Sites = factor(Sites_og, levels = WorldClimMetrics[order(WorldClimMetrics[colnames(WorldClimMetrics)=="AnnualPPT"]),1])
 
-Transects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
-              "NATT","NATT","NATT","SAWS","SAWS","SAWS")
-
 ##############################################################################
 ##############################################################################
 ##############################################################################
@@ -41,9 +44,6 @@ Transects = c("NATT","SAWS","SAWS","NATT","NATT","SAWS","SAWS",
 ##############################################################################
 ##############################################################################
 ##############################################################################
-
-# Choose the cluster numbers
-Clusters = 2:16
 
 # List the k-mean models
 Models = c("Fsdlags", "Tairlags","VPDlags","PPTlags", "allPPT")

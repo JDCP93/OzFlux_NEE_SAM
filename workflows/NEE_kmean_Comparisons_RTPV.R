@@ -270,7 +270,7 @@ Plot
 
 
 # Plot boxplots for each site and model, limited to nCl clusters or less
-nCl = 8
+nCl = 4
 alldf = NDVI.df[NDVI.df$Clusters<=nCl,]
 Plot = ggplot(alldf) +
   geom_boxplot(aes(x=Model,y=R2,fill=Model)) +
@@ -314,28 +314,28 @@ Plot = ggplot(alldf) +
   ggtitle(paste0("k-means performance for each site and lag effect, with NDVI and ",nCl," clusters or less"))
 
 Plot
-# Plot boxplots for each site and model with nCl clusters
-nCl = 8
-Plot = ggplot(NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags") & NDVI.df$Clusters==nCl,]) +
-  geom_segment(aes(x=Model,xend=Model,y=R2,yend=0,colour=Model),alpha=0.8) +
-  geom_point(aes(x=Model,y=R2,colour=Model,fill=Model),size = 2) +
-  facet_grid(.~Site) +
-  theme_bw() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        panel.grid.major.x = element_blank(),
-        legend.position = "bottom",
-        text = element_text(size=20)) +
-  scale_y_continuous(breaks= seq(0,1,by=0.1),
-                     expand = c(0,0)) +
-  ylab("R2") +
-  xlab("") +
-  scale_colour_viridis_d(begin=0.1,
-                         end = 0.9) +
-  scale_fill_viridis_d(begin=0.1,
-                       end = 0.9) +
-  scale_shape_manual(values = c(25,8,15,3,16,4,18,17)) +
-  coord_cartesian(ylim = c(0,1)) +
-  ggtitle(paste0("R2 values for each site and rainfall lag, with NDVI and ",nCl," clusters")) +
-  guides(size="none") 
-Plot
+# # Plot boxplots for each site and model with nCl clusters
+# nCl = 8
+# Plot = ggplot(NDVI.df[!NDVI.df$Model%in%c("allPPT","alllags") & NDVI.df$Clusters==nCl,]) +
+#   geom_segment(aes(x=Model,xend=Model,y=R2,yend=0,colour=Model),alpha=0.8) +
+#   geom_point(aes(x=Model,y=R2,colour=Model,fill=Model),size = 2) +
+#   facet_grid(.~Site) +
+#   theme_bw() +
+#   theme(axis.text.x = element_blank(),
+#         axis.ticks.x = element_blank(),
+#         panel.grid.major.x = element_blank(),
+#         legend.position = "bottom",
+#         text = element_text(size=20)) +
+#   scale_y_continuous(breaks= seq(0,1,by=0.1),
+#                      expand = c(0,0)) +
+#   ylab("R2") +
+#   xlab("") +
+#   scale_colour_viridis_d(begin=0.1,
+#                          end = 0.9) +
+#   scale_fill_viridis_d(begin=0.1,
+#                        end = 0.9) +
+#   scale_shape_manual(values = c(25,8,15,3,16,4,18,17)) +
+#   coord_cartesian(ylim = c(0,1)) +
+#   ggtitle(paste0("R2 values for each site and rainfall lag, with NDVI and ",nCl," clusters")) +
+#   guides(size="none") 
+# Plot
