@@ -18,6 +18,8 @@
 *.grd
 *.gri
 *.tif
+*.xml
+*.tfw
 *MCMCDiag*.jpg
 .DS_store
 results/
