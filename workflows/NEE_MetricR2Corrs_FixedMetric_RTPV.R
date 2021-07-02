@@ -42,7 +42,7 @@ Transects = c("NATT",
 )
 
 # Source worldclim correlations and climate metrics
-load("site_data/SiteMetrics_worldclim_0.5res.Rdata")
+load("site_data/SiteMetrics_worldclim_0.5res_AI.Rdata")
 
 # Initialise the dataframe of model R2 values
 R2 = data.frame("Site" = Sites,
